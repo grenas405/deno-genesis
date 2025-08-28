@@ -25,19 +25,9 @@ import {
 
 // === Modular Route Imports ===
 import authRoutes from "./authRoutes.ts";
-import analyticsRoutes from "./analyticsRoutes.ts";
 import appointmentRoutes from "./appointmentRoutes.ts";
-import blogRoutes from "./blogRoutes.ts";
-import aiAssistantRoutes from "./aiAssistantRoutes.ts";
 import contactRoutes from "./contactRoutes.ts";
 import dashboardRoutes from "./dashboardRoutes.ts";
-import settingsRoutes from "./settingsRoutes.ts";
-import paymentRoutes from "./paymentRoutes.ts";
-import projectsRoutes from "./projectsRoutes.ts";
-import roadmapRoutes from "./roadmapRoutes.ts";
-import searchRoutes from "./searchRoutes.ts";
-import notificationsRoutes from "./notificationsRoutes.ts";
-import systemRoutes from "./systemRoutes.ts";
 
 // === Initialize Master Router ===
 const router = new Router();
@@ -84,28 +74,10 @@ const routeRegistrations: RouteRegistration[] = [
     description: "Authentication & authorization endpoints"
   },
   {
-    path: "/api/analytics",
-    routes: analyticsRoutes.routes(),
-    methods: analyticsRoutes.allowedMethods(),
-    description: "Analytics data and metrics collection"
-  },
-  {
     path: "/api/appointments",
     routes: appointmentRoutes.routes(),
     methods: appointmentRoutes.allowedMethods(),
     description: "Appointment booking and management"
-  },
-  {
-    path: "/api/blogs",
-    routes: blogRoutes.routes(),
-    methods: blogRoutes.allowedMethods(),
-    description: "Blog content management system"
-  },
-  {
-    path: "/api/ai-assistant",
-    routes: aiAssistantRoutes.routes(),
-    methods: aiAssistantRoutes.allowedMethods(),
-    description: "AI assistant chat and automation"
   },
   {
     path: "/api/contact",
@@ -118,48 +90,6 @@ const routeRegistrations: RouteRegistration[] = [
     routes: dashboardRoutes.routes(),
     methods: dashboardRoutes.allowedMethods(),
     description: "Dashboard data and widgets"
-  },
-  {
-    path: "/api/settings",
-    routes: settingsRoutes.routes(),
-    methods: settingsRoutes.allowedMethods(),
-    description: "Application settings management"
-  },
-  {
-    path: "/api/payment",
-    routes: paymentRoutes.routes(),
-    methods: paymentRoutes.allowedMethods(),
-    description: "Payment processing and billing"
-  },
-  {
-    path: "/api/projects",
-    routes: projectsRoutes.routes(),
-    methods: projectsRoutes.allowedMethods(),
-    description: "Project portfolio management"
-  },
-  {
-    path: "/api/roadmap",
-    routes: roadmapRoutes.routes(),
-    methods: roadmapRoutes.allowedMethods(),
-    description: "Development roadmap and planning"
-  },
-  {
-    path: "/api/search",
-    routes: searchRoutes.routes(),
-    methods: searchRoutes.allowedMethods(),
-    description: "Search functionality and indexing"
-  },
-  {
-    path: "/api/notifications",
-    routes: notificationsRoutes.routes(),
-    methods: notificationsRoutes.allowedMethods(),
-    description: "Real-time notifications system"
-  },
-  {
-    path: "/api/system",
-    routes: systemRoutes.routes(),
-    methods: systemRoutes.allowedMethods(),
-    description: "System information and health checks"
   },
 ];
 
