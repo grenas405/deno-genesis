@@ -1,8 +1,8 @@
 // File: setup_framework_links.ts
 // Run with: deno run --allow-read --allow-write setup_framework_links.ts
 
-const FRAMEWORK_PATH = "/home/admin/deno-genesis";
-const SITES_PATH = "/home/admin/deno-genesis/sites";
+const FRAMEWORK_PATH = "/home/admin/deno-genesis/";
+const SITES_PATH = "/home/admin/deno-genesis/sites/";
 
 console.log("🚀 Setting up DenoGenesis Framework Links...");
 
@@ -16,7 +16,6 @@ const SITES = [
   "domingueztechsolutions-com",
   "heavenlyroofingok-com",
   "okdevs-xyz",
-  "efficientmoversllc-com",
 ];
 
 for (const site of SITES) {
