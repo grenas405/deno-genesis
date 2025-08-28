@@ -1,0 +1,53 @@
+/* === CTA BUTTON === */
+.cta-button {
+  display: inline-block;
+  background: var(--accent-color);
+  color: var(--primary-color);
+  padding: 1rem 2.75rem;
+  border-radius: 50px;
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: 0.8px;
+  text-decoration: none;
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+  transition: transform 0.35s ease, box-shadow 0.35s ease, background 0.35s ease;
+  animation: fadeInUp 2s ease forwards, pulse 4s infinite ease-in-out;
+}
+
+.cta-button::before {
+  content: "";
+  position: absolute;
+  top: 0; 
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: skewX(-25deg);
+  transition: left 0.5s ease;
+}
+
+.cta-button:hover::before {
+  left: 125%;
+}
+
+.cta-button:hover {
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0 15px 45px rgba(255, 215, 0, 0.6);
+}
+
+.cta-button:active {
+  transform: translateY(-2px) scale(0.98);
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 12px 35px rgba(255, 215, 0, 0.6);
+  }
+}

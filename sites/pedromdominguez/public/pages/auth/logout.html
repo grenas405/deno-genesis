@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Admin Logout - Pedro M. Dominguez Sovereign Framework" />
+  <meta name="author" content="Pedro M. Dominguez" />
+  <title>Logging Out | Pedro M. Dominguez</title>
+  <link rel="stylesheet" href="../../assets/css/style.css" />
+  <script defer>
+    document.addEventListener("DOMContentLoaded", () => {
+      // ✅ Remove token or session data
+      localStorage.removeItem("adminToken");
+
+      const message = document.getElementById("logout-message");
+      message.textContent = "✅ You’ve been successfully logged out.";
+
+      // ✅ Smooth redirect to login page
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 2000);
+    });
+  </script>
+</head>
+<body>
+  <!-- ✅ Navigation -->
+  <nav class="navbar"></nav>
+
+  <!-- ✅ Logout Message -->
+  <main class="logout-page">
+    <section class="logout-message-wrapper">
+      <h1>Logging You Out 🔒</h1>
+      <p id="logout-message">Please wait while we secure your session...</p>
+    </section>
+  </main>
+
+  <!-- ✅ Footer -->
+  <footer id="footer"></footer>
+</body>
+</html>

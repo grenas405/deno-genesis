@@ -1,0 +1,54 @@
+/* =====================================
+   Logout Page - Dominguez Tech Solutions
+===================================== */
+
+.logout-page {
+  min-height: 100vh;
+  background: linear-gradient(145deg, #0b1120, #182e4a);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.logout-message-wrapper {
+  background-color: #0d1528;
+  color: #f4f4f4;
+  border: 2px solid rgba(255, 215, 0, 0.2);
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.08);
+  border-radius: 12px;
+  padding: 2.5rem 2rem;
+  max-width: 500px;
+  text-align: center;
+  width: 100%;
+}
+
+.logout-message-wrapper h1 {
+  color: gold;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+}
+
+#logout-message {
+  font-size: 1.1rem;
+  color: #ccc;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .logout-message-wrapper h1 {
+    font-size: 1.6rem;
+  }
+
+  #logout-message {
+    font-size: 1rem;
+  }
+}

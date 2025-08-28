@@ -1,0 +1,95 @@
+.search-widget-container {
+  position: fixed;
+  bottom: 6rem;
+  right: 1.5rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1.2rem;
+}
+
+.search-form {
+  background: rgba(14, 22, 40, 0.9); /* deeper dark blue glass */
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  border-radius: 1.25rem;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.65);
+  padding: 1rem 1.5rem;
+  width: 20rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  animation: slideUp 0.4s ease-out;
+}
+
+.search-input {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  color: #111;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.search-input:focus {
+  border-color: gold;
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.5);
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: #888;
+}
+
+.search-button {
+  padding: 0.55rem 1.1rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, gold, #ffdf3c);
+  color: #111;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(255, 215, 0, 0.45);
+  transition: background 0.2s ease, transform 0.2s ease;
+  font-family: 'Segoe UI Semibold', sans-serif;
+}
+
+.search-button:hover {
+  background: linear-gradient(135deg, #ffea61, gold);
+  transform: translateY(-2px);
+}
+
+.search-fab {
+  background: radial-gradient(circle at 30% 30%, gold, #f5c518);
+  color: #1a1a1a;
+  font-size: 1.6rem;
+  font-weight: 800;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.search-fab:hover {
+  transform: scale(1.1) rotate(3deg);
+  box-shadow: 0 12px 24px rgba(255, 215, 0, 0.3);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.visually-hidden {
+  display: none;
+}

@@ -1,0 +1,708 @@
+/* ========================================
+   ELITE PROFESSIONAL HERO SECTION
+   Pedro M. Dominguez - Framework Architect
+   ======================================== */
+
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  text-align: center;
+  padding: 0 2rem;
+  overflow: hidden;
+
+  /* Executive-grade gradient with sophisticated depth */
+  background:
+    radial-gradient(ellipse at 25% 15%, rgba(59, 130, 246, 0.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 85%, rgba(147, 51, 234, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 50%, rgba(99, 102, 241, 0.06) 0%, transparent 70%),
+    linear-gradient(145deg,
+      rgba(3, 7, 18, 0.98) 0%,
+      rgba(8, 14, 31, 0.96) 25%,
+      rgba(15, 23, 42, 0.94) 50%,
+      rgba(20, 30, 55, 0.95) 75%,
+      rgba(6, 10, 25, 0.98) 100%
+    );
+  
+  /* Enhanced for business credibility */
+  box-shadow: inset 0 0 200px rgba(59, 130, 246, 0.03);
+}
+
+/* Sophisticated particle system for enterprise feel */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(1.5px 1.5px at 25px 35px, rgba(59, 130, 246, 0.25), transparent),
+    radial-gradient(2px 2px at 55px 85px, rgba(147, 51, 234, 0.2), transparent),
+    radial-gradient(1px 1px at 95px 45px, rgba(236, 254, 255, 0.4), transparent),
+    radial-gradient(1.5px 1.5px at 140px 90px, rgba(99, 102, 241, 0.2), transparent),
+    radial-gradient(2px 2px at 180px 25px, rgba(59, 130, 246, 0.15), transparent),
+    radial-gradient(1px 1px at 220px 70px, rgba(147, 51, 234, 0.25), transparent);
+  background-repeat: repeat;
+  background-size: 250px 120px;
+  animation: enterpriseSparkle 25s linear infinite;
+  z-index: 0;
+  opacity: 0.3;
+}
+
+/* Professional geometric overlay patterns */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    conic-gradient(from 30deg at 20% 30%, transparent 0deg, rgba(59, 130, 246, 0.08) 45deg, transparent 90deg),
+    conic-gradient(from 210deg at 80% 70%, transparent 0deg, rgba(147, 51, 234, 0.06) 60deg, transparent 120deg),
+    conic-gradient(from 315deg at 50% 20%, transparent 0deg, rgba(99, 102, 241, 0.04) 30deg, transparent 60deg),
+    conic-gradient(from 135deg at 25% 80%, transparent 0deg, rgba(236, 254, 255, 0.03) 90deg, transparent 180deg);
+  animation: executiveFloat 35s ease-in-out infinite;
+  z-index: 0;
+}
+
+.hero-banner {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.06;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(0.8px) brightness(1.3) contrast(1.2) saturate(0.8);
+  transform: scale(1.03);
+  animation: professionalZoom 40s ease-in-out infinite alternate;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 10;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 5rem 0;
+  backdrop-filter: blur(0.3px);
+  animation: executiveMaterialize 2.2s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  opacity: 0;
+  transform: translateY(80px) scale(0.92);
+}
+
+#hero-headline {
+  font-size: clamp(3.2rem, 9vw, 7.5rem);
+  font-weight: 950;
+  line-height: 0.92;
+  margin-bottom: 2.5rem;
+  letter-spacing: -0.025em;
+
+  /* Professional executive gradient */
+  background: linear-gradient(
+    145deg,
+    #ffffff 0%,
+    #f8fafc 15%,
+    #e2e8f0 35%,
+    #cbd5e1 55%,
+    #f1f5f9 75%,
+    #ffffff 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 250% 250%;
+  animation: 
+    executiveShimmer 5s ease-in-out infinite,
+    authoritySlideIn 2s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+
+  /* Enhanced professional shadow for credibility */
+  filter: drop-shadow(0 6px 20px rgba(59, 130, 246, 0.25)) 
+          drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15));
+  position: relative;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Premium professional underline accent */
+#hero-headline::after {
+  content: "";
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 5px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(59, 130, 246, 0.6) 15%,
+    rgba(99, 102, 241, 0.9) 35%,
+    rgba(147, 51, 234, 1) 50%,
+    rgba(99, 102, 241, 0.9) 65%,
+    rgba(59, 130, 246, 0.6) 85%,
+    transparent 100%
+  );
+  border-radius: 3px;
+  animation: 
+    professionalGlow 4s ease-in-out infinite,
+    expandAuthority 2.3s cubic-bezier(0.19, 1, 0.22, 1) 0.6s forwards;
+  width: 0%;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+}
+
+.hero-subheading {
+  font-size: clamp(1.25rem, 3.5vw, 1.8rem);
+  max-width: 1000px;
+  margin: 0 auto 5rem;
+  color: rgba(248, 250, 252, 0.92);
+  line-height: 1.65;
+  font-weight: 450;
+  letter-spacing: 0.015em;
+
+  /* Executive presentation styling */
+  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+  animation: executiveFadeIn 2.5s cubic-bezier(0.19, 1, 0.22, 1) 1s forwards;
+  opacity: 0;
+  transform: translateY(40px);
+
+  /* Premium glass morphism container */
+  background: 
+    linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%),
+    rgba(59, 130, 246, 0.02);
+  backdrop-filter: blur(12px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 24px;
+  padding: 3rem 3.5rem;
+  position: relative;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Professional border accent for credibility */
+.hero-subheading::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg,
+    rgba(59, 130, 246, 0.15) 0%,
+    rgba(99, 102, 241, 0.1) 25%,
+    transparent 50%,
+    rgba(147, 51, 234, 0.1) 75%,
+    rgba(59, 130, 246, 0.15) 100%
+  );
+  border-radius: 24px;
+  z-index: -1;
+  animation: executiveBorderGlow 5s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+/* Enhanced professional impact showcase */
+.impact-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2.5rem;
+  margin: 5rem 0;
+  animation: authorityStagger 3s cubic-bezier(0.19, 1, 0.22, 1) 1.4s forwards;
+  opacity: 0;
+}
+
+.impact-box {
+  background: 
+    linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%),
+    rgba(59, 130, 246, 0.03);
+  backdrop-filter: blur(16px) saturate(1.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 28px;
+  padding: 3rem 2.8rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  cursor: pointer;
+  
+  /* Professional depth shadows */
+  box-shadow: 
+    0 10px 40px rgba(0, 0, 0, 0.08),
+    0 4px 12px rgba(59, 130, 246, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.impact-box::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg,
+    rgba(59, 130, 246, 0.08) 0%,
+    rgba(99, 102, 241, 0.04) 50%,
+    rgba(147, 51, 234, 0.06) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 0;
+}
+
+.impact-box:hover {
+  transform: translateY(-12px) scale(1.03);
+  border-color: rgba(99, 102, 241, 0.25);
+  box-shadow:
+    0 25px 60px rgba(59, 130, 246, 0.12),
+    0 15px 35px rgba(0, 0, 0, 0.15),
+    0 5px 15px rgba(99, 102, 241, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.impact-box:hover::before {
+  opacity: 1;
+}
+
+/* Elite executive call-to-action button */
+.cta-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 4rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 60px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  /* Executive gradient background */
+  background: linear-gradient(145deg,
+    rgba(59, 130, 246, 1) 0%,
+    rgba(99, 102, 241, 1) 35%,
+    rgba(147, 51, 234, 1) 70%,
+    rgba(79, 70, 229, 1) 100%
+  );
+  background-size: 250% 250%;
+
+  color: white;
+  border: 3px solid transparent;
+  box-shadow:
+    0 12px 48px rgba(59, 130, 246, 0.25),
+    0 6px 20px rgba(0, 0, 0, 0.15),
+    0 2px 8px rgba(99, 102, 241, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+
+  animation: ctaAuthority 3.2s cubic-bezier(0.19, 1, 0.22, 1) 1.8s forwards;
+  opacity: 0;
+  transform: translateY(50px) scale(0.9);
+}
+
+.cta-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(145deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    transparent 40%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.cta-button::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  background: linear-gradient(145deg,
+    rgba(59, 130, 246, 0.4) 0%,
+    rgba(99, 102, 241, 0.3) 50%,
+    rgba(147, 51, 234, 0.4) 100%
+  );
+  border-radius: 60px;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  filter: blur(8px);
+}
+
+.cta-button:hover {
+  transform: translateY(-8px) scale(1.08);
+  background-position: 100% 100%;
+  box-shadow:
+    0 20px 80px rgba(59, 130, 246, 0.35),
+    0 12px 40px rgba(0, 0, 0, 0.2),
+    0 6px 20px rgba(99, 102, 241, 0.4),
+    inset 0 2px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.cta-button:hover::before {
+  opacity: 1;
+}
+
+.cta-button:hover::after {
+  opacity: 1;
+}
+
+/* ========================================
+   EXECUTIVE-GRADE ANIMATIONS
+   ======================================== */
+
+@keyframes executiveMaterialize {
+  0% {
+    opacity: 0;
+    transform: translateY(80px) scale(0.92);
+    filter: blur(12px);
+  }
+  40% {
+    opacity: 0.6;
+    transform: translateY(30px) scale(0.96);
+    filter: blur(4px);
+  }
+  70% {
+    opacity: 0.9;
+    transform: translateY(-5px) scale(1.01);
+    filter: blur(1px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes authoritySlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(100px) scale(0.85);
+    filter: blur(8px);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateY(-15px) scale(1.02);
+    filter: blur(2px);
+  }
+  75% {
+    transform: translateY(5px) scale(0.99);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes executiveShimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+    filter: drop-shadow(0 6px 20px rgba(59, 130, 246, 0.25));
+  }
+  25% {
+    background-position: 50% 0%;
+    filter: drop-shadow(0 8px 25px rgba(99, 102, 241, 0.3));
+  }
+  50% {
+    background-position: 100% 50%;
+    filter: drop-shadow(0 10px 30px rgba(147, 51, 234, 0.35));
+  }
+  75% {
+    background-position: 50% 100%;
+    filter: drop-shadow(0 8px 25px rgba(99, 102, 241, 0.3));
+  }
+}
+
+@keyframes professionalGlow {
+  0%, 100% {
+    opacity: 0.8;
+    filter: blur(0px);
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+  }
+  25% {
+    opacity: 1;
+    filter: blur(1px);
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.6);
+  }
+  50% {
+    opacity: 0.9;
+    filter: blur(2px);
+    box-shadow: 0 0 35px rgba(147, 51, 234, 0.7);
+  }
+  75% {
+    opacity: 1;
+    filter: blur(1px);
+    box-shadow: 0 0 25px rgba(99, 102, 241, 0.5);
+  }
+}
+
+@keyframes expandAuthority {
+  0% {
+    width: 0%;
+    opacity: 0;
+  }
+  30% {
+    width: 20%;
+    opacity: 0.5;
+  }
+  60% {
+    width: 50%;
+    opacity: 0.8;
+  }
+  100% {
+    width: 65%;
+    opacity: 1;
+  }
+}
+
+@keyframes executiveFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+  60% {
+    opacity: 0.8;
+    transform: translateY(-5px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes authorityStagger {
+  0% {
+    opacity: 0;
+    transform: translateY(60px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes ctaAuthority {
+  0% {
+    opacity: 0;
+    transform: translateY(50px) scale(0.9);
+    filter: blur(4px);
+  }
+  60% {
+    opacity: 0.9;
+    transform: translateY(-8px) scale(1.03);
+    filter: blur(1px);
+  }
+  80% {
+    transform: translateY(2px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes enterpriseSparkle {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-120px) rotate(2deg);
+    opacity: 0.3;
+  }
+}
+
+@keyframes executiveFloat {
+  0%, 100% {
+    transform: rotate(0deg) scale(1) translateX(0);
+  }
+  25% {
+    transform: rotate(2deg) scale(1.03) translateX(5px);
+  }
+  50% {
+    transform: rotate(0deg) scale(1.05) translateX(0);
+  }
+  75% {
+    transform: rotate(-1deg) scale(1.02) translateX(-3px);
+  }
+}
+
+@keyframes professionalZoom {
+  0% {
+    transform: scale(1.03) rotate(0deg);
+    opacity: 0.06;
+  }
+  100% {
+    transform: scale(1.08) rotate(1deg);
+    opacity: 0.04;
+  }
+}
+
+@keyframes executiveBorderGlow {
+  0%, 100% {
+    opacity: 0.7;
+    filter: blur(0px);
+  }
+  33% {
+    opacity: 0.9;
+    filter: blur(1px);
+  }
+  66% {
+    opacity: 0.8;
+    filter: blur(0.5px);
+  }
+}
+
+/* ========================================
+   PROFESSIONAL RESPONSIVE DESIGN
+   ======================================== */
+
+@media (max-width: 1024px) {
+  .hero-content {
+    max-width: 900px;
+    padding: 4rem 0;
+  }
+  
+  .impact-container {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 0 1.5rem;
+    min-height: 100vh;
+  }
+
+  .hero-content {
+    padding: 3.5rem 0;
+  }
+
+  #hero-headline {
+    font-size: clamp(2.5rem, 12vw, 5rem);
+    margin-bottom: 2rem;
+    line-height: 0.95;
+  }
+
+  .hero-subheading {
+    font-size: clamp(1.1rem, 4.5vw, 1.5rem);
+    padding: 2.5rem 2.8rem;
+    margin-bottom: 4rem;
+  }
+
+  .impact-container {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin: 4rem 0;
+  }
+
+  .impact-box {
+    padding: 2.5rem 2.2rem;
+  }
+
+  .cta-button {
+    padding: 1.3rem 3rem;
+    font-size: 1.1rem;
+    gap: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: 0 1rem;
+  }
+
+  #hero-headline {
+    font-size: clamp(2rem, 15vw, 3.5rem);
+  }
+
+  .hero-subheading {
+    padding: 2rem 2rem;
+    font-size: clamp(1rem, 5vw, 1.3rem);
+  }
+
+  .impact-box {
+    padding: 2rem 1.8rem;
+  }
+
+  .cta-button {
+    padding: 1.2rem 2.5rem;
+    font-size: 1rem;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY & PERFORMANCE
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .hero::before,
+  .hero::after,
+  .hero-banner,
+  #hero-headline,
+  #hero-headline::after,
+  .hero-subheading,
+  .hero-subheading::before,
+  .hero-content,
+  .impact-container,
+  .cta-button {
+    animation: none;
+  }
+
+  .impact-box:hover,
+  .cta-button:hover {
+    transform: none;
+  }
+
+  .impact-box:hover {
+    box-shadow: 
+      0 15px 30px rgba(59, 130, 246, 0.08),
+      0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Enhanced contrast for professional accessibility */
+@media (prefers-contrast: high) {
+  #hero-headline {
+    -webkit-text-fill-color: #ffffff;
+    background: none;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  }
+
+  .hero-subheading {
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.85);
+    border-color: #ffffff;
+  }
+
+  .impact-box {
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  .cta-button {
+    background: #0066cc;
+    border-color: #ffffff;
+    color: #ffffff;
+  }
+}
+
+/* Performance optimization for lower-end devices */
+@media (max-width: 480px) and (max-resolution: 150dpi) {
+  .hero::before,
+  .hero::after {
+    display: none;
+  }
+  
+  .hero-banner {
+    opacity: 0.03;
+  }
+  
+  .hero-content,
+  .hero-subheading,
+  .impact-box {
+    backdrop-filter: none;
+  }
+}

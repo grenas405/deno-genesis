@@ -1,0 +1,514 @@
+/* === PREMIUM ENTERPRISE TECH STACK SHOWCASE === */
+/* DenoGenesis Framework - Elite Technology Foundation Display */
+
+/* === Enhanced Container with Depth === */
+.tech-stack-slider {
+  width: 100%;
+  padding: 8rem 2rem;
+  position: relative;
+  overflow: hidden;
+  
+  /* Premium gradient background with depth */
+  background: 
+    radial-gradient(ellipse at 30% 20%, rgba(67, 56, 202, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
+    linear-gradient(135deg, 
+      #060b1a 0%, 
+      #0a1526 25%, 
+      #071523 50%, 
+      #0d1b2e 75%, 
+      #020d1a 100%
+    );
+  
+  /* Enhanced borders with glow */
+  border-top: 1px solid rgba(255, 215, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+  
+  /* Premium shadows and lighting */
+  box-shadow: 
+    inset 0 20px 80px rgba(255, 215, 0, 0.06),
+    inset 0 -20px 80px rgba(139, 92, 246, 0.04),
+    0 8px 32px rgba(0, 0, 0, 0.3);
+  
+  /* Subtle animation */
+  animation: sectionFloat 12s ease-in-out infinite;
+}
+
+/* Animated background particles */
+.tech-stack-slider::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(1px 1px at 20% 30%, rgba(255, 215, 0, 0.3), transparent),
+    radial-gradient(1px 1px at 80% 20%, rgba(139, 92, 246, 0.2), transparent),
+    radial-gradient(2px 2px at 40% 70%, rgba(255, 215, 0, 0.1), transparent),
+    radial-gradient(1px 1px at 90% 40%, rgba(196, 181, 253, 0.2), transparent),
+    radial-gradient(1px 1px at 60% 80%, rgba(255, 215, 0, 0.15), transparent);
+  background-size: 300px 200px;
+  animation: particleDrift 25s linear infinite;
+  opacity: 0.6;
+  z-index: 1;
+}
+
+/* === Premium Header Section === */
+.slider-header {
+  text-align: center;
+  margin-bottom: 5rem;
+  position: relative;
+  z-index: 3;
+}
+
+/* Enhanced main title */
+.slider-header h2 {
+  color: #ffd700;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  position: relative;
+  display: inline-block;
+  
+  /* Premium gradient text effect */
+  background: linear-gradient(135deg, 
+    #ffd700 0%, 
+    #ffed4e 25%, 
+    #fff5a0 50%, 
+    #ffd700 75%, 
+    #ffed4e 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: titleShimmer 4s ease-in-out infinite;
+  
+  /* Enhanced text shadow */
+  filter: drop-shadow(0 4px 12px rgba(255, 215, 0, 0.4));
+  
+  /* Smooth entrance */
+  opacity: 0;
+  transform: translateY(30px);
+  animation: 
+    titleShimmer 4s ease-in-out infinite,
+    fadeInUp 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Animated underline with glow */
+.slider-header h2::after {
+  content: "";
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    #ffd700 20%, 
+    #ffed4e 50%, 
+    #ffd700 80%, 
+    transparent 100%
+  );
+  box-shadow: 
+    0 0 12px rgba(255, 215, 0, 0.6),
+    0 2px 4px rgba(255, 215, 0, 0.3);
+  animation: expandGlow 1.8s cubic-bezier(0.22, 1, 0.36, 1) 0.8s forwards;
+}
+
+/* Enhanced subtitle */
+.slider-header p {
+  color: rgba(212, 212, 212, 0.9);
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  max-width: 800px;
+  margin: 2rem auto 0;
+  line-height: 1.7;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  
+  /* Subtle glow effect */
+  text-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+  
+  /* Smooth entrance */
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.6s forwards;
+}
+
+/* === Premium Logo Track Container === */
+.logo-slider-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 215, 0, 0.1);
+  backdrop-filter: blur(8px);
+  padding: 3rem 0;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Enhanced logo track */
+.logo-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 4rem;
+  animation: scrollLogos 45s linear infinite;
+  will-change: transform;
+}
+
+/* Premium logo styling */
+.logo-track img {
+  height: 72px;
+  width: auto;
+  position: relative;
+  
+  /* Enhanced filters */
+  filter: 
+    grayscale(40%) 
+    brightness(1.1) 
+    contrast(1.05) 
+    saturate(0.8);
+  opacity: 0.8;
+  
+  /* Smooth transitions */
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, filter, opacity;
+  
+  /* Subtle border */
+  border-radius: 12px;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 215, 0, 0.05);
+}
+
+/* Logo hover effects with glow */
+.logo-track img:hover {
+  transform: scale(1.15) translateY(-6px) rotateY(5deg);
+  filter: 
+    grayscale(0%) 
+    brightness(1.3) 
+    contrast(1.1) 
+    saturate(1.2);
+  opacity: 1;
+  
+  /* Premium glow effects */
+  box-shadow: 
+    0 12px 32px rgba(255, 215, 0, 0.25),
+    0 6px 16px rgba(0, 0, 0, 0.15),
+    0 0 24px rgba(255, 215, 0, 0.15);
+  
+  /* Enhanced background */
+  background: rgba(255, 215, 0, 0.08);
+  border-color: rgba(255, 215, 0, 0.3);
+}
+
+/* Logo pulse animation on hover */
+.logo-track img:hover::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border: 2px solid rgba(255, 215, 0, 0.4);
+  border-radius: 14px;
+  animation: logoPulse 1.5s ease-out;
+}
+
+/* === Enhanced Fade Gradients === */
+.tech-stack-slider::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 120px;
+  height: 100%;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(to left, 
+    #071523 0%, 
+    rgba(7, 21, 35, 0.8) 30%, 
+    transparent 100%
+  );
+}
+
+.logo-slider-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 120px;
+  height: 100%;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(to right, 
+    rgba(7, 21, 35, 0.9) 0%, 
+    rgba(7, 21, 35, 0.6) 40%, 
+    transparent 100%
+  );
+}
+
+.logo-slider-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 120px;
+  height: 100%;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(to left, 
+    rgba(7, 21, 35, 0.9) 0%, 
+    rgba(7, 21, 35, 0.6) 40%, 
+    transparent 100%
+  );
+}
+
+/* === Premium Animations === */
+
+@keyframes sectionFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes particleDrift {
+  0% {
+    transform: translateY(0px) translateX(0px);
+  }
+  100% {
+    transform: translateY(-20px) translateX(-20px);
+  }
+}
+
+@keyframes titleShimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes expandGlow {
+  0% {
+    width: 0;
+    opacity: 0;
+  }
+  100% {
+    width: 100px;
+    opacity: 1;
+  }
+}
+
+@keyframes scrollLogos {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes logoPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1.1);
+    opacity: 0;
+  }
+}
+
+/* === Call-to-Action Enhancement === */
+.tech-stack-cta {
+  text-align: center;
+  margin-top: 4rem;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 1.8s cubic-bezier(0.22, 1, 0.36, 1) 1.5s forwards;
+}
+
+.tech-stack-cta p {
+  color: rgba(255, 215, 0, 0.9);
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 2rem;
+  letter-spacing: 0.5px;
+}
+
+.cta-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2.5rem;
+  background: linear-gradient(135deg, 
+    rgba(255, 215, 0, 0.9) 0%, 
+    rgba(255, 237, 78, 0.9) 100%
+  );
+  color: #0a1526;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 50px;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 
+    0 8px 24px rgba(255, 215, 0, 0.25),
+    0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cta-button:hover {
+  transform: translateY(-3px) scale(1.05);
+  background: linear-gradient(135deg, 
+    rgba(255, 215, 0, 1) 0%, 
+    rgba(255, 245, 160, 1) 100%
+  );
+  box-shadow: 
+    0 16px 40px rgba(255, 215, 0, 0.35),
+    0 8px 16px rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 215, 0, 0.6);
+}
+
+/* === Responsive Design === */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .tech-stack-slider {
+    padding: 6rem 1.5rem;
+  }
+  
+  .slider-header {
+    margin-bottom: 4rem;
+  }
+  
+  .logo-track {
+    gap: 3rem;
+  }
+  
+  .logo-track img {
+    height: 64px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .tech-stack-slider {
+    padding: 5rem 1rem;
+  }
+  
+  .slider-header h2 {
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+  }
+  
+  .slider-header p {
+    font-size: 1rem;
+    margin-top: 1.5rem;
+    line-height: 1.6;
+  }
+  
+  .logo-slider-container {
+    padding: 2.5rem 0;
+  }
+  
+  .logo-track {
+    gap: 2.5rem;
+  }
+  
+  .logo-track img {
+    height: 56px;
+    padding: 0.75rem;
+  }
+  
+  .tech-stack-cta {
+    margin-top: 3rem;
+  }
+  
+  .cta-button {
+    padding: 0.875rem 2rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .tech-stack-slider {
+    padding: 4rem 0.75rem;
+  }
+  
+  .logo-track {
+    gap: 2rem;
+  }
+  
+  .logo-track img {
+    height: 48px;
+    padding: 0.5rem;
+  }
+  
+  .logo-slider-container::before,
+  .logo-slider-container::after {
+    width: 80px;
+  }
+}
+
+/* === High Contrast Mode === */
+@media (prefers-contrast: high) {
+  .tech-stack-slider {
+    background: #000000;
+    border-color: #ffffff;
+  }
+  
+  .slider-header h2 {
+    color: #ffffff;
+    -webkit-text-fill-color: #ffffff;
+  }
+  
+  .slider-header p {
+    color: #ffffff;
+  }
+  
+  .logo-track img {
+    filter: none;
+    background: #ffffff;
+  }
+}
+
+/* === Reduced Motion === */
+@media (prefers-reduced-motion: reduce) {
+  .tech-stack-slider,
+  .slider-header h2,
+  .slider-header p,
+  .logo-track,
+  .tech-stack-cta {
+    animation: none !important;
+  }
+  
+  .logo-track img:hover {
+    transform: scale(1.05) !important;
+  }
+  
+  .cta-button:hover {
+    transform: scale(1.02) !important;
+  }
+}

@@ -1,0 +1,665 @@
+/* ==============================================
+   PREMIUM ENTERPRISE APPOINTMENT BOOKER
+   DenoGenesis Framework | Digital Sovereignty
+   Elite Professional Grade | Dark Navy & Gold
+   Built for Enterprise Excellence
+================================================ */
+
+/* === PREMIUM VARIABLES === */
+:root {
+  /* Primary Color Palette */
+  --appointment-primary: #0a1a2f;
+  --appointment-secondary: #142040;
+  --appointment-accent: #ffd700;
+  --appointment-accent-bright: #ffed4e;
+  --appointment-accent-soft: #fff8cc;
+  
+  /* Glass Morphism Effects */
+  --glass-light: rgba(255, 255, 255, 0.08);
+  --glass-medium: rgba(255, 255, 255, 0.12);
+  --glass-strong: rgba(255, 255, 255, 0.18);
+  
+  /* Premium Shadows */
+  --shadow-elegant: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow-floating: 0 16px 48px rgba(0, 0, 0, 0.25);
+  --shadow-glow: 0 0 40px rgba(255, 215, 0, 0.15);
+  --shadow-accent: 0 8px 24px rgba(255, 215, 0, 0.3);
+  
+  /* Typography */
+  --font-elite: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-weight-elite: 600;
+  --font-weight-premium: 700;
+  --font-weight-ultra: 800;
+}
+
+/* === MAIN CONTAINER - ENTERPRISE GRADE === */
+.appointment-booker {
+  /* Advanced Background System */
+  background: 
+    radial-gradient(ellipse at top left, rgba(255, 215, 0, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(255, 215, 0, 0.04) 0%, transparent 50%),
+    linear-gradient(135deg, 
+      var(--appointment-primary) 0%, 
+      var(--appointment-secondary) 50%, 
+      var(--appointment-primary) 100%
+    );
+  
+  /* Premium Positioning & Layout */
+  max-width: 900px;
+  margin: 5rem auto;
+  padding: 4rem 3rem;
+  position: relative;
+  overflow: hidden;
+  
+  /* Elite Border System */
+  border: 2px solid transparent;
+  border-image: linear-gradient(135deg, 
+    rgba(255, 215, 0, 0.3) 0%, 
+    rgba(255, 215, 0, 0.1) 50%, 
+    rgba(255, 215, 0, 0.3) 100%
+  ) 1;
+  border-radius: 24px;
+  
+  /* Advanced Glass Morphism */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  
+  /* Premium Shadow System */
+  box-shadow: 
+    var(--shadow-floating),
+    var(--shadow-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  
+  /* Elite Typography */
+  font-family: var(--font-elite);
+  color: #ffffff;
+  
+  /* Smooth Interactions */
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Animated border glow effect */
+.appointment-booker::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, 
+    var(--appointment-accent) 0%, 
+    transparent 25%, 
+    transparent 75%, 
+    var(--appointment-accent) 100%
+  );
+  background-size: 200% 200%;
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0.6;
+  animation: borderFlow 4s ease-in-out infinite;
+}
+
+/* Floating particles effect */
+.appointment-booker::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(1px 1px at 20% 30%, rgba(255, 215, 0, 0.4), transparent),
+    radial-gradient(1px 1px at 80% 20%, rgba(255, 215, 0, 0.3), transparent),
+    radial-gradient(2px 2px at 40% 70%, rgba(255, 215, 0, 0.2), transparent),
+    radial-gradient(1px 1px at 90% 40%, rgba(255, 215, 0, 0.25), transparent);
+  background-size: 300px 200px;
+  animation: particleDrift 15s linear infinite;
+  opacity: 0.3;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* Enhanced hover state */
+.appointment-booker:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.35),
+    0 0 50px rgba(255, 215, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  border-image: linear-gradient(135deg, 
+    rgba(255, 215, 0, 0.5) 0%, 
+    rgba(255, 215, 0, 0.2) 50%, 
+    rgba(255, 215, 0, 0.5) 100%
+  ) 1;
+}
+
+/* === PREMIUM HEADER SECTION === */
+.appointment-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  position: relative;
+}
+
+.appointment-title {
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  font-weight: var(--font-weight-ultra);
+  margin-bottom: 1rem;
+  letter-spacing: 1px;
+  
+  /* Premium gradient text */
+  background: linear-gradient(135deg, 
+    var(--appointment-accent) 0%, 
+    var(--appointment-accent-bright) 50%, 
+    var(--appointment-accent-soft) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: textShimmer 3s ease-in-out infinite;
+  
+  /* Enhanced text shadow */
+  filter: drop-shadow(0 4px 12px rgba(255, 215, 0, 0.4));
+}
+
+.appointment-subtitle {
+  font-size: 1.2rem;
+  font-weight: var(--font-weight-elite);
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
+}
+
+.appointment-description {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* === ELITE FORM CONTAINER === */
+.appointment-form {
+  display: grid;
+  gap: 2.5rem;
+  position: relative;
+}
+
+/* === PREMIUM FORM GROUPS === */
+.form-group {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+/* Enhanced form labels */
+.form-group label {
+  font-weight: var(--font-weight-premium);
+  color: var(--appointment-accent);
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  
+  /* Premium text effects */
+  text-shadow: 
+    0 0 8px rgba(255, 215, 0, 0.5),
+    0 2px 4px rgba(255, 215, 0, 0.3);
+  
+  /* Subtle animation */
+  transition: all 0.3s ease;
+}
+
+.form-group:focus-within label {
+  color: var(--appointment-accent-bright);
+  transform: translateY(-2px);
+  text-shadow: 
+    0 0 12px rgba(255, 215, 0, 0.7),
+    0 2px 6px rgba(255, 215, 0, 0.4);
+}
+
+/* === ELITE INPUT STYLING === */
+.appointment-form input,
+.appointment-form select,
+.appointment-form textarea {
+  /* Enhanced background */
+  background: 
+    linear-gradient(135deg, 
+      var(--glass-light) 0%, 
+      var(--glass-medium) 100%
+    );
+  
+  /* Premium border system */
+  border: 2px solid rgba(255, 215, 0, 0.2);
+  border-radius: 16px;
+  
+  /* Enhanced spacing and typography */
+  padding: 1.25rem 1.5rem;
+  font-size: 1.1rem;
+  font-family: var(--font-elite);
+  font-weight: 500;
+  color: #ffffff;
+  line-height: 1.5;
+  
+  /* Advanced glass effects */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  
+  /* Premium shadows */
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  
+  /* Smooth transitions */
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  
+  /* Typography enhancements */
+  letter-spacing: 0.3px;
+}
+
+/* Enhanced placeholder styling */
+.appointment-form input::placeholder,
+.appointment-form textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.2px;
+}
+
+/* Premium focus states */
+.appointment-form input:focus,
+.appointment-form select:focus,
+.appointment-form textarea:focus {
+  outline: none;
+  border-color: var(--appointment-accent);
+  background: 
+    linear-gradient(135deg, 
+      var(--glass-medium) 0%, 
+      var(--glass-strong) 100%
+    );
+  
+  /* Enhanced glow effect */
+  box-shadow: 
+    0 0 0 4px rgba(255, 215, 0, 0.1),
+    0 8px 24px rgba(255, 215, 0, 0.2),
+    0 4px 16px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  
+  transform: translateY(-2px);
+}
+
+/* Elite hover effects */
+.appointment-form input:hover,
+.appointment-form select:hover,
+.appointment-form textarea:hover {
+  border-color: rgba(255, 215, 0, 0.4);
+  box-shadow: 
+    0 6px 20px rgba(255, 215, 0, 0.15),
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+/* === ENHANCED SELECT STYLING === */
+.appointment-form select {
+  cursor: pointer;
+  appearance: none;
+  background-image: 
+    linear-gradient(135deg, var(--glass-light) 0%, var(--glass-medium) 100%),
+    url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffd700' viewBox='0 0 16 16'%3e%3cpath d='m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: calc(100% - 1rem) center;
+  background-size: 16px;
+  padding-right: 3rem;
+}
+
+/* === TEXTAREA ENHANCEMENTS === */
+.appointment-form textarea {
+  min-height: 120px;
+  resize: vertical;
+  font-family: var(--font-elite);
+  line-height: 1.6;
+}
+
+/* === PREMIUM DATE & TIME INPUTS === */
+.appointment-form input[type="date"],
+.appointment-form input[type="time"] {
+  position: relative;
+  cursor: pointer;
+}
+
+.appointment-form input[type="date"]::-webkit-calendar-picker-indicator,
+.appointment-form input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) sepia(1) saturate(5) hue-rotate(35deg);
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  transition: transform 0.2s ease;
+}
+
+.appointment-form input[type="date"]:hover::-webkit-calendar-picker-indicator,
+.appointment-form input[type="time"]:hover::-webkit-calendar-picker-indicator {
+  transform: scale(1.1);
+}
+
+/* === ELITE CTA BUTTON === */
+.appointment-form .cta-button {
+  /* Premium gradient background */
+  background: 
+    linear-gradient(135deg, 
+      var(--appointment-accent) 0%, 
+      var(--appointment-accent-bright) 50%, 
+      var(--appointment-accent) 100%
+    );
+  background-size: 200% 200%;
+  
+  /* Enhanced layout */
+  color: var(--appointment-primary);
+  padding: 1.5rem 3rem;
+  font-size: 1.2rem;
+  font-weight: var(--font-weight-ultra);
+  font-family: var(--font-elite);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  
+  /* Premium styling */
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  
+  /* Elite shadows */
+  box-shadow: 
+    var(--shadow-accent),
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  
+  /* Smooth transitions */
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  
+  /* Positioning */
+  align-self: center;
+  margin-top: 1rem;
+}
+
+/* Button shimmer effect */
+.appointment-form .cta-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.3) 50%, 
+    transparent 100%
+  );
+  transition: left 0.6s ease;
+}
+
+/* Enhanced button hover */
+.appointment-form .cta-button:hover {
+  background: 
+    linear-gradient(135deg, 
+      var(--appointment-accent-bright) 0%, 
+      var(--appointment-accent-soft) 50%, 
+      var(--appointment-accent-bright) 100%
+    );
+  
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 
+    0 12px 40px rgba(255, 215, 0, 0.4),
+    0 8px 24px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  
+  animation: backgroundShift 2s ease-in-out infinite;
+}
+
+.appointment-form .cta-button:hover::before {
+  left: 100%;
+}
+
+/* Button active state */
+.appointment-form .cta-button:active {
+  transform: translateY(-2px) scale(1);
+  box-shadow: 
+    0 6px 20px rgba(255, 215, 0, 0.3),
+    0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* === PREMIUM RESPONSE MESSAGE === */
+.response-message {
+  font-size: 1.1rem;
+  font-weight: var(--font-weight-elite);
+  padding: 1.5rem 2rem;
+  border-radius: 16px;
+  margin-top: 2rem;
+  
+  /* Enhanced background */
+  background: 
+    linear-gradient(135deg, 
+      var(--glass-medium) 0%, 
+      var(--glass-strong) 100%
+    );
+  
+  /* Premium border */
+  border: 2px solid var(--appointment-accent);
+  color: var(--appointment-accent-bright);
+  
+  /* Advanced effects */
+  backdrop-filter: blur(16px);
+  box-shadow: 
+    0 8px 24px rgba(255, 215, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  
+  /* Typography */
+  text-align: center;
+  letter-spacing: 0.5px;
+  line-height: 1.5;
+  
+  /* Animation */
+  animation: messageSlideIn 0.5s ease-out;
+}
+
+/* === PREMIUM ANIMATIONS === */
+@keyframes borderFlow {
+  0%, 100% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+}
+
+@keyframes particleDrift {
+  0% {
+    transform: translateY(0px) translateX(0px);
+  }
+  100% {
+    transform: translateY(-20px) translateX(-20px);
+  }
+}
+
+@keyframes textShimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes backgroundShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes messageSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === ELITE RESPONSIVE DESIGN === */
+
+/* Large Desktop */
+@media (min-width: 1200px) {
+  .appointment-booker {
+    max-width: 1000px;
+    padding: 5rem 4rem;
+  }
+  
+  .appointment-title {
+    font-size: 3.2rem;
+  }
+  
+  .form-group.form-row {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .appointment-booker {
+    margin: 3rem auto;
+    padding: 3rem 2rem;
+    max-width: 700px;
+  }
+  
+  .form-group.form-row {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .appointment-booker {
+    margin: 2rem 1rem;
+    padding: 2.5rem 1.5rem;
+    border-radius: 20px;
+  }
+  
+  .appointment-title {
+    font-size: 2.2rem;
+  }
+  
+  .appointment-form {
+    gap: 2rem;
+  }
+  
+  .form-group label {
+    font-size: 0.85rem;
+  }
+  
+  .appointment-form input,
+  .appointment-form select,
+  .appointment-form textarea {
+    padding: 1rem 1.25rem;
+    font-size: 1rem;
+  }
+  
+  .appointment-form .cta-button {
+    width: 100%;
+    padding: 1.25rem 2rem;
+    font-size: 1.1rem;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .appointment-booker {
+    margin: 1rem 0.5rem;
+    padding: 2rem 1rem;
+  }
+  
+  .appointment-title {
+    font-size: 1.8rem;
+  }
+  
+  .appointment-subtitle {
+    font-size: 1rem;
+  }
+  
+  .appointment-form input,
+  .appointment-form select,
+  .appointment-form textarea {
+    padding: 0.875rem 1rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* === ACCESSIBILITY ENHANCEMENTS === */
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .appointment-booker {
+    background: #000000;
+    border: 3px solid var(--appointment-accent);
+  }
+  
+  .appointment-form input,
+  .appointment-form select,
+  .appointment-form textarea {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid var(--appointment-accent);
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .appointment-booker,
+  .appointment-booker::before,
+  .appointment-booker::after,
+  .appointment-title,
+  .appointment-form .cta-button {
+    animation: none !important;
+    transition: opacity 0.2s ease, transform 0.2s ease !important;
+  }
+}
+
+/* Focus Management */
+.appointment-form input:focus,
+.appointment-form select:focus,
+.appointment-form textarea:focus,
+.appointment-form .cta-button:focus {
+  outline: 2px solid var(--appointment-accent);
+  outline-offset: 2px;
+}
+
+/* === PRINT STYLES === */
+@media print {
+  .appointment-booker {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    border: 2px solid #333 !important;
+  }
+  
+  .appointment-title {
+    color: #333 !important;
+    background: none !important;
+    -webkit-text-fill-color: #333 !important;
+  }
+  
+  .form-group label {
+    color: #333 !important;
+    text-shadow: none !important;
+  }
+}

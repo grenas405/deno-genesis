@@ -1,0 +1,572 @@
+ /* === PREMIUM ENTERPRISE NAVIGATION - ELITE DESIGN === */
+/* DenoGenesis Framework - Professional Navigation System */
+
+/* === Enhanced Navbar with Glass Morphism === */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 2000;
+
+  /* Premium Glass Morphism Background */
+  background:
+    linear-gradient(135deg,
+      rgba(10, 26, 47, 0.95) 0%,
+      rgba(17, 35, 62, 0.92) 50%,
+      rgba(10, 26, 47, 0.95) 100%
+    );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  /* Enhanced Styling */
+  color: #ffd700;
+  padding: 1.25rem 2.5rem;
+
+  /* Layout */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  /* Typography */
+  font-weight: 600;
+
+  /* Premium Shadows and Effects */
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 2px 8px rgba(255, 215, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  /* Subtle border */
+  border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+
+  /* Smooth transitions */
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Enhanced navbar on scroll */
+.navbar.scrolled {
+  background:
+    linear-gradient(135deg,
+      rgba(10, 26, 47, 0.98) 0%,
+      rgba(17, 35, 62, 0.96) 50%,
+      rgba(10, 26, 47, 0.98) 100%
+    );
+  backdrop-filter: blur(25px);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    0 4px 12px rgba(255, 215, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* === Premium Navigation Left Section === */
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  position: relative;
+}
+
+/* === Enhanced Brand Title === */
+.nav-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  position: relative;
+
+  /* Premium gradient text */
+  background: linear-gradient(135deg, #ffd700, #ffed4e, #ffd700);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: textShimmer 4s ease-in-out infinite;
+
+  /* Text shadow for depth */
+  filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.3));
+
+  /* Smooth transitions */
+  transition: all 0.3s ease;
+}
+
+.nav-title:hover {
+  transform: scale(1.02);
+  filter: drop-shadow(0 4px 8px rgba(255, 215, 0, 0.4));
+}
+
+/* === Premium Hamburger Menu === */
+.hamburger-menu {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 32px;
+  height: 26px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 3000;
+  position: relative;
+  padding: 4px;
+  border-radius: 8px;
+
+  /* Enhanced interaction */
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hamburger-menu:hover {
+  background: rgba(255, 215, 0, 0.1);
+  transform: scale(1.05);
+}
+
+.hamburger-menu:active {
+  transform: scale(0.95);
+}
+
+/* Enhanced hamburger bars */
+.hamburger-menu .bar {
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(90deg, #ffd700, #ffed4e);
+  border-radius: 3px;
+  position: relative;
+
+  /* Premium effects */
+  box-shadow: 0 2px 4px rgba(255, 215, 0, 0.3);
+
+  /* Smooth transitions with advanced easing */
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Glowing effect on bars */
+.hamburger-menu .bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  border-radius: inherit;
+  opacity: 0.6;
+  filter: blur(2px);
+  z-index: -1;
+}
+
+/* Enhanced X animation */
+.hamburger-menu.open .bar:nth-child(1) {
+  transform: rotate(45deg) translateY(10px);
+  background: linear-gradient(90deg, #ff6b6b, #ffa500);
+}
+
+.hamburger-menu.open .bar:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.hamburger-menu.open .bar:nth-child(3) {
+  transform: rotate(-45deg) translateY(-10px);
+  background: linear-gradient(90deg, #ff6b6b, #ffa500);
+}
+
+/* === Premium Sidebar === */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 320px;
+  z-index: 1500;
+
+  /* Premium Glass Morphism */
+  background:
+    linear-gradient(135deg,
+      rgba(17, 27, 46, 0.95) 0%,
+      rgba(10, 26, 47, 0.92) 50%,
+      rgba(15, 30, 52, 0.95) 100%
+    );
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+
+  /* Enhanced styling */
+  color: #ffd700;
+  padding: 2rem;
+
+  /* Premium shadows */
+  box-shadow:
+    8px 0 32px rgba(0, 0, 0, 0.4),
+    4px 0 16px rgba(255, 215, 0, 0.1),
+    inset -1px 0 0 rgba(255, 215, 0, 0.1);
+
+  /* Border accent */
+  border-right: 1px solid rgba(255, 215, 0, 0.2);
+
+  /* Initial hidden state */
+  transform: translateX(-100%);
+  opacity: 0;
+
+  /* Smooth transitions */
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Visible state with enhanced effects */
+.sidebar.visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* === Enhanced Sidebar Header === */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+  position: relative;
+}
+
+/* Animated underline */
+.sidebar-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #ffd700, transparent);
+  animation: expandUnderline 0.8s ease-out 0.2s forwards;
+}
+
+.sidebar-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+
+  /* Premium gradient text */
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+
+  /* Text shadow */
+  filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.3));
+}
+
+/* === Premium Navigation Links === */
+.nav-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nav-links li {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+
+  /* Staggered entrance animation */
+  opacity: 0;
+  transform: translateX(-30px);
+  animation: slideInStagger 0.6s ease-out forwards;
+}
+
+/* Stagger delays for smooth entrance */
+.nav-links li:nth-child(1) { animation-delay: 0.1s; }
+.nav-links li:nth-child(2) { animation-delay: 0.2s; }
+.nav-links li:nth-child(3) { animation-delay: 0.3s; }
+.nav-links li:nth-child(4) { animation-delay: 0.4s; }
+.nav-links li:nth-child(5) { animation-delay: 0.5s; }
+
+/* Enhanced link styling */
+.nav-links a {
+  color: rgba(255, 215, 0, 0.9);
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 500;
+  display: block;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  position: relative;
+
+  /* Premium effects */
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 215, 0, 0.1);
+  backdrop-filter: blur(8px);
+
+  /* Smooth transitions */
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Icon spacing */
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Animated background gradient */
+.nav-links a::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg,
+    rgba(255, 215, 0, 0.1) 0%,
+    rgba(255, 215, 0, 0.05) 100%
+  );
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Enhanced hover and active states */
+.nav-links a:hover,
+.nav-links a.active {
+  color: #ffffff;
+  background: rgba(255, 215, 0, 0.15);
+  border-color: rgba(255, 215, 0, 0.4);
+  transform: translateX(8px) scale(1.02);
+
+  /* Enhanced shadows */
+  box-shadow:
+    0 8px 24px rgba(255, 215, 0, 0.2),
+    0 4px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.nav-links a:hover::before,
+.nav-links a.active::before {
+  opacity: 1;
+}
+
+/* Active state indicator */
+.nav-links a.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 60%;
+  background: linear-gradient(180deg, #ffd700, #ffed4e);
+  border-radius: 0 4px 4px 0;
+}
+
+/* === Premium Action Button === */
+.nav-container {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.nav-button {
+  display: inline-block;
+  width: 100%;
+  padding: 1rem 1.5rem;
+
+  /* Premium gradient background */
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  color: #0a1a2f;
+
+  /* Typography */
+  font-weight: 700;
+  font-size: 1rem;
+  text-align: center;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+
+  /* Styling */
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+
+  /* Premium effects */
+  box-shadow:
+    0 8px 24px rgba(255, 215, 0, 0.3),
+    0 4px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+
+  /* Smooth transitions */
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Animated shine effect */
+.nav-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 100%
+  );
+  transition: left 0.6s ease;
+}
+
+.nav-button:hover {
+  background: linear-gradient(135deg, #ffed4e, #fff5a0);
+  transform: translateY(-2px) scale(1.02);
+
+  box-shadow:
+    0 12px 32px rgba(255, 215, 0, 0.4),
+    0 6px 12px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.nav-button:hover::before {
+  left: 100%;
+}
+
+.nav-button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* === Premium Overlay === */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at center,
+      rgba(0, 0, 0, 0.6) 0%,
+      rgba(0, 0, 0, 0.8) 100%
+    );
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* === Body Scroll Lock === */
+body.no-scroll {
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* === Premium Animations === */
+
+@keyframes textShimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes expandUnderline {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 60px;
+  }
+}
+
+@keyframes slideInStagger {
+  0% {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* === Responsive Design === */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 1rem 1.5rem;
+  }
+
+  .nav-title {
+    font-size: 1.2rem;
+  }
+
+  .hamburger-menu {
+    width: 28px;
+    height: 22px;
+  }
+
+  .sidebar {
+    width: 280px;
+    padding: 1.5rem;
+  }
+
+  .sidebar-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .nav-links a {
+    font-size: 1rem;
+    padding: 0.875rem 1.25rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.875rem 1rem;
+  }
+
+  .nav-title {
+    font-size: 1rem;
+  }
+
+  .hamburger-menu {
+    width: 24px;
+    height: 20px;
+  }
+
+  .sidebar {
+    width: calc(100vw - 2rem);
+    max-width: 280px;
+    padding: 1.25rem;
+  }
+
+  .sidebar-header {
+    margin-bottom: 2rem;
+  }
+
+  .nav-links a {
+    font-size: 0.95rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .nav-button {
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* === High Contrast Mode === */
+@media (prefers-contrast: high) {
+  .navbar,
+  .sidebar {
+    background: #000000;
+    border-color: #ffffff;
+  }
+
+  .nav-title,
+  .sidebar-header h2,
+  .nav-links a {
+    color: #ffffff;
+    -webkit-text-fill-color: #ffffff;
+  }
+
+  .nav-button {
+    background: #ffffff;
+    color: #000000;
+  }
+}
+

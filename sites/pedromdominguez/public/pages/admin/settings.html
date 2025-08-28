@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Site Settings | Dominguez Tech Solutions</title>
+  <meta name="description" content="Update and manage Dominguez Tech Solutions site configuration settings." />
+  <meta name="author" content="Pedro Dominguez" />
+  <link rel="stylesheet" href="../../assets/css/style.css" />
+  <script type="module" src="../../assets/js/script.js"></script>
+  <script defer src="../../assets/js/auth.js"></script>
+</head>
+<body>
+  <nav class="navbar"></nav>
+
+  <section class="settings-section">
+    <h1 class="settings-title">⚙️ Site Settings Management</h1>
+    <p class="settings-subtext">Update your site's content and branding settings.</p>
+
+    <form id="settingsForm" class="settings-form">
+      <!-- Hero Headline -->
+      <div class="form-group">
+        <label for="heroHeadline">🧾 Hero Headline</label>
+        <input type="text" id="heroHeadline" name="heroHeadline" required placeholder="Enter homepage hero headline" />
+      </div>
+
+      <!-- Contact Info -->
+      <div class="form-group">
+        <label for="contactEmail">📧 Contact Email</label>
+        <input type="email" id="contactEmail" name="contactEmail" required placeholder="example@domain.com" />
+      </div>
+
+      <div class="form-group">
+        <label for="businessPhone">📞 Business Phone</label>
+        <input type="tel" id="businessPhone" name="businessPhone" required placeholder="(555) 555-5555" />
+      </div>
+
+      <!-- Footer Text -->
+      <div class="form-group">
+        <label for="footerText">📝 Footer Text</label>
+        <input type="text" id="footerText" name="footerText" placeholder="Enter footer copyright text" />
+      </div>
+
+      <!-- Colors -->
+      <div class="form-group">
+        <label for="primaryColor">🎨 Primary Color</label>
+        <input type="color" id="primaryColor" name="primaryColor" />
+      </div>
+
+      <div class="form-group">
+        <label for="secondaryColor">🎨 Secondary Color</label>
+        <input type="color" id="secondaryColor" name="secondaryColor" />
+      </div>
+
+      <!-- Live Preview -->
+      <div class="color-preview">
+        <h3>🎨 Live Color Preview</h3>
+        <div id="previewBox">
+          <div>
+            <p>Primary</p>
+            <div id="primarySwatch" class="swatch"></div>
+          </div>
+          <div>
+            <p>Secondary</p>
+            <div id="secondarySwatch" class="swatch"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- About Us -->
+      <div class="form-group">
+        <label for="aboutUsText">ℹ️ About Us Text</label>
+        <textarea id="aboutUsText" name="aboutUsText" rows="4" placeholder="Enter About Us content..."></textarea>
+      </div>
+
+      <!-- Social Media Links -->
+      <div class="form-group">
+        <label for="facebookUrl">🔗 Facebook URL</label>
+        <input type="url" id="facebookUrl" name="facebookUrl" placeholder="https://facebook.com/yourpage" />
+      </div>
+
+      <div class="form-group">
+        <label for="instagramUrl">📸 Instagram URL</label>
+        <input type="url" id="instagramUrl" name="instagramUrl" placeholder="https://instagram.com/yourprofile" />
+      </div>
+
+      <div class="form-group">
+        <label for="twitterUrl">🐦 Twitter URL</label>
+        <input type="url" id="twitterUrl" name="twitterUrl" placeholder="https://twitter.com/yourhandle" />
+      </div>
+
+      <!-- Tracking Code -->
+      <div class="form-group">
+        <label for="trackingCode">📈 Tracking Code (Analytics JS)</label>
+        <textarea id="trackingCode" name="trackingCode" rows="3" placeholder="<script>...</script>"></textarea>
+      </div>
+
+      <!-- Save Button -->
+      <button type="submit" class="form-button">💾 Save Settings</button>
+      <div id="settingsMessage" class="settings-message"></div>
+    </form>
+  </section>
+
+  <footer id="footer"></footer>
+
+  <script type="module">
+    document.addEventListener("DOMContentLoaded", async () => {
+      const form = document.getElementById("settingsForm");
+      const message = document.getElementById("settingsMessage");
+      const siteKey = "domtech";
+      const token = localStorage.getItem("adminToken");
+
+      const primaryColorInput = document.getElementById("primaryColor");
+      const secondaryColorInput = document.getElementById("secondaryColor");
+      const primarySwatch = document.getElementById("primarySwatch");
+      const secondarySwatch = document.getElementById("secondarySwatch");
+
+      if (!token) {
+        message.textContent = "❌ You must be logged in to access settings.";
+        return;
+      }
+
+      // Fetch current settings
+      try {
+        const res = await fetch(`/api/settings?site=${siteKey}`, {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          form.heroHeadline.value = data.hero_headline || "";
+          form.contactEmail.value = data.contact_email || "";
+          form.businessPhone.value = data.business_phone || "";
+          form.footerText.value = data.footer_text || "";
+          form.primaryColor.value = data.primary_color || "#0b1e3f";
+          form.secondaryColor.value = data.secondary_color || "#f1c40f";
+          primarySwatch.style.backgroundColor = form.primaryColor.value;
+          secondarySwatch.style.backgroundColor = form.secondaryColor.value;
+          form.aboutUsText.value = data.about_us_text || "";
+          form.facebookUrl.value = data.facebook_url || "";
+          form.instagramUrl.value = data.instagram_url || "";
+          form.twitterUrl.value = data.twitter_url || "";
+          form.trackingCode.value = data.tracking_code || "";
+        } else {
+          message.textContent = `⚠️ ${data.error}`;
+        }
+      } catch (err) {
+        message.textContent = "⚠️ Failed to load settings.";
+        console.error(err);
+      }
+
+      // Live preview listeners
+      primaryColorInput.addEventListener("input", () => {
+        primarySwatch.style.backgroundColor = primaryColorInput.value;
+      });
+      secondaryColorInput.addEventListener("input", () => {
+        secondarySwatch.style.backgroundColor = secondaryColorInput.value;
+      });
+
+      // Handle form submission
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const payload = {
+          heroHeadline: form.heroHeadline.value,
+          contactEmail: form.contactEmail.value,
+          businessPhone: form.businessPhone.value,
+          footerText: form.footerText.value,
+          primaryColor: form.primaryColor.value,
+          secondaryColor: form.secondaryColor.value,
+          aboutUsText: form.aboutUsText.value,
+          facebookUrl: form.facebookUrl.value,
+          instagramUrl: form.instagramUrl.value,
+          twitterUrl: form.twitterUrl.value,
+          trackingCode: form.trackingCode.value,
+        };
+
+        try {
+          const res = await fetch(`/api/settings?site=${siteKey}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+          });
+
+          const result = await res.json();
+          if (res.ok) {
+            message.textContent = "✅ Settings updated successfully!";
+          } else {
+            message.textContent = `❌ ${result.error}`;
+          }
+        } catch (err) {
+          message.textContent = "❌ Server error. Please try again.";
+          console.error(err);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

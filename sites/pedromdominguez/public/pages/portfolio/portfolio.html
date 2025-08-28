@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - DenoGenesis Framework Implementation</title>
+    <meta name="description" content="Showcasing real-world implementations of the DenoGenesis local-first software framework across multiple business domains.">
+
+  <script  type="module" src="/assets/js/script.js"></script>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+    <!-- Modern CSS with advanced features -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --dark-bg: #0a0a0a;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.8);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --shadow-glow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Background animation */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(ellipse at 40% 80%, rgba(120, 200, 255, 0.3) 0%, transparent 50%);
+            z-index: -1;
+            animation: backgroundShift 20s ease-in-out infinite;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Navigation placeholder */
+        .nav {
+            /* Space reserved for dynamic navigation injection */
+            min-height: 80px;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 100px 2rem 60px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .framework-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .framework-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* Portfolio Grid */
+        .portfolio-section {
+            padding: 80px 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 60px;
+        }
+
+        .portfolio-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .portfolio-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: var(--transition);
+        }
+
+        .portfolio-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .portfolio-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-glow);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .business-icon {
+            background: var(--primary-gradient);
+        }
+
+        .community-icon {
+            background: var(--accent-gradient);
+        }
+
+        .service-icon {
+            background: var(--success-gradient);
+        }
+
+        .card-title {
+            flex: 1;
+        }
+
+        .card-title h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .card-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .card-features li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .card-features li::before {
+            content: '✓';
+            color: #00f2fe;
+            font-weight: bold;
+            width: 16px;
+            text-align: center;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .visit-btn {
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary-gradient);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 500;
+            text-align: center;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+        }
+
+        .visit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: rgba(0, 242, 254, 0.1);
+            color: #00f2fe;
+            border: 1px solid rgba(0, 242, 254, 0.2);
+        }
+
+        /* Stats Section */
+        .stats-section {
+            padding: 60px 2rem;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 80px 2rem;
+            text-align: center;
+        }
+
+        .cta-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .cta-content h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .cta-content p {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: var(--accent-gradient);
+            color: white;
+            text-decoration: none;
+            border-radius: 15px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(245, 87, 108, 0.4);
+        }
+
+        /* Footer placeholder */
+        #footer {
+            /* Space reserved for dynamic footer injection */
+            min-height: 200px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero {
+                padding: 80px 1rem 40px;
+            }
+
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .portfolio-card {
+                padding: 1.5rem;
+            }
+
+            .card-actions {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+
+            .portfolio-section,
+            .cta-section {
+                padding: 60px 1rem;
+            }
+        }
+
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Focus states */
+        .visit-btn:focus,
+        .cta-btn:focus {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Dynamic Navigation -->
+    <nav class="navbar"></nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>DenoGenesis Portfolio</h1>
+        <p>Real-world implementations of local-first software principles across multiple business domains, validating Martin Kleppmann's Cambridge research through practical deployment.</p>
+        <div class="framework-badge">
+            <span>🚀</span>
+            <span>Local-First Digital Sovereignty Platform</span>
+        </div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section class="portfolio-section">
+        <div class="section-header">
+            <h2>Live Implementations</h2>
+            <p class="section-description">Each site demonstrates different aspects of the DenoGenesis framework, from business operations to community building and service delivery.</p>
+        </div>
+
+        <div class="portfolio-grid">
+            <!-- Dominguez Tech Solutions -->
+            <div class="portfolio-card">
+                <div class="card-header">
+                    <div class="card-icon business-icon">💼</div>
+                    <div class="card-title">
+                        <h3>Dominguez Tech Solutions</h3>
+                        <div class="card-subtitle">Primary Business Hub</div>
+                    </div>
+                </div>
+                <p class="card-description">
+                    Professional technology consulting and software development services. Demonstrates enterprise-level implementation of local-first architecture with client portfolio and service offerings.
+                </p>
+                <ul class="card-features">
+                    <li>Professional service showcase</li>
+                    <li>Client testimonials and case studies</li>
+                    <li>Multi-tenant business architecture</li>
+                    <li>Real-time performance monitoring</li>
+                    <li>Local-first data sovereignty</li>
+                </ul>
+                <div class="card-actions">
+                    <a href="https://www.domingueztechsolutions.com" target="_blank" class="visit-btn">Visit Site</a>
+                    <span class="status-badge">Live</span>
+                </div>
+            </div>
+
+            <!-- OK Devs -->
+            <div class="portfolio-card">
+                <div class="card-header">
+                    <div class="card-icon community-icon">👥</div>
+                    <div class="card-title">
+                        <h3>OK Devs</h3>
+                        <div class="card-subtitle">Developer Community Platform</div>
+                    </div>
+                </div>
+                <p class="card-description">
+                    Oklahoma's premier developer community hub, fostering local tech talent and innovation. Showcases collaborative features and community-driven content management through local-first principles.
+                </p>
+                <ul class="card-features">
+                    <li>Community-driven development</li>
+                    <li>Local tech event coordination</li>
+                    <li>Developer resource sharing</li>
+                    <li>Offline-capable collaboration tools</li>
+                    <li>Regional digital sovereignty</li>
+                </ul>
+                <div class="card-actions">
+                    <a href="https://www.okdevs.xyz" target="_blank" class="visit-btn">Visit Site</a>
+                    <span class="status-badge">Live</span>
+                </div>
+            </div>
+
+            <!-- Heavenly Roofing -->
+            <div class="portfolio-card">
+                <div class="card-header">
+                    <div class="card-icon service-icon">🏠</div>
+                    <div class="card-title">
+                        <h3>Heavenly Roofing OK</h3>
+                        <div class="card-subtitle">Service Industry Implementation</div>
+                    </div>
+                </div>
+                <p class="card-description">
+                    Professional roofing services website demonstrating how local-first architecture serves traditional service businesses with customer management, project tracking, and offline capabilities.
+                </p>
+                <ul class="card-features">
+                    <li>Service business optimization</li>
+                    <li>Customer project tracking</li>
+                    <li>Local search optimization</li>
+                    <li>Mobile-first responsive design</li>
+                    <li>Offline quote generation</li>
+                </ul>
+                <div class="card-actions">
+                    <a href="https://www.heavenlyroofingok.com" target="_blank" class="visit-btn">Visit Site</a>
+                    <span class="status-badge">Live</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-number">3</span>
+                <span class="stat-label">Live Deployments</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">8+</span>
+                <span class="stat-label">Months Validated</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">9</span>
+                <span class="stat-label">Local-First Principles</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">100%</span>
+                <span class="stat-label">Digital Sovereignty</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2>Ready for Cambridge Collaboration</h2>
+            <p>
+                This portfolio represents the first practical validation of Martin Kleppmann's local-first software research.
+                All implementations demonstrate measurable improvements in performance, reliability, and digital sovereignty
+                compared to traditional cloud-dependent architectures.
+            </p>
+            <a href="mailto:pedro@domingueztechsolutions.com" class="cta-btn">
+                <span>📧</span>
+                <span>Contact for Collaboration</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Dynamic Footer -->
+    <footer id="footer"></footer>
+
+    <!-- Intersection Observer for animations -->
+    <script>
+        // Animate cards on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Initially hide cards for animation
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.portfolio-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+                observer.observe(card);
+            });
+
+            // Animate stats
+            const stats = document.querySelectorAll('.stat-item');
+            stats.forEach((stat, index) => {
+                stat.style.opacity = '0';
+                stat.style.transform = 'translateY(20px)';
+                stat.style.transition = `opacity 0.4s ease ${index * 0.1}s, transform 0.4s ease ${index * 0.1}s`;
+                observer.observe(stat);
+            });
+        });
+
+        // Add click tracking for analytics
+        document.querySelectorAll('.visit-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // Track portfolio site visits
+                console.log('Portfolio site visit:', e.target.href);
+            });
+        });
+    </script>
+</body>
+</html>

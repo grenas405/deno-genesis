@@ -1,0 +1,203 @@
+/* =======================================
+   Admin Dashboard Styling - DominguezTechSolutions
+   Enterprise-Ready Design
+======================================= */
+
+/* Section Containers */
+.content-management,
+.system-tools,
+.logout {
+  background-color: #0b1120;
+  color: #f4f4f4;
+  padding: 3rem 2rem;
+  border-radius: 14px;
+  margin-bottom: 2.5rem;
+  max-width: 1000px;
+  margin-inline: auto;
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.08);
+  transition: box-shadow 0.4s ease, transform 0.3s ease;
+}
+
+.content-management:hover,
+.system-tools:hover,
+.logout:hover {
+  box-shadow: 0 0 35px rgba(255, 215, 0, 0.2);
+  transform: translateY(-3px);
+}
+
+/* Section Titles */
+.content-management h2,
+.system-tools h2,
+.logout h2 {
+  font-size: 2rem;
+  color: gold;
+  text-align: center;
+  margin-bottom: 1.8rem;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+  letter-spacing: 0.8px;
+}
+
+/* Dashboard Lists */
+#dashboard-content,
+#dashboard-tools {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1.2rem;
+}
+
+#dashboard-content li,
+#dashboard-tools li {
+  background-color: #192841;
+  padding: 1.2rem;
+  border-left: 5px solid gold;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+}
+
+#dashboard-content li:hover,
+#dashboard-tools li:hover {
+  background-color: #1f2f49;
+  transform: scale(1.015);
+}
+
+/* Logout Section */
+.logout {
+  text-align: center;
+}
+
+.logout .cta-button {
+  background-color: gold;
+  color: #0b1120;
+  padding: 0.85rem 2rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+}
+
+.logout .cta-button:hover {
+  background-color: #ffe066;
+  box-shadow: 0 0 15px gold;
+  transform: scale(1.07);
+}
+
+/* ============================================
+   Dashboard Overview Styling
+============================================ */
+
+.dashboard-overview {
+  max-width: 1000px;
+  margin: 2.5rem auto;
+  padding: 3rem 2rem;
+  background-color: #0b1120;
+  border-radius: 14px;
+  box-shadow: 0 0 35px rgba(255, 215, 0, 0.1);
+  color: #f5f5f5;
+}
+
+.dashboard-welcome {
+  font-size: 2rem;
+  font-weight: bold;
+  color: gold;
+  text-align: center;
+  margin-bottom: 2.5rem;
+  text-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+}
+
+/* Section Headings */
+.dashboard-section h2 {
+  font-size: 1.5rem;
+  color: gold;
+  margin-bottom: 1.25rem;
+  border-left: 5px solid gold;
+  padding-left: 1rem;
+}
+
+/* Section List */
+.dashboard-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dashboard-section li {
+  background-color: #162338;
+  padding: 1.2rem;
+  border-radius: 10px;
+  margin-bottom: 1.2rem;
+  transition: background 0.3s ease, transform 0.25s ease;
+  border-left: 5px solid gold;
+}
+
+.dashboard-section li:hover {
+  background-color: #1f2f49;
+  transform: scale(1.02);
+}
+
+/* Dashboard Links */
+.dashboard-section a {
+  color: gold;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 1.1rem;
+  display: block;
+}
+
+.dashboard-section a:hover {
+  text-decoration: underline;
+  color: #fff3c6;
+}
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+  .dashboard-overview,
+  .content-management,
+  .system-tools,
+  .logout {
+    padding: 2rem 1.2rem;
+  }
+
+  .dashboard-welcome,
+  .content-management h2,
+  .system-tools h2,
+  .logout h2 {
+    font-size: 1.6rem;
+  }
+
+  .dashboard-section h2 {
+    font-size: 1.25rem;
+  }
+
+  .dashboard-section a {
+    font-size: 1rem;
+  }
+
+  .logout .cta-button {
+    font-size: 1rem;
+    width: 90%;
+    padding: 0.75rem 1.5rem;
+  }
+}
+
+/* Dashboard Links Styling */
+#dashboard-content a,
+#dashboard-tools a {
+  color: gold;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 1.1rem;
+  display: block;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+#dashboard-content a:hover,
+#dashboard-tools a:hover {
+  color: #fff3c6;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+}

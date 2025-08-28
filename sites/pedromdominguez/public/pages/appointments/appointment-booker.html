@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ✅ Basic Meta Configuration -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Book a consultation or service with Pedro M. Dominguez – your trusted partner for sovereign-first digital systems and local-first tech solutions." />
+  <meta name="author" content="Pedro M. Dominguez" />
+  <title>Book Appointment | Pedro M. Dominguez</title>
+
+  <!-- ✅ Stylesheet & JavaScript Modules -->
+  <link rel="stylesheet" href="../../assets/css/style.css" />
+  <script type="module" src="../../assets/js/script.js"></script>
+  <script type="module" src="../../assets/js/appointment-booker.js"></script>
+</head>
+<body>
+  <!-- ✅ Navigation -->
+  <nav class="navbar"></nav>
+
+  <!-- ✅ Hero Section -->
+  <section class="hero scroll-trigger" id="hero">
+    <h1 id="hero-headline">Book Your Consultation 🗓️</h1>
+    <p class="hero-subheading">Let’s build your next sovereign system together — tell me about your vision and let’s make it happen.</p>
+  </section>
+
+  <!-- ✅ Appointment Booking Form -->
+  <section class="appointment-booker scroll-trigger">
+    <form id="appointmentForm" class="appointment-form">
+      <!-- Full Name -->
+      <div class="form-group">
+        <label for="name">👤 Full Name</label>
+        <input type="text" id="name" name="name" placeholder="Your full name" required />
+      </div>
+
+      <!-- Phone Number -->
+      <div class="form-group">
+        <label for="phone">📞 Phone Number</label>
+        <input type="tel" id="phone" name="phone" placeholder="10-digit phone number" required />
+      </div>
+
+      <!-- Email (Optional) -->
+      <div class="form-group">
+        <label for="email">📧 Email (Optional)</label>
+        <input type="email" id="email" name="email" placeholder="Your email address" />
+      </div>
+
+      <!-- Service Dropdown -->
+      <div class="form-group">
+        <label for="service">🛠️ Select Service</label>
+        <select id="service" name="service" required>
+          <option value="" disabled selected>🔽 Choose a service</option>
+          <option value="web-app">🌐 Custom Web App Development</option>
+          <option value="consultation">🧑‍💻 Tech / AI Consultation</option>
+          <option value="license-partner">🤝 License DenoGenesis (For Agencies)</option>
+        </select>
+      </div>
+
+      <!-- Preferred Date -->
+      <div class="form-group">
+        <label for="date">📅 Preferred Date</label>
+        <input type="date" id="date" name="date" required />
+      </div>
+
+      <!-- Preferred Time -->
+      <div class="form-group">
+        <label for="time">⏰ Preferred Time</label>
+        <input type="time" id="time" name="time" required />
+      </div>
+
+      <!-- Message -->
+      <div class="form-group">
+        <label for="message">📝 Additional Details</label>
+        <textarea id="message" name="message" rows="4" placeholder="Tell me what you need — the more details the better!"></textarea>
+      </div>
+
+      <!-- Response Message -->
+      <div id="responseMessage" class="response-message" style="display: none;"></div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="cta-button">📅 Confirm Appointment</button>
+    </form>
+  </section>
+
+  <!-- ✅ Footer -->
+  <footer id="footer"></footer>
+</body>
+</html>

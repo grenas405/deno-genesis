@@ -1,0 +1,89 @@
+/* ================================================
+   Contact Messages Display - DominguezTechSolutions
+================================================ */
+
+.messages-section {
+  background-color: #0b1120;
+  padding: 3rem 1.5rem;
+  border-radius: 12px;
+  max-width: 900px;
+  margin: 2rem auto;
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.12);
+  color: #f5f5f5;
+}
+
+.messages-title {
+  text-align: center;
+  font-size: 2rem;
+  color: gold;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  margin-bottom: 0.5rem;
+}
+
+.messages-subtext {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #cccccc;
+  margin-bottom: 2rem;
+}
+
+/* Message Card */
+.message-card {
+  background-color: #1a273d;
+  border-left: 8px solid gold;
+  padding: 1.5rem;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.message-card:hover {
+  background-color: #22324a;
+  transform: scale(1.01);
+}
+
+.message-card h3 {
+  margin-top: 0;
+  color: #ffd700;
+  font-size: 1.3rem;
+  margin-bottom: 0.75rem;
+}
+
+.message-card p {
+  margin: 0.4rem 0;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+/* Feedback & Errors */
+.loading,
+.no-messages,
+.error-message {
+  text-align: center;
+  color: #cccccc;
+  font-size: 1rem;
+  margin-top: 2rem;
+}
+
+.error-message {
+  color: #ff7070;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .messages-title {
+    font-size: 1.6rem;
+  }
+
+  .message-card {
+    padding: 1rem;
+  }
+
+  .message-card h3 {
+    font-size: 1.15rem;
+  }
+
+  .message-card p {
+    font-size: 0.95rem;
+  }
+}

@@ -1,0 +1,729 @@
+/* === PREMIUM ENTERPRISE NOTIFICATIONS - ELITE DESIGN === */
+/* DenoGenesis Framework - Professional Color-Coded Notification System */
+
+/* === Color Palette Variables === */
+:root {
+  /* Success Colors */
+  --success-primary: #00ff88;
+  --success-secondary: #00d96e;
+  --success-bg: rgba(0, 255, 136, 0.12);
+  --success-border: rgba(0, 255, 136, 0.3);
+  --success-glow: rgba(0, 255, 136, 0.4);
+
+  /* Info Colors */  
+  --info-primary: #3a8dde;
+  --info-secondary: #2a7bc8;
+  --info-bg: rgba(58, 141, 222, 0.12);
+  --info-border: rgba(58, 141, 222, 0.3);
+  --info-glow: rgba(58, 141, 222, 0.4);
+
+  /* Warning Colors */
+  --warning-primary: #ffd700;
+  --warning-secondary: #ffed4e;
+  --warning-bg: rgba(255, 215, 0, 0.12);
+  --warning-border: rgba(255, 215, 0, 0.3);
+  --warning-glow: rgba(255, 215, 0, 0.4);
+
+  /* Error Colors */
+  --error-primary: #ff4757;
+  --error-secondary: #ff3742;
+  --error-bg: rgba(255, 71, 87, 0.12);
+  --error-border: rgba(255, 71, 87, 0.3);
+  --error-glow: rgba(255, 71, 87, 0.4);
+
+  /* Animation Variables */
+  --slide-duration: 0.6s;
+  --slide-exit-duration: 0.5s;
+  --slide-distance: 120%;
+  --bounce-distance: -12px;
+}
+
+/* === Container with Enhanced Positioning === */
+.notifications-container {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1rem;
+  pointer-events: none;
+  max-width: 420px;
+
+  /* Add subtle container animation */
+  animation: containerFloat 8s ease-in-out infinite;
+}
+
+/* === Premium Notification Base === */
+.notification {
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+
+  /* Enhanced Glass Morphism Base */
+  background: 
+    linear-gradient(135deg, 
+      rgba(255, 255, 255, 0.1) 0%, 
+      rgba(255, 255, 255, 0.05) 100%
+    );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  /* Premium Styling */
+  color: #ffffff;
+  padding: 1.25rem 2rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  /* Enhanced Shadows */
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.25),
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+
+  /* Typography */
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.3px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+
+  /* Layout */
+  max-width: 380px;
+  min-width: 300px;
+  width: 100%;
+
+  /* Interactions */
+  pointer-events: auto;
+  cursor: pointer;
+  user-select: none;
+
+  /* Initial State for Enhanced Slide Animation */
+  opacity: 0;
+  transform: translateX(var(--slide-distance)) scale(0.8) rotateY(15deg);
+  filter: blur(8px);
+
+  /* Premium Transitions */
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Enhanced Entrance Animation */
+  animation: 
+    notificationSlideIn var(--slide-duration) cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    notificationSlideOut var(--slide-exit-duration) cubic-bezier(0.22, 1, 0.36, 1) forwards 6s;
+}
+
+/* Multi-layered shimmer effect */
+.notification::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.03) 20%,
+    rgba(255, 255, 255, 0.08) 40%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.08) 60%,
+    rgba(255, 255, 255, 0.03) 80%,
+    transparent 100%
+  );
+  animation: shimmerPass 4s ease-in-out infinite 1s;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+/* Animated border highlight */
+.notification::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(45deg, 
+    transparent 0%, 
+    currentColor 25%, 
+    transparent 50%, 
+    currentColor 75%, 
+    transparent 100%
+  );
+  background-size: 200% 200%;
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0.3;
+  animation: borderFlow 3s ease-in-out infinite;
+}
+
+/* Content wrapper to ensure proper layering */
+.notification-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 1rem;
+}
+
+/* Premium Status Indicator with Enhanced Colors */
+.notification-indicator {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  position: relative;
+  background: currentColor;
+
+  /* Enhanced glow effect */
+  box-shadow: 
+    0 0 16px currentColor,
+    0 0 8px rgba(255, 255, 255, 0.3),
+    0 0 4px currentColor;
+
+  /* Enhanced pulsing animation */
+  animation: indicatorPulse 2s ease-in-out infinite;
+}
+
+/* Multiple pulse rings for premium effect */
+.notification-indicator::before,
+.notification-indicator::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.notification-indicator::before {
+  animation: pulseRing 2s ease-in-out infinite;
+}
+
+.notification-indicator::after {
+  animation: pulseRing 2s ease-in-out infinite 0.5s;
+  inset: -8px;
+  border-width: 1px;
+}
+
+/* Enhanced Hover States */
+.notification:hover {
+  transform: translateX(-8px) scale(1.02) rotateY(0deg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+
+  box-shadow: 
+    0 16px 48px rgba(0, 0, 0, 0.3),
+    0 8px 24px rgba(0, 0, 0, 0.15),
+    0 0 32px currentColor,
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+
+  border-color: rgba(255, 255, 255, 0.3);
+  filter: blur(0) brightness(1.1);
+}
+
+/* Active/Click State with satisfying feedback */
+.notification:active {
+  transform: translateX(-4px) scale(0.98) rotateY(0deg);
+  transition: transform 0.1s ease;
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.2),
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* === COLOR-CODED NOTIFICATION VARIANTS === */
+
+/* SUCCESS - Vibrant Green Theme */
+.notification.notification-success {
+  background: 
+    linear-gradient(135deg, 
+      var(--success-bg) 0%, 
+      rgba(255, 255, 255, 0.05) 100%
+    );
+  border-left: 4px solid var(--success-primary);
+  border-color: var(--success-border);
+  color: var(--success-secondary);
+}
+
+.notification.notification-success .notification-indicator {
+  background: var(--success-primary);
+  color: var(--success-primary);
+  box-shadow: 
+    0 0 20px var(--success-glow),
+    0 0 10px rgba(255, 255, 255, 0.2),
+    0 0 6px var(--success-primary);
+}
+
+.notification.notification-success:hover {
+  background: 
+    linear-gradient(135deg, 
+      rgba(0, 255, 136, 0.18) 0%, 
+      rgba(255, 255, 255, 0.08) 100%
+    );
+  box-shadow: 
+    0 16px 48px var(--success-glow),
+    0 8px 24px rgba(0, 0, 0, 0.15),
+    0 0 40px var(--success-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-color: var(--success-primary);
+}
+
+/* INFO - Professional Blue Theme */
+.notification.notification-info {
+  background: 
+    linear-gradient(135deg, 
+      var(--info-bg) 0%, 
+      rgba(255, 255, 255, 0.05) 100%
+    );
+  border-left: 4px solid var(--info-primary);
+  border-color: var(--info-border);
+  color: var(--info-secondary);
+}
+
+.notification.notification-info .notification-indicator {
+  background: var(--info-primary);
+  color: var(--info-primary);
+  box-shadow: 
+    0 0 20px var(--info-glow),
+    0 0 10px rgba(255, 255, 255, 0.2),
+    0 0 6px var(--info-primary);
+}
+
+.notification.notification-info:hover {
+  background: 
+    linear-gradient(135deg, 
+      rgba(58, 141, 222, 0.18) 0%, 
+      rgba(255, 255, 255, 0.08) 100%
+    );
+  box-shadow: 
+    0 16px 48px var(--info-glow),
+    0 8px 24px rgba(0, 0, 0, 0.15),
+    0 0 40px var(--info-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-color: var(--info-primary);
+}
+
+/* WARNING - Premium Gold Theme */
+.notification.notification-warning {
+  background: 
+    linear-gradient(135deg, 
+      var(--warning-bg) 0%, 
+      rgba(255, 255, 255, 0.05) 100%
+    );
+  border-left: 4px solid var(--warning-primary);
+  border-color: var(--warning-border);
+  color: var(--warning-secondary);
+}
+
+.notification.notification-warning .notification-indicator {
+  background: var(--warning-primary);
+  color: var(--warning-primary);
+  box-shadow: 
+    0 0 20px var(--warning-glow),
+    0 0 10px rgba(255, 255, 255, 0.2),
+    0 0 6px var(--warning-primary);
+}
+
+.notification.notification-warning:hover {
+  background: 
+    linear-gradient(135deg, 
+      rgba(255, 215, 0, 0.18) 0%, 
+      rgba(255, 255, 255, 0.08) 100%
+    );
+  box-shadow: 
+    0 16px 48px var(--warning-glow),
+    0 8px 24px rgba(0, 0, 0, 0.15),
+    0 0 40px var(--warning-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-color: var(--warning-primary);
+}
+
+/* ERROR - Alert Red Theme */
+.notification.notification-error {
+  background: 
+    linear-gradient(135deg, 
+      var(--error-bg) 0%, 
+      rgba(255, 255, 255, 0.05) 100%
+    );
+  border-left: 4px solid var(--error-primary);
+  border-color: var(--error-border);
+  color: var(--error-secondary);
+}
+
+.notification.notification-error .notification-indicator {
+  background: var(--error-primary);
+  color: var(--error-primary);
+  box-shadow: 
+    0 0 20px var(--error-glow),
+    0 0 10px rgba(255, 255, 255, 0.2),
+    0 0 6px var(--error-primary);
+}
+
+.notification.notification-error:hover {
+  background: 
+    linear-gradient(135deg, 
+      rgba(255, 71, 87, 0.18) 0%, 
+      rgba(255, 255, 255, 0.08) 100%
+    );
+  box-shadow: 
+    0 16px 48px var(--error-glow),
+    0 8px 24px rgba(0, 0, 0, 0.15),
+    0 0 40px var(--error-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-color: var(--error-primary);
+}
+
+/* === ENHANCED PREMIUM ANIMATIONS === */
+
+@keyframes notificationSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(var(--slide-distance)) scale(0.8) rotateY(25deg);
+    filter: blur(12px);
+  }
+  20% {
+    opacity: 0.3;
+    filter: blur(8px);
+  }
+  60% {
+    opacity: 0.9;
+    transform: translateX(var(--bounce-distance)) scale(1.05) rotateY(-3deg);
+    filter: blur(2px);
+  }
+  80% {
+    transform: translateX(4px) scale(0.98) rotateY(1deg);
+    filter: blur(1px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1) rotateY(0deg);
+    filter: blur(0);
+  }
+}
+
+@keyframes notificationSlideOut {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1) rotateY(0deg);
+    filter: blur(0);
+  }
+  20% {
+    opacity: 0.8;
+    transform: translateX(-8px) scale(1.02) rotateY(-2deg);
+    filter: blur(1px);
+  }
+  50% {
+    opacity: 0.4;
+    transform: translateX(var(--bounce-distance)) scale(0.95) rotateY(8deg);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(var(--slide-distance)) scale(0.8) rotateY(25deg);
+    filter: blur(12px);
+  }
+}
+
+@keyframes shimmerPass {
+  0% {
+    left: -100%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 0.3;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes borderFlow {
+  0%, 100% {
+    background-position: 0% 0%;
+    opacity: 0.2;
+  }
+  50% {
+    background-position: 100% 100%;
+    opacity: 0.4;
+  }
+}
+
+@keyframes indicatorPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  25% {
+    transform: scale(1.15);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.95;
+  }
+  75% {
+    transform: scale(1.1);
+    opacity: 0.85;
+  }
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+@keyframes containerFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  33% {
+    transform: translateY(-1px);
+  }
+  66% {
+    transform: translateY(1px);
+  }
+}
+
+/* === Enhanced Close Button === */
+.notification-close {
+  margin-left: auto;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.notification-close:hover {
+  color: rgba(255, 255, 255, 1);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.notification-close:active {
+  transform: scale(0.9) rotate(90deg);
+}
+
+/* === Enhanced Progress Bar === */
+.notification-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, 
+    currentColor 0%, 
+    rgba(255, 255, 255, 0.8) 50%, 
+    currentColor 100%
+  );
+  border-radius: 0 0 16px 16px;
+  opacity: 0.7;
+  animation: progressBar 6s linear forwards;
+  box-shadow: 0 0 6px currentColor;
+}
+
+@keyframes progressBar {
+  0% {
+    width: 100%;
+    opacity: 0.7;
+  }
+  90% {
+    opacity: 0.7;
+  }
+  100% {
+    width: 0%;
+    opacity: 0;
+  }
+}
+
+/* === Enhanced Icon Support === */
+.notification-icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  margin-right: 0.75rem;
+  opacity: 0.95;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+  transition: transform 0.3s ease;
+}
+
+.notification:hover .notification-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+/* === Stacking Animation for Multiple Notifications === */
+.notification:nth-child(2) {
+  animation-delay: 0.1s;
+  margin-top: -0.5rem;
+  transform: translateX(calc(var(--slide-distance) + 20px)) scale(0.95);
+}
+
+.notification:nth-child(3) {
+  animation-delay: 0.2s;
+  margin-top: -1rem;
+  transform: translateX(calc(var(--slide-distance) + 40px)) scale(0.9);
+}
+
+.notification:nth-child(n+4) {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* === RESPONSIVE DESIGN === */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .notifications-container {
+    top: 1.5rem;
+    right: 1.5rem;
+    max-width: 360px;
+  }
+
+  .notification {
+    max-width: 360px;
+    padding: 1rem 1.5rem;
+  }
+}
+
+/* Mobile Optimization */
+@media (max-width: 768px) {
+  .notifications-container {
+    top: 1rem;
+    right: 1rem;
+    left: 1rem;
+    align-items: stretch;
+    max-width: none;
+  }
+
+  .notification {
+    max-width: none;
+    min-width: auto;
+    padding: 1rem 1.25rem;
+    font-size: 0.9rem;
+  }
+
+  .notification-indicator {
+    width: 12px;
+    height: 12px;
+  }
+  
+  :root {
+    --slide-distance: 100%;
+    --bounce-distance: -8px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .notifications-container {
+    gap: 0.75rem;
+    top: 0.75rem;
+    right: 0.75rem;
+    left: 0.75rem;
+  }
+
+  .notification {
+    padding: 0.875rem 1rem;
+    font-size: 0.85rem;
+    border-radius: 12px;
+  }
+
+  .notification-indicator {
+    width: 10px;
+    height: 10px;
+  }
+
+  .notification-close {
+    width: 24px;
+    height: 24px;
+    font-size: 0.9rem;
+  }
+}
+
+/* === ACCESSIBILITY & PREFERENCES === */
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .notification {
+    background: rgba(0, 0, 0, 0.95);
+    border: 2px solid currentColor;
+    backdrop-filter: none;
+  }
+
+  .notification-indicator {
+    box-shadow: none;
+    border: 2px solid currentColor;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --slide-duration: 0.2s;
+    --slide-exit-duration: 0.2s;
+  }
+
+  .notification,
+  .notification-indicator,
+  .notification::before,
+  .notification::after,
+  .notifications-container,
+  .notification-icon {
+    animation: none !important;
+    transition: opacity 0.2s ease !important;
+  }
+
+  .notification {
+    transform: none !important;
+    filter: none !important;
+  }
+
+  .notification:hover {
+    transform: none !important;
+  }
+}
+
+/* Focus Management for Accessibility */
+.notification:focus {
+  outline: 3px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 2px;
+  transform: translateX(-4px) scale(1.01);
+}
+
+.notification:focus .notification-indicator {
+  animation-duration: 1s;
+}
+
+/* Print Styles */
+@media print {
+  .notifications-container {
+    display: none;
+  }
+}

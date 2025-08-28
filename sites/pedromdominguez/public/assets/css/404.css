@@ -1,0 +1,78 @@
+/* === 404 Helpful Links Section === */
+.services {
+  background: radial-gradient(circle at top, #0a1a2f 0%, #050f1f 100%);
+  padding: 5rem 2rem;
+  text-align: center;
+  border-top: 2px solid rgba(255, 215, 0, 0.15);
+  border-bottom: 2px solid rgba(255, 215, 0, 0.15);
+}
+
+.services h2 {
+  font-size: 2.2rem;
+  color: #ffd700;
+  margin-bottom: 2.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  position: relative;
+  display: inline-block;
+}
+
+.services h2::after {
+  content: "";
+  display: block;
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, #ffd700 0%, #fffacd 100%);
+  margin: 0.75rem auto 0;
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(255, 215, 0, 0.5);
+}
+
+.services ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  max-width: 600px;
+}
+
+.services ul li {
+  margin: 1.2rem 0;
+}
+
+.services .cta-link {
+  display: inline-block;
+  font-size: 1.15rem;
+  color: #ffffff;
+  text-decoration: none;
+  border: 2px solid #ffd700;
+  border-radius: 50px;
+  padding: 0.85rem 2rem;
+  background: transparent;
+  transition: all 0.35s ease;
+  box-shadow: inset 0 0 0 0 #ffd700;
+}
+
+.services .cta-link:hover {
+  background: #ffd700;
+  color: #0a1a2f;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(255, 215, 0, 0.4);
+}
+
+.services .cta-link:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.4);
+}
+
+@media (max-width: 768px) {
+  .services h2 {
+    font-size: 1.8rem;
+  }
+
+  .services .cta-link {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.85rem 0;
+    border-radius: 40px;
+  }
+}

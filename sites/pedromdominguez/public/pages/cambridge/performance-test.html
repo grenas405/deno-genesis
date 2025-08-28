@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cambridge Performance Test</title>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <script type="module" src="/assets/js/script.js"></script>
+</head>
+<body>
+	<nav class="navbar"></nav>
+
+    <div class="performance-test-section">
+        <h2>🚀 Test Cambridge Performance Validation</h2>
+        <p>Run the open-source performance test that validates our local-first architecture against Cambridge University research.</p>
+
+        <h3>Prerequisites</h3>
+        <ul>
+            <li>Install <a href="https://deno.land/" target="_blank">Deno runtime</a></li>
+            <li>Basic command line knowledge</li>
+            <li>Internet connection</li>
+        </ul>
+
+        <h3>Quick Test Instructions</h3>
+
+        <h4>Option 1: Clone and Test</h4>
+        <div class="code-block">
+            <code>
+# Clone the performance test repository<br>
+git clone https://github.com/xtcedro/cambridge-performance-test.git<br>
+cd cambridge-performance-test<br><br>
+
+# Run Cambridge validation test<br>
+deno run --allow-net --allow-write performanceTest.ts https://pedromdominguez.com cambridge
+            </code>
+            <button onclick="copyToClipboard('clone-test')">Copy Commands</button>
+        </div>
+
+        <h4>Option 2: Direct Download</h4>
+        <div class="code-block">
+            <code>
+# Download test script directly<br>
+curl -O https://raw.githubusercontent.com/xtcedro/cambridge-performance-test/main/performanceTest.ts<br><br>
+
+# Run the test<br>
+deno run --allow-net --allow-write performanceTest.ts https://pedromdominguez.com cambridge
+            </code>
+            <button onclick="copyToClipboard('direct-test')">Copy Commands</button>
+        </div>
+
+        <h3>Expected Results</h3>
+        <div class="expected-results">
+            <p><strong>✅ Average Response Time:</strong> &lt;50ms (5-20x faster than cloud)</p>
+            <p><strong>✅ Success Rate:</strong> 100% (Enterprise reliability)</p>
+            <p><strong>✅ Cambridge Validation:</strong> Local-first architecture proven</p>
+        </div>
+
+        <p><em>Test validates 8+ months of production performance data demonstrating superior local-first architecture.</em></p>
+    </div>
+	<footer id="footer"></nav>
+
+    <script>
+    function copyToClipboard(type) {
+        let text = '';
+
+        if (type === 'clone-test') {
+            text = `git clone https://github.com/xtcedro/cambridge-performance-test.git
+cd cambridge-performance-test
+deno run --allow-net --allow-write performanceTest.ts https://pedromdominguez.com cambridge`;
+        } else if (type === 'direct-test') {
+            text = `curl -O https://raw.githubusercontent.com/xtcedro/cambridge-performance-test/main/performanceTest.ts
+deno run --allow-net --allow-write performanceTest.ts https://pedromdominguez.com cambridge`;
+        }
+
+        navigator.clipboard.writeText(text).then(() => {
+            // Find the button that was clicked and show feedback
+            event.target.textContent = 'Copied!';
+            setTimeout(() => {
+                event.target.textContent = 'Copy Commands';
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+        });
+    }
+    </script>
+</body>
+</html>

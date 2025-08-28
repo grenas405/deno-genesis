@@ -1,0 +1,814 @@
+/* === CHATBOT RESPONSIVE CSS === */
+/* DenoGenesis Framework - Mobile & Device Optimization */
+/* Comprehensive responsive enhancements for premium chatbot experience */
+
+/* ================================================================================
+   🔧 BASE RESPONSIVE FOUNDATIONS
+   ================================================================================ */
+
+/* Ensure proper viewport handling */
+@viewport {
+  width: device-width;
+  initial-scale: 1;
+  maximum-scale: 1;
+  user-scalable: no;
+}
+
+/* Root responsive variables */
+:root {
+  /* Responsive spacing scale */
+  --mobile-padding-xs: 0.5rem;
+  --mobile-padding-sm: 0.75rem;
+  --mobile-padding-md: 1rem;
+  --mobile-padding-lg: 1.25rem;
+  
+  /* Mobile touch targets */
+  --touch-target-min: 44px;
+  --touch-target-comfortable: 48px;
+  
+  /* Mobile typography scale */
+  --mobile-text-xs: 0.7rem;
+  --mobile-text-sm: 0.75rem;
+  --mobile-text-base: 0.85rem;
+  --mobile-text-lg: 0.9rem;
+  --mobile-text-xl: 1rem;
+}
+
+/* ================================================================================
+   📱 LARGE SCREENS (DESKTOP & LARGE TABLETS)
+   ================================================================================ */
+
+/* Large Desktop (1200px+) */
+@media (min-width: 1200px) {
+  .chatbot-container {
+    width: 420px;
+    height: 650px;
+    bottom: 120px;
+  }
+  
+  .chatbot-toggle {
+    width: 68px;
+    height: 68px;
+    bottom: 2.5rem;
+    right: 2.5rem;
+  }
+  
+  .chat-icon {
+    width: 26px;
+    height: 26px;
+  }
+  
+  .quick-actions-grid {
+    gap: 1rem;
+  }
+  
+  .quick-action-btn {
+    padding: 1rem 1.25rem;
+    font-size: 0.9rem;
+  }
+  
+  .user-input {
+    font-size: 1rem;
+    padding: 1rem 1.25rem;
+  }
+  
+  .send-button {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* ================================================================================
+   💻 DESKTOP & STANDARD TABLETS (769px - 1199px)
+   ================================================================================ */
+
+@media (min-width: 769px) and (max-width: 1199px) {
+  .chatbot-container {
+    width: 380px;
+    height: 580px;
+  }
+  
+  .chatbot-toggle {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .chat-icon {
+    width: 22px;
+    height: 22px;
+  }
+  
+  .quick-actions-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  
+  .quick-action-btn {
+    font-size: 0.8rem;
+    padding: 0.875rem 1rem;
+  }
+  
+  .chatbot-header {
+    padding: 1.25rem;
+  }
+  
+  .chatbox {
+    padding: 1rem;
+  }
+  
+  .chatbot-input-container {
+    padding: 1rem;
+  }
+}
+
+/* ================================================================================
+   📱 TABLETS & SMALL LAPTOPS (481px - 768px)
+   ================================================================================ */
+
+@media (min-width: 481px) and (max-width: 768px) {
+  /* Container adjustments */
+  .chatbot-toggle {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 56px;
+    height: 56px;
+  }
+  
+  .chat-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .chatbot-container {
+    width: calc(100vw - 2rem);
+    max-width: 400px;
+    height: calc(100vh - 200px);
+    bottom: 90px;
+    right: 1rem;
+  }
+  
+  /* Header optimizations */
+  .chatbot-header {
+    padding: 1rem;
+    border-radius: 20px 20px 0 0;
+  }
+  
+  .assistant-title {
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+  
+  .assistant-avatar {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .avatar-icon {
+    font-size: 18px;
+  }
+  
+  .status-text {
+    font-size: var(--mobile-text-sm);
+  }
+  
+  .header-btn {
+    width: 36px;
+    height: 36px;
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+  }
+  
+  /* Chat area */
+  .chatbox {
+    padding: var(--mobile-padding-sm);
+  }
+  
+  /* Quick actions - single column */
+  .quick-actions-container {
+    padding: var(--mobile-padding-md);
+  }
+  
+  .quick-actions-grid {
+    grid-template-columns: 1fr;
+    gap: var(--mobile-padding-sm);
+  }
+  
+  .quick-action-btn {
+    padding: var(--mobile-padding-md);
+    font-size: var(--mobile-text-lg);
+    min-height: var(--touch-target-comfortable);
+    justify-content: flex-start;
+    text-align: left;
+  }
+  
+  .quick-action-icon {
+    margin-right: var(--mobile-padding-sm);
+    font-size: 1.1rem;
+  }
+  
+  .quick-action-text {
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  
+  /* Message styling */
+  .user-text,
+  .bot-text {
+    padding: var(--mobile-padding-md);
+    margin-left: 0;
+    margin-right: 0;
+    border-radius: 16px;
+    font-size: var(--mobile-text-lg);
+  }
+  
+  .message-header {
+    margin-bottom: 0.5rem;
+  }
+  
+  .user-label,
+  .bot-label {
+    font-size: var(--mobile-text-sm);
+  }
+  
+  .message-timestamp {
+    font-size: var(--mobile-text-xs);
+  }
+  
+  /* Input area */
+  .chatbot-input-container {
+    padding: var(--mobile-padding-md);
+  }
+  
+  .user-input {
+    font-size: var(--mobile-text-xl);
+    padding: var(--mobile-padding-md);
+    border-radius: 14px;
+    min-height: var(--touch-target-min);
+  }
+  
+  .send-button {
+    width: var(--touch-target-comfortable);
+    height: var(--touch-target-comfortable);
+    border-radius: 14px;
+  }
+  
+  .send-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  /* Footer */
+  .chatbot-footer {
+    padding: var(--mobile-padding-sm) var(--mobile-padding-md);
+    border-radius: 0 0 20px 20px;
+  }
+  
+  .powered-by {
+    font-size: var(--mobile-text-sm);
+  }
+  
+  .version-badge {
+    font-size: var(--mobile-text-xs);
+    padding: 0.125rem 0.3rem;
+  }
+  
+  .footer-btn {
+    width: 32px;
+    height: 32px;
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+  }
+}
+
+/* ================================================================================
+   📱 MOBILE DEVICES (320px - 480px)
+   ================================================================================ */
+
+@media (max-width: 480px) {
+  /* Full mobile layout */
+  .chatbot-toggle {
+    bottom: var(--mobile-padding-lg);
+    right: var(--mobile-padding-lg);
+    width: 52px;
+    height: 52px;
+  }
+  
+  .chat-icon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .toggle-badge {
+    top: -6px;
+    right: -6px;
+    font-size: 8px;
+    padding: 1px 4px;
+  }
+  
+  .chatbot-container {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    top: 25%;
+    width: 100%;
+    max-width: none;
+    height: auto;
+    max-height: none;
+    border-radius: 24px 24px 0 0;
+    margin: 0;
+  }
+  
+  .chatbot-overlay.visible {
+    display: block;
+  }
+  
+  /* Enhanced header for mobile */
+  .chatbot-header {
+    padding: var(--mobile-padding-md) var(--mobile-padding-lg);
+    border-radius: 24px 24px 0 0;
+    position: relative;
+  }
+  
+  /* Add drag handle */
+  .chatbot-header::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 4px;
+    background: rgba(255, 215, 0, 0.3);
+    border-radius: 2px;
+  }
+  
+  .assistant-title {
+    font-size: var(--mobile-text-xl);
+    font-weight: 700;
+  }
+  
+  .assistant-avatar {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .avatar-icon {
+    font-size: 16px;
+  }
+  
+  .status-indicator {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .status-text {
+    font-size: var(--mobile-text-xs);
+  }
+  
+  .header-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+  }
+  
+  .header-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  /* Chat messages area */
+  .chatbox {
+    padding: var(--mobile-padding-sm) var(--mobile-padding-md);
+    flex: 1;
+    min-height: 200px;
+  }
+  
+  .user-message,
+  .bot-message,
+  .system-message,
+  .error-message {
+    margin-bottom: var(--mobile-padding-md);
+  }
+  
+  .user-text,
+  .bot-text {
+    padding: var(--mobile-padding-md) var(--mobile-padding-lg);
+    border-radius: 18px;
+    font-size: var(--mobile-text-base);
+    line-height: 1.5;
+  }
+  
+  .bot-avatar {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .bot-avatar .avatar-icon {
+    font-size: 12px;
+  }
+  
+  /* Quick actions mobile optimization */
+  .quick-actions-container {
+    padding: var(--mobile-padding-md);
+    border-radius: 0;
+  }
+  
+  .quick-actions-title {
+    font-size: var(--mobile-text-sm);
+    margin-bottom: var(--mobile-padding-sm);
+  }
+  
+  .quick-actions-grid {
+    grid-template-columns: 1fr;
+    gap: var(--mobile-padding-sm);
+  }
+  
+  .quick-action-btn {
+    padding: var(--mobile-padding-lg);
+    font-size: var(--mobile-text-base);
+    border-radius: 16px;
+    min-height: 56px;
+    background: var(--glass-medium);
+    border: 1px solid rgba(255, 215, 0, 0.15);
+  }
+  
+  .quick-action-btn:hover,
+  .quick-action-btn:active {
+    background: rgba(255, 215, 0, 0.1);
+    border-color: rgba(255, 215, 0, 0.3);
+    transform: scale(0.98);
+  }
+  
+  .quick-action-icon {
+    font-size: 1.2rem;
+    margin-right: var(--mobile-padding-md);
+  }
+  
+  .quick-action-text {
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  
+  /* Input area mobile enhancements */
+  .chatbot-input-container {
+    padding: var(--mobile-padding-md) var(--mobile-padding-lg);
+    background: var(--glass-light);
+    border-radius: 0;
+    /* Safe area handling for iPhone */
+    padding-bottom: calc(var(--mobile-padding-md) + env(safe-area-inset-bottom, 0px));
+  }
+  
+  .input-group {
+    gap: var(--mobile-padding-md);
+  }
+  
+  .user-input {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: var(--mobile-padding-lg);
+    border-radius: 20px;
+    min-height: 52px;
+    max-height: 100px;
+    background: var(--glass-strong);
+    border: 1px solid rgba(255, 215, 0, 0.15);
+  }
+  
+  .user-input:focus {
+    border-color: var(--chatbot-accent);
+    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.1);
+  }
+  
+  .send-button {
+    width: 52px;
+    height: 52px;
+    border-radius: 20px;
+    background: var(--chatbot-accent);
+    min-width: auto;
+    flex-shrink: 0;
+  }
+  
+  .send-button:hover:not(:disabled) {
+    background: var(--chatbot-accent-hover);
+    transform: scale(1.05);
+  }
+  
+  .send-button:active {
+    transform: scale(0.95);
+  }
+  
+  .send-icon {
+    width: 22px;
+    height: 22px;
+  }
+  
+  /* Hide input hints on mobile */
+  .input-hints {
+    display: none;
+  }
+  
+  .character-count {
+    font-size: var(--mobile-text-xs);
+    text-align: center;
+    width: 100%;
+  }
+  
+  /* Footer mobile optimization */
+  .chatbot-footer {
+    padding: var(--mobile-padding-sm) var(--mobile-padding-lg);
+    flex-wrap: wrap;
+    gap: var(--mobile-padding-sm);
+    justify-content: center;
+    border-radius: 0;
+    /* Safe area handling */
+    padding-bottom: calc(var(--mobile-padding-sm) + env(safe-area-inset-bottom, 0px));
+  }
+  
+  .powered-by {
+    font-size: var(--mobile-text-xs);
+    order: 2;
+    width: 100%;
+    justify-content: center;
+    margin-top: var(--mobile-padding-xs);
+  }
+  
+  .footer-actions {
+    order: 1;
+    gap: var(--mobile-padding-md);
+  }
+  
+  .footer-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+  }
+  
+  .footer-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .version-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+  
+  /* Typing indicator mobile */
+  .typing-animation {
+    padding: var(--mobile-padding-md);
+    border-radius: 16px;
+  }
+  
+  .typing-dot {
+    width: 5px;
+    height: 5px;
+  }
+}
+
+/* ================================================================================
+   📱 VERY SMALL MOBILE DEVICES (320px and below)
+   ================================================================================ */
+
+@media (max-width: 320px) {
+  .chatbot-container {
+    top: 30%;
+  }
+  
+  .chatbot-header {
+    padding: var(--mobile-padding-sm) var(--mobile-padding-md);
+  }
+  
+  .assistant-title {
+    font-size: var(--mobile-text-lg);
+  }
+  
+  .chatbox {
+    padding: var(--mobile-padding-xs) var(--mobile-padding-sm);
+  }
+  
+  .quick-actions-container {
+    padding: var(--mobile-padding-sm);
+  }
+  
+  .quick-action-btn {
+    padding: var(--mobile-padding-md);
+    min-height: 52px;
+    font-size: var(--mobile-text-sm);
+  }
+  
+  .chatbot-input-container {
+    padding: var(--mobile-padding-sm) var(--mobile-padding-md);
+  }
+  
+  .user-input {
+    padding: var(--mobile-padding-md);
+    min-height: 48px;
+  }
+  
+  .send-button {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* ================================================================================
+   🌐 LANDSCAPE ORIENTATION OPTIMIZATIONS
+   ================================================================================ */
+
+@media (max-width: 768px) and (orientation: landscape) {
+  .chatbot-container {
+    top: 10%;
+    height: 90vh;
+    max-height: 90vh;
+  }
+  
+  .chatbox {
+    flex: 1;
+    min-height: auto;
+  }
+  
+  .quick-actions-container {
+    padding: var(--mobile-padding-sm) var(--mobile-padding-md);
+  }
+  
+  .quick-actions-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--mobile-padding-xs);
+  }
+  
+  .quick-action-btn {
+    padding: var(--mobile-padding-sm) var(--mobile-padding-md);
+    min-height: 40px;
+    font-size: var(--mobile-text-sm);
+  }
+  
+  .chatbot-input-container {
+    padding: var(--mobile-padding-sm) var(--mobile-padding-md);
+  }
+  
+  .user-input {
+    min-height: 40px;
+    max-height: 60px;
+  }
+  
+  .send-button {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* ================================================================================
+   ♿ ACCESSIBILITY ENHANCEMENTS
+   ================================================================================ */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  @media (max-width: 768px) {
+    .chatbot-container {
+      border: 3px solid var(--chatbot-accent);
+      background: var(--chatbot-primary);
+    }
+    
+    .user-text,
+    .bot-text,
+    .quick-action-btn {
+      border-width: 2px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .user-input {
+      border-width: 2px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  @media (max-width: 768px) {
+    .chatbot-toggle,
+    .chatbot-container,
+    .quick-action-btn,
+    .send-button,
+    .user-text,
+    .bot-text {
+      animation: none !important;
+      transition: opacity 0.2s ease, transform 0.2s ease !important;
+    }
+    
+    .quick-action-btn:hover,
+    .send-button:hover {
+      transform: none !important;
+    }
+    
+    .typing-dot {
+      animation: none !important;
+    }
+    
+    .pulse-ring,
+    .avatar-pulse {
+      display: none;
+    }
+  }
+}
+
+/* ================================================================================
+   🖨️ PRINT STYLES
+   ================================================================================ */
+
+@media print {
+  .chatbot-container,
+  .chatbot-toggle,
+  .chatbot-overlay {
+    display: none !important;
+  }
+}
+
+/* ================================================================================
+   🎯 TOUCH DEVICE OPTIMIZATIONS
+   ================================================================================ */
+
+/* Touch device specific improvements */
+@media (hover: none) and (pointer: coarse) {
+  /* Enhance touch targets */
+  .quick-action-btn,
+  .header-btn,
+  .footer-btn,
+  .send-button {
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+  }
+  
+  /* Remove hover effects on touch devices */
+  .quick-action-btn:hover,
+  .header-btn:hover,
+  .footer-btn:hover {
+    transform: none;
+    background: var(--glass-medium);
+  }
+  
+  /* Add active states for touch feedback */
+  .quick-action-btn:active {
+    transform: scale(0.98);
+    background: rgba(255, 215, 0, 0.1);
+  }
+  
+  .header-btn:active,
+  .footer-btn:active {
+    transform: scale(0.95);
+    background: var(--glass-strong);
+  }
+  
+  .send-button:active {
+    transform: scale(0.95);
+  }
+}
+
+/* ================================================================================
+   🔧 UTILITY CLASSES FOR RESPONSIVE BEHAVIOR
+   ================================================================================ */
+
+/* Show/hide elements based on screen size */
+.mobile-only {
+  display: none;
+}
+
+.desktop-only {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: block;
+  }
+  
+  .desktop-only {
+    display: none;
+  }
+}
+
+/* Responsive text sizes */
+.text-responsive-sm {
+  font-size: var(--mobile-text-sm);
+}
+
+.text-responsive-base {
+  font-size: var(--mobile-text-base);
+}
+
+.text-responsive-lg {
+  font-size: var(--mobile-text-lg);
+}
+
+@media (min-width: 769px) {
+  .text-responsive-sm {
+    font-size: 0.875rem;
+  }
+  
+  .text-responsive-base {
+    font-size: 1rem;
+  }
+  
+  .text-responsive-lg {
+    font-size: 1.125rem;
+  }
+}

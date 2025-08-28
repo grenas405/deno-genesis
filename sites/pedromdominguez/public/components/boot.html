@@ -1,0 +1,29 @@
+<body class="boot-active">
+
+  <!-- 🌌 Matrix Rain Background Canvas (Behind Everything) -->
+  <section id="boot-screen" class="boot-container" aria-label="System Boot Screen">
+
+    <canvas
+      id="matrix-rain"
+      class="matrix-canvas"
+      aria-hidden="true"
+    ></canvas>
+
+    <!-- 💬 Boot Terminal Window (In Front of Canvas) -->
+    <div class="boot-terminal" role="region" aria-live="polite" aria-atomic="true">
+      <pre id="boot-output" class="boot-text" tabindex="0"></pre>
+
+      <!-- 🟩 Boot Progress Bar -->
+      <div id="boot-progress-bar" class="progress-bar">
+        <div id="boot-progress-fill" class="progress-fill"></div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- 🚀 Application UI (Revealed After Boot) -->
+  <main id="main-app" style="display: none;" role="main">
+    <!-- ✨ Your full application interface renders here -->
+  </main>
+
+</body>

@@ -1,0 +1,4 @@
+.scroll-trigger {
+  opacity: 0;             /* Hide initially */
+  transform: translateY(50px);  /* Optional: slight offset for smooth entrance */
+}
