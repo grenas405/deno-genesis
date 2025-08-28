@@ -1,6 +1,4 @@
-echo "📦 Framework Status:"
-if [ -f "/home/admin/deno-genesis/VERSION" ]; then
-    FRAMEWORK_VERSION=$(hea# 🏗️ DenoGenesis Centralized Architecture Documentation
+DenoGenesis Centralized Architecture Documentation
 
 **Enterprise Framework Management System**  
 **Version:** 2.1.0  
