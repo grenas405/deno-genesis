@@ -1,8 +1,8 @@
 // File: setup_framework_links.ts
 // Run with: deno run --allow-read --allow-write setup_framework_links.ts
 
-const FRAMEWORK_PATH = "/home/admin/deno-genesis/";
-const SITES_PATH = "/home/admin/deno-genesis/sites/";
+const FRAMEWORK_PATH = "/home/admin/deno-genesis";
+const SITES_PATH = "/home/admin/deno-genesis/sites";
 
 console.log("🚀 Setting up DenoGenesis Framework Links...");
 
@@ -12,10 +12,10 @@ await Deno.mkdir(SITES_PATH, { recursive: true });
 
 // List of your sites
 const SITES = [
-  "pedromdominguez-com",
-  "domingueztechsolutions-com",
-  "heavenlyroofingok-com",
-  "okdevs-xyz",
+  "pedromdominguez",
+  "domingueztechsolutions",
+  "heavenlyroofing",
+  "okdevs",
 ];
 
 for (const site of SITES) {
