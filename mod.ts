@@ -2,19 +2,19 @@
 // Main framework export file
 
 // Core middleware system
-export { 
-  createMiddlewareStack, 
+export {
+  createMiddlewareStack,
   MiddlewareManager,
-  type MiddlewareConfig 
+  type MiddlewareConfig
 } from "./core/middleware/index.ts";
 
 // Database system
-export { 
-  db, 
-  databaseManager, 
-  executeQuery, 
+export {
+  db,
+  databaseManager,
+  executeQuery,
   getDatabaseStatus,
-  closeDatabaseConnection 
+  closeDatabaseConnection
 } from "./core/database/client.ts";
 
 // Configuration system
@@ -36,4 +36,4 @@ export {
 export { getFrameworkVersion, validateFrameworkIntegrity } from "./core/meta.ts";
 
 // Site creation utilities
-export { createNewSite, updateSiteFramework
+export { createNewSite, updateSiteFramework}
