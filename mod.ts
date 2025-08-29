@@ -6,7 +6,7 @@ export {
   createMiddlewareStack,
   MiddlewareManager,
   type MiddlewareConfig
-} from "./core/middleware/index.ts";
+} from "./middleware/index.ts";
 
 // Database system
 export {
@@ -15,7 +15,7 @@ export {
   executeQuery,
   getDatabaseStatus,
   closeDatabaseConnection
-} from "./core/database/client.ts";
+} from "./database/client.ts";
 
 // Configuration system
 export {
@@ -30,7 +30,7 @@ export {
   frameworkConfig,
   dbConfig,
   getEnvironmentInfo
-} from "./cor/config/env.ts";
+} from "./config/env.ts";
 
 // Framework metadata
 export { getFrameworkVersion, validateFrameworkIntegrity } from "./core/meta.ts";
