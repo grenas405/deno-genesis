@@ -1,1 +1,0 @@
-core/routes/index.ts
