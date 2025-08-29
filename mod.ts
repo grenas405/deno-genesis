@@ -30,10 +30,7 @@ export {
   frameworkConfig,
   dbConfig,
   getEnvironmentInfo
-} from "./core/config/env.ts";
+} from "./cor/config/env.ts";
 
 // Framework metadata
 export { getFrameworkVersion, validateFrameworkIntegrity } from "./core/meta.ts";
-
-// Site creation utilities
-export { createNewSite, updateSiteFramework}

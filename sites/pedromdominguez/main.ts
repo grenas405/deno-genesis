@@ -22,7 +22,7 @@ import {
   frameworkConfig,
   getFrameworkVersion,
   validateFrameworkIntegrity
-} from "./framework/mod.ts";
+} from "./mod.ts";
 
 const env = await loadEnv();
 const port = parseInt(env.PORT || PORT.toString() || "3000");
