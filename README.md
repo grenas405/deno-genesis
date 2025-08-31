@@ -1,12 +1,51 @@
 # 🚀 DenoGenesis Framework
 
-
 This is the main README in English.  
 👉 [Leer en Español](README_es.html)
 
 **Local-First Software That Actually Works**
 
 *"The daily challenge is building something great - from Oklahoma to the world"*
+
+---
+
+## 📚 **Complete Documentation Index**
+
+### **Getting Started**
+- 📖 [Installation Guide](INSTALLATION.md) - Complete setup instructions
+- 🎯 [Quick Start Guide](#quick-start-lets-go) - Get running in 5 minutes
+- ⚡ [Framework Overview](#whats-the-deal-with-this-framework) - Core concepts and philosophy
+
+### **Architecture & Framework**
+- 🏛️ [Framework Architecture](docs/framework/architecture.md) - Centralized hub-and-spoke model
+- 🧩 [Component Architecture](docs/framework/component-architecture.md) - Dynamic component loading system
+- 📋 [Best Practices](docs/framework/best-practices.md) - Coding standards and patterns
+- 🎯 [9 Principles of Local-First Software](docs/framework/9_principles.md) - Core philosophy and implementation
+
+### **Frontend Development**
+- 🎨 [Frontend Documentation](docs/framework/frontend-documentation.md) - UI/UX guidelines and best practices
+- 🧪 [Component Testing](docs/framework/component-architecture.md#testing--validation) - Testing strategies for components
+- ⚡ [Performance Optimization](docs/framework/frontend-documentation.md#performance-optimization) - Speed and optimization techniques
+
+### **Database & Configuration**
+- 🛠️ [Database Setup Script](config/deployment/scripts/setup-maridb.sh) - MariaDB configuration automation
+- 📊 [Configuration Management](config/) - System configuration and deployment files
+- 🔧 [Environment Configuration](core/config/) - Framework configuration patterns
+
+### **Development Tools & Utilities**
+- 🎨 [Console Styling](core/utils/consoleStyler.ts) - Enhanced logging and debugging tools
+- 📋 [Project TODO](TODO.md) - Current development tasks and roadmap
+- 🗂️ [Project Structure](.gitignore) - File organization and ignored patterns
+
+### **Business Solutions**
+- 🏗️ [Industry Solutions](#industry-solutions) - Vertical-specific implementations
+- 💼 [Client Success Stories](#real-business-results) - Real-world performance metrics
+- 📞 [Support & Contact](#support-were-here-for-you) - Getting help and community resources
+
+### **Advanced Topics**
+- 🤖 [AI-Augmented Development](#ai-augmented-development) - Development methodology and patterns  
+- 🔐 [Security & Hardening](config/deployment/) - Production security configurations
+- 📈 [Monitoring & Analytics](docs/framework/architecture.md#monitoring--maintenance) - Performance tracking and maintenance
 
 ---
 
@@ -94,8 +133,11 @@ sudo apt install nginx
 ### **Installation**
 ```bash
 # Clone the framework
-git clone https://github.com/dominguez-tech/deno-genesis.git
+git clone https://github.com/grenas405/deno-genesis.git
 cd deno-genesis
+
+# Follow the complete installation guide
+cat INSTALLATION.md
 
 # Setup your first site
 ./scripts/create-site.sh my-business
@@ -110,29 +152,15 @@ cd deno-genesis
 ### **Your Site is Live**
 Navigate to `http://localhost:3000` and watch your local-first empire begin.
 
+📖 **Need detailed setup instructions?** See our [Complete Installation Guide](INSTALLATION.md)
+
 ---
 
 ## 🏪 **Real Business Results**
 
 ### **Client Success Stories**
 
-#### **Heavenly Roofing OK** 
-- 📈 **80% cost reduction** vs previous cloud setup
-- ⚡ **Sub-100ms response times** for all operations
-- 💪 **100% uptime** during Oklahoma weather events
-- 📞 **Direct phone integration** with call tracking
 
-#### **Efficient Movers LLC**
-- 🚚 **Real-time job tracking** without external dependencies
-- 📱 **Mobile-first design** that works in dead zones
-- 💰 **Zero monthly software costs** after initial setup
-- 👥 **Multi-user coordination** for dispatch teams
-
-#### **Personal Portfolio (pedromdominguez.com)**
-- 🎯 **Performance scores** in the 90s across all metrics
-- 🌐 **Global accessibility** from Oklahoma servers
-- 🔥 **Hot-reload development** for rapid iterations
-- 📊 **Built-in analytics** without privacy violations
 
 ---
 
@@ -178,6 +206,8 @@ websocket.broadcast({
 });
 ```
 
+📚 **Want to dive deeper?** Check out our [Component Architecture Guide](docs/framework/component-architecture.md)
+
 ---
 
 ## 📊 **The Numbers Don't Lie**
@@ -219,6 +249,8 @@ Based on Martin Kleppmann's research but extended with **business sovereignty** 
 *"The first 7 principles asked: 'What if users controlled their data?'"*  
 *"The final 2 principles answer: 'Here's how businesses can control their technology and anyone can build these systems.'"*
 
+🎯 **Deep dive into the philosophy:** [9 Principles of Local-First Software](docs/framework/9_principles.md)
+
 ---
 
 ## 🎯 **Industry Solutions**
@@ -258,6 +290,8 @@ This framework wasn't built by a traditional team. It's the result of **human cr
 6. Monitor and optimize continuously
 ```
 
+🧠 **Learn the methodology:** [AI-Augmented Development Patterns](docs/framework/best-practices.md#ai-augmented-development-workflow)
+
 ---
 
 ## 📞 **Support: We're Here for You**
@@ -292,6 +326,19 @@ This framework bridges the gap between **university research** and **practical b
 
 ## 🔮 **Roadmap: What's Next?**
 
+📋 **Current development status:** [Project TODO](TODO.md)
+
+### **Q3 2025 Priorities**
+- 🔧 Enhanced configuration management system
+- 📊 Advanced monitoring and analytics dashboard  
+- 🎨 Component library expansion
+- 🔐 Advanced security hardening features
+
+### **Q4 2025 Vision**
+- 🌐 Multi-region deployment automation
+- 📱 Mobile app companion framework
+- 🤖 Enhanced AI development tools
+- 📚 Complete video tutorial series
 
 ---
 
@@ -300,7 +347,7 @@ This framework bridges the gap between **university research** and **practical b
 ### **How to Contribute**
 ```bash
 # Fork the repository
-git fork https://github.com/dominguez-tech/deno-genesis
+git fork https://github.com/grenas405/deno-genesis
 
 # Create your feature branch
 git checkout -b feature/my-awesome-feature
@@ -320,6 +367,8 @@ git push origin feature/my-awesome-feature
 - 🚀 **Performance first** - Every feature must justify its existence
 - 🛡️ **Security minded** - Business data is sacred
 - 🌐 **Accessibility focused** - Technology for everyone
+
+📋 **Follow our standards:** [Best Practices Guide](docs/framework/best-practices.md)
 
 ---
 
@@ -366,11 +415,21 @@ This framework is **copyleft** protected under AGPL-3.0. That means:
 ### **Ready to Own Your Digital Future?**
 
 ```bash
-git clone https://github.com/dominguez-tech/deno-genesis.git
+git clone https://github.com/grenas405/deno-genesis.git
 cd deno-genesis
+
+# Follow the complete setup guide
+open INSTALLATION.md
+
+# Or quick start
 ./scripts/quick-start.sh
+
 # Let's go! Your digital independence starts now.
 ```
+
+📖 **New to the framework?** Start with our [Installation Guide](INSTALLATION.md)  
+🏗️ **Ready to build?** Check out the [Architecture Documentation](docs/framework/architecture.md)  
+🎨 **Frontend developer?** See our [Frontend Guidelines](docs/framework/frontend-documentation.md)
 
 ---
 
