@@ -27,6 +27,9 @@ import {
 const env = await loadEnv();
 const port = parseInt(env.PORT || PORT.toString() || "3000");
 
+// === CRITICAL FIX: CREATE OAK APPLICATION INSTANCE ===
+const app = new Application();
+
 // === FRAMEWORK INTEGRITY CHECK ===
 console.log("\x1b[34m%s\x1b[0m", "🔍 Validating framework integrity...");
 try {
