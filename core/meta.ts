@@ -56,7 +56,7 @@ export async function getConnectedSites(): Promise<SiteMetadata[]> {
   return sites;
 }
 
-async function getFrameworkVersion(versionFile: string): Promise<string> {
+export async function getFrameworkVersion(versionFile: string): Promise<string> {
   try {
     const content = await Deno.readTextFile(versionFile);
     return content.split('\\n')[0];

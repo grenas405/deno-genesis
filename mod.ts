@@ -33,4 +33,4 @@ export {
 } from "./config/env.ts";
 
 // Framework metadata
-export { getFrameworkVersion, validateFrameworkIntegrity } from "./core/meta.ts";
+export { getFrameworkVersion, validateFrameworkIntegrity } from "./meta.ts";
