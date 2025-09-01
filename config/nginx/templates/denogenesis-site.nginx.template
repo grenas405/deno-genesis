@@ -1,0 +1,206 @@
+# =============================================================================
+# DenoGenesis Framework - Nginx Site Configuration Template
+# =============================================================================
+# Template for creating standardized nginx configurations for DenoGenesis sites
+# 
+# USAGE: Replace all [PLACEHOLDER] values with site-specific information
+# 
+# PLACEHOLDERS TO REPLACE:
+# - [DOMAIN_NAME]: Primary domain (e.g., "example.com")
+# - [WWW_DOMAIN]: WWW variant (e.g., "www.example.com")  
+# - [BACKEND_PORT]: Backend service port (3000-3004 range)
+# - [LOG_PREFIX]: Prefix for log files (e.g., "example")
+# - [UPLOAD_LIMIT]: Max file upload size (e.g., "25M")
+# - [API_RATE_LIMIT]: API requests per second (e.g., "10r/s")
+# - [QUOTE_RATE_LIMIT]: Quote form rate limit (e.g., "2r/s")
+# - [SITE_SPECIFIC_CONFIG]: Additional location blocks if needed
+# =============================================================================
+
+# HTTPS Server Configuration
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+
+    server_name [WWW_DOMAIN] [DOMAIN_NAME];
+
+    # SSL Configuration using Let's Encrypt
+    ssl_certificate /etc/letsencrypt/live/[DOMAIN_NAME]/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/[DOMAIN_NAME]/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    # ==========================================================================
+    # Security Headers (DenoGenesis Standard)
+    # ==========================================================================
+    add_header X-Frame-Options SAMEORIGIN;
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+    add_header Referrer-Policy "strict-origin-when-cross-origin";
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    # Content Security Policy (adjust per site needs)
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' ws: wss:; font-src 'self'; object-src 'none'; base-uri 'self'";
+
+    # File upload limit (adjust per business needs)
+    client_max_body_size [UPLOAD_LIMIT];
+
+    # ==========================================================================
+    # Main Application Proxy
+    # ==========================================================================
+    location / {
+        proxy_pass http://127.0.0.1:[BACKEND_PORT];
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        
+        # Standard timeouts
+        proxy_connect_timeout 30s;
+        proxy_send_timeout 30s;
+        proxy_read_timeout 30s;
+    }
+
+    # ==========================================================================
+    # Static Asset Optimization
+    # ==========================================================================
+    location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        proxy_pass http://127.0.0.1:[BACKEND_PORT];
+        proxy_set_header Host $host;
+        
+        # Cache static assets
+        expires 7d;
+        add_header Cache-Control "public, immutable";
+        add_header X-Content-Type-Options nosniff;
+        
+        # Enable compression
+        gzip on;
+        gzip_types text/css application/javascript image/svg+xml;
+    }
+
+    # ==========================================================================
+    # API Rate Limiting
+    # ==========================================================================
+    location /api/ {
+        limit_req zone=[LOG_PREFIX]_api_limit burst=15 nodelay;
+        proxy_pass http://127.0.0.1:[BACKEND_PORT];
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # ==========================================================================
+    # WebSocket Support (if needed)
+    # ==========================================================================
+    location /ws {
+        proxy_pass http://127.0.0.1:[BACKEND_PORT];
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # Extended timeouts for WebSocket connections
+        proxy_read_timeout 86400s;
+        proxy_send_timeout 86400s;
+    }
+
+    # ==========================================================================
+    # File Upload Handling
+    # ==========================================================================
+    location /uploads/ {
+        proxy_pass http://127.0.0.1:[BACKEND_PORT];
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # Extended timeouts for file uploads
+        proxy_connect_timeout 120s;
+        proxy_send_timeout 120s;
+        proxy_read_timeout 120s;
+    }
+
+    # ==========================================================================
+    # Quote/Contact Form with Strict Rate Limiting
+    # ==========================================================================
+    location /api/quote {
+        limit_req zone=[LOG_PREFIX]_quote_limit burst=3 nodelay;
+        proxy_pass http://127.0.0.1:[BACKEND_PORT];
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /api/contact {
+        limit_req zone=[LOG_PREFIX]_quote_limit burst=3 nodelay;
+        proxy_pass http://127.0.0.1:[BACKEND_PORT];
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # ==========================================================================
+    # [SITE_SPECIFIC_CONFIG]
+    # Add any site-specific location blocks here
+    # ==========================================================================
+
+    # ==========================================================================
+    # Logging Configuration
+    # ==========================================================================
+    error_log /var/log/nginx/[LOG_PREFIX]_error.log;
+    access_log /var/log/nginx/[LOG_PREFIX]_access.log;
+}
+
+# =============================================================================
+# HTTP to HTTPS Redirect
+# =============================================================================
+server {
+    listen 80;
+    listen [::]:80;
+
+    server_name [WWW_DOMAIN] [DOMAIN_NAME];
+
+    # Redirect all HTTP traffic to HTTPS
+    return 301 https://$host$request_uri;
+}
+
+# =============================================================================
+# Rate Limiting Zones (adjust rates per site needs)
+# =============================================================================
+limit_req_zone $binary_remote_addr zone=[LOG_PREFIX]_api_limit:10m rate=[API_RATE_LIMIT];
+limit_req_zone $binary_remote_addr zone=[LOG_PREFIX]_quote_limit:10m rate=[QUOTE_RATE_LIMIT];
+
+# =============================================================================
+# TEMPLATE USAGE EXAMPLE:
+# 
+# For a site named "mycompany.com" running on port 3005:
+# 
+# [DOMAIN_NAME] = mycompany.com
+# [WWW_DOMAIN] = www.mycompany.com
+# [BACKEND_PORT] = 3005
+# [LOG_PREFIX] = mycompany
+# [UPLOAD_LIMIT] = 25M
+# [API_RATE_LIMIT] = 8r/s
+# [QUOTE_RATE_LIMIT] = 2r/s
+# [SITE_SPECIFIC_CONFIG] = (any additional location blocks)
+#
+# DEPLOYMENT COMMANDS:
+# 1. sudo cp mycompany.nginx.conf /etc/nginx/sites-available/
+# 2. sudo ln -s /etc/nginx/sites-available/mycompany.nginx.conf /etc/nginx/sites-enabled/
+# 3. sudo nginx -t
+# 4. sudo systemctl reload nginx
+# 5. sudo certbot --nginx -d mycompany.com -d www.mycompany.com
+#
+# LOG MONITORING:
+# sudo tail -f /var/log/nginx/mycompany_error.log
+# sudo tail -f /var/log/nginx/mycompany_access.log
+# =============================================================================la
