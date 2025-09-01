@@ -1,0 +1,116 @@
+# =============================================================================
+# DenoGenesis Framework - SystemD Service Template
+# =============================================================================
+# Template for creating standardized systemd service units for DenoGenesis sites
+# 
+# USAGE: Replace all [PLACEHOLDER] values with site-specific information
+# 
+# PLACEHOLDERS TO REPLACE:
+# - [SERVICE_NAME]: Unique service name (e.g., "domtech", "heavenlyroofing")
+# - [BUSINESS_DESCRIPTION]: Brief description of the business/service
+# - [WEBSITE_URL]: Primary domain URL for documentation
+# - [SERVICE_PORT]: Unique port number (3000-3004 range)
+# - [SITE_KEY]: Unique site identifier for framework
+# - [SITE_WORKING_DIRECTORY]: Full path to site directory
+# - [RESTART_DELAY]: Staggered restart delay in seconds
+# - [SERVICE_IDENTIFIER]: Unique identifier for logging
+# =============================================================================
+
+[Unit]
+Description=[BUSINESS_DESCRIPTION] - DenoGenesis Site Service
+Documentation=[WEBSITE_URL]
+After=network.target mysql.service nginx.service
+Wants=network-online.target
+Requires=mysql.service
+
+[Service]
+Type=simple
+User=admin
+Group=admin
+
+# Site-specific working directory
+WorkingDirectory=[SITE_WORKING_DIRECTORY]
+
+# Standard DenoGenesis environment variables
+Environment=DENO_ENV=production
+Environment=PORT=[SERVICE_PORT]
+Environment=DB_HOST=localhost
+Environment=DB_USER=webadmin
+Environment=DB_PASSWORD=Password123!
+Environment=DB_NAME=universal_db
+Environment=SITE_KEY=[SITE_KEY]
+
+# Deno execution with comprehensive permissions for DenoGenesis framework
+ExecStart=/home/admin/.deno/bin/deno run \
+  --allow-net \
+  --allow-read \
+  --allow-write \
+  --allow-env \
+  --allow-run \
+  --unstable \
+  --lock=deno.lock \
+  --cached-only \
+  main.ts
+
+# Failure recovery configuration
+Restart=on-failure
+RestartSec=[RESTART_DELAY]
+StartLimitBurst=3
+StartLimitInterval=60
+
+# Resource limits for production stability
+LimitNOFILE=65536
+LimitNPROC=4096
+
+# Security hardening measures
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+
+# File system access permissions
+ReadWritePaths=[SITE_WORKING_DIRECTORY]
+ReadWritePaths=/tmp
+ReadWritePaths=/var/log
+
+# Process management configuration
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=30
+TimeoutStartSec=60
+
+# Logging configuration for systemd journal
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=[SERVICE_IDENTIFIER]
+
+[Install]
+WantedBy=multi-user.target
+Alias=[SERVICE_NAME].service
+
+# =============================================================================
+# DenoGenesis Framework Template - End
+# =============================================================================
+
+# TEMPLATE USAGE EXAMPLE:
+# 
+# For a service named "mycompany" running on port 3005:
+# 
+# [SERVICE_NAME] = mycompany
+# [BUSINESS_DESCRIPTION] = My Company Corporate Website
+# [WEBSITE_URL] = https://mycompany.com
+# [SERVICE_PORT] = 3005
+# [SITE_KEY] = mycompany
+# [SITE_WORKING_DIRECTORY] = /home/admin/deno-genesis/sites/mycompany-com
+# [RESTART_DELAY] = 20
+# [SERVICE_IDENTIFIER] = denogenesis-mycompany
+#
+# DEPLOYMENT COMMANDS:
+# 1. sudo cp mycompany.service /etc/systemd/system/
+# 2. sudo systemctl daemon-reload
+# 3. sudo systemctl enable mycompany.service
+# 4. sudo systemctl start mycompany.service
+# 5. sudo systemctl status mycompany.service
+#
+# LOG MONITORING:
+# sudo journalctl -u mycompany.service -f
