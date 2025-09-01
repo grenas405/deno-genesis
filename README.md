@@ -82,6 +82,48 @@ Each site runs independently while sharing the same **enterprise-grade core**. T
 
 ---
 
+## 📁 **Configuration Management**
+
+### **Centralized Config Directory Structure**
+
+The `config/` directory organizes all infrastructure and deployment configurations following DenoGenesis architectural patterns:
+
+```
+config/
+├── systemd/                 # SystemD service configurations
+│   ├── templates/          # Service file templates (.gitkeep)
+│   └── active/             # Currently deployed services (.gitkeep)
+├── nginx/                   # Nginx reverse proxy configs
+│   ├── sites-available/    # Available site configurations (.gitkeep)
+│   └── sites-enabled/      # Enabled site configurations (.gitkeep)
+├── database/               # Database configuration
+│   ├── schemas/            # Database schema definitions (.gitkeep)
+│   ├── migrations/         # Database migration scripts (.gitkeep)
+│   └── init.sql           # Initial database setup
+├── deployment/             # Deployment automation
+│   ├── scripts/            # Deployment and update scripts (.gitkeep)
+│   └── environments/       # Environment-specific configs (.gitkeep)
+└── monitoring/             # Monitoring and logging (.gitkeep)
+```
+
+#### **Configuration Management Benefits:**
+- 🎯 **Centralized Organization** - All configs in one predictable location
+- 🔄 **Environment Consistency** - Same structure across dev/staging/production
+- 🚀 **Deployment Automation** - Scripts rely on consistent directory structure
+- 📋 **Template Management** - Service and configuration templates for easy site creation
+- 🔧 **Infrastructure as Code** - Version-controlled system configurations
+
+#### **`.gitkeep` Usage:**
+Empty directories marked with `.gitkeep` preserve the framework's expected structure in version control, ensuring:
+- **Deployment scripts** find required directories
+- **New team members** get complete project structure
+- **Configuration templates** have designated locations
+- **Infrastructure automation** works consistently across environments
+
+📊 **Configuration details:** [Configuration Management Documentation](config/)
+
+---
+
 ## 🚀 **Quick Start**
 
 ### **Prerequisites**
