@@ -871,4 +871,34 @@ async function main(): Promise<void> {
     await DeploymentValidator.validateDeployment(config);
 
     // Execute deployment
-    const deploymentManager = new SymlinkDe
+    const deploymentManager = new SymlinkDeploymentManager(config);
+    await deploymentManager.deploy();
+
+  } catch (error) {
+    const logger = new DeploymentLogger();
+    logger.error(`Fatal error: ${error.message}`);
+
+    if (error.stack && Deno.args.includes('--verbose')) {
+      console.error('\nStack trace:');
+      console.error(error.stack);
+    }
+
+    Deno.exit(1);
+  }
+}
+
+// Self-executing deployment script
+if (import.meta.main) {
+  await main();
+}
+
+// Export for testing and module usage
+export {
+  SymlinkDeploymentManager,
+  DeploymentLogger,
+  ConfigurationManager,
+  DeploymentValidator,
+  type DeploymentConfig,
+  type LinkUpdateResult,
+  type OperationState
+};
