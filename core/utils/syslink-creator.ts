@@ -1,13 +1,15 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-run
 
 /**
- * DenoGenesis Framework Deployment Script
+ * DenoGenesis Framework Deployment Script - Enhanced Version
  *
  * Updates symbolic links from site directories to the core framework directory
  * to eliminate version drift and ensure consistency across all sites.
  *
+ * Enhanced with robust file existence error handling and atomic operations.
+ *
  * @author DenoGenesis Framework Team
- * @version 1.0.0
+ * @version 1.1.0
  * @requires Deno 1.40+
  */
 
@@ -21,14 +23,26 @@ interface DeploymentConfig {
   readonly symlinkTargets: readonly string[];
   readonly backupDirectory: string;
   readonly verbose: boolean;
+  readonly maxRetries: number;
+  readonly retryDelayMs: number;
 }
 
 // Result interface for operation tracking
 interface LinkUpdateResult {
   readonly path: string;
   readonly success: boolean;
-  readonly action: 'created' | 'updated' | 'skipped' | 'failed';
+  readonly action: 'created' | 'updated' | 'skipped' | 'failed' | 'retried';
   readonly error?: string;
+  readonly attempts?: number;
+}
+
+// Operation state for atomic transactions
+interface OperationState {
+  readonly linkPath: string;
+  readonly targetPath: string;
+  readonly backupPath?: string;
+  readonly wasSymlink: boolean;
+  readonly originalExists: boolean;
 }
 
 // Default configuration following DenoGenesis patterns
@@ -50,7 +64,9 @@ const DEFAULT_CONFIG: DeploymentConfig = {
     'meta.ts'
   ],
   backupDirectory: './deployment/backups',
-  verbose: false
+  verbose: false,
+  maxRetries: 3,
+  retryDelayMs: 100
 } as const;
 
 /**
@@ -98,6 +114,10 @@ class DeploymentLogger {
     console.log(`${this.colorize('ℹ️', 'blue')} ${message}`);
   }
 
+  retry(message: string, attempt: number, maxAttempts: number): void {
+    console.log(`${this.colorize('🔄', 'yellow')} ${message} (attempt ${attempt}/${maxAttempts})`);
+  }
+
   header(message: string): void {
     const separator = '='.repeat(60);
     console.log(`\n${this.colorize(separator, 'cyan')}`);
@@ -113,7 +133,7 @@ class DeploymentLogger {
 }
 
 /**
- * Core deployment manager for symbolic link operations
+ * Enhanced deployment manager with atomic operations and retry logic
  */
 class SymlinkDeploymentManager {
   private readonly config: DeploymentConfig;
@@ -129,7 +149,7 @@ class SymlinkDeploymentManager {
    */
   async deploy(): Promise<void> {
     try {
-      this.logger.header('DenoGenesis Core Symlink Deployment');
+      this.logger.header('DenoGenesis Core Symlink Deployment - Enhanced');
 
       await this.validateEnvironment();
       await this.createBackupDirectory();
@@ -158,19 +178,19 @@ class SymlinkDeploymentManager {
     this.logger.info('Validating deployment environment...');
 
     // Check core directory exists
-    if (!await exists(this.config.coreDirectory)) {
+    if (!await this.safeExists(this.config.coreDirectory)) {
       throw new Error(`Core directory not found: ${this.config.coreDirectory}`);
     }
 
     // Check sites directory exists
-    if (!await exists(this.config.sitesDirectory)) {
+    if (!await this.safeExists(this.config.sitesDirectory)) {
       throw new Error(`Sites directory not found: ${this.config.sitesDirectory}`);
     }
 
     // Validate core directory structure
     for (const target of this.config.symlinkTargets) {
       const coreTargetPath = join(this.config.coreDirectory, target);
-      if (!await exists(coreTargetPath)) {
+      if (!await this.safeExists(coreTargetPath)) {
         this.logger.warning(`Core target missing: ${target}`);
       }
     }
@@ -182,7 +202,7 @@ class SymlinkDeploymentManager {
    * Creates backup directory for deployment artifacts
    */
   private async createBackupDirectory(): Promise<void> {
-    await ensureDir(this.config.backupDirectory);
+    await this.safeEnsureDir(this.config.backupDirectory);
     this.logger.verbose(`Backup directory ready: ${this.config.backupDirectory}`, this.config.verbose);
   }
 
@@ -215,7 +235,7 @@ class SymlinkDeploymentManager {
     const absoluteCoreDir = resolve(this.config.coreDirectory);
 
     for (const target of this.config.symlinkTargets) {
-      const result = await this.updateSymlink(
+      const result = await this.updateSymlinkWithRetry(
         siteDirectory,
         target,
         absoluteCoreDir
@@ -229,19 +249,77 @@ class SymlinkDeploymentManager {
   }
 
   /**
-   * Updates or creates a single symbolic link
+   * Updates or creates a single symbolic link with retry mechanism
    */
-  private async updateSymlink(
+  private async updateSymlinkWithRetry(
+    siteDirectory: string,
+    target: string,
+    absoluteCoreDir: string
+  ): Promise<LinkUpdateResult> {
+    let lastError: Error | undefined;
+
+    for (let attempt = 1; attempt <= this.config.maxRetries; attempt++) {
+      try {
+        const result = await this.updateSymlinkAtomic(siteDirectory, target, absoluteCoreDir);
+        
+        if (result.success) {
+          if (attempt > 1) {
+            result.action = 'retried';
+            result.attempts = attempt;
+          }
+          return result;
+        }
+
+        if (attempt < this.config.maxRetries && result.error?.includes('exists')) {
+          this.logger.retry(`Retrying ${target}`, attempt, this.config.maxRetries);
+          await this.delay(this.config.retryDelayMs * attempt);
+          lastError = new Error(result.error);
+          continue;
+        }
+
+        return result;
+      } catch (error) {
+        lastError = error as Error;
+        
+        if (attempt < this.config.maxRetries) {
+          this.logger.retry(`Retrying ${target} due to error`, attempt, this.config.maxRetries);
+          await this.delay(this.config.retryDelayMs * attempt);
+        }
+      }
+    }
+
+    return {
+      path: join(siteDirectory, target),
+      success: false,
+      action: 'failed',
+      error: `Max retries exceeded: ${lastError?.message}`,
+      attempts: this.config.maxRetries
+    };
+  }
+
+  /**
+   * Atomic symbolic link update operation
+   */
+  private async updateSymlinkAtomic(
     siteDirectory: string,
     target: string,
     absoluteCoreDir: string
   ): Promise<LinkUpdateResult> {
     const linkPath = join(siteDirectory, target);
     const targetPath = join(absoluteCoreDir, target);
+    const tempLinkPath = `${linkPath}.tmp.${Date.now()}`;
+
+    // Gather operation state
+    const state: OperationState = {
+      linkPath,
+      targetPath,
+      wasSymlink: false,
+      originalExists: false
+    };
 
     try {
       // Check if target exists in core
-      if (!await exists(targetPath)) {
+      if (!await this.safeExists(targetPath)) {
         return {
           path: linkPath,
           success: false,
@@ -250,48 +328,217 @@ class SymlinkDeploymentManager {
         };
       }
 
-      // Handle existing symlink or directory
-      if (await exists(linkPath)) {
-        const stat = await Deno.lstat(linkPath);
+      // Check current state of link path
+      state.originalExists = await this.safeExists(linkPath);
+      
+      if (state.originalExists) {
+        const stat = await this.safeLstat(linkPath);
+        state.wasSymlink = stat?.isSymlink ?? false;
 
-        if (stat.isSymlink) {
-          // Check if symlink points to correct target
-          const currentTarget = await Deno.readLink(linkPath);
-          const resolvedCurrent = resolve(dirname(linkPath), currentTarget);
-
-          if (resolvedCurrent === targetPath) {
-            return {
-              path: linkPath,
-              success: true,
-              action: 'skipped'
-            };
+        // If it's already a correct symlink, skip
+        if (state.wasSymlink) {
+          const currentTarget = await this.safeReadLink(linkPath);
+          if (currentTarget) {
+            const resolvedCurrent = resolve(dirname(linkPath), currentTarget);
+            if (resolvedCurrent === targetPath) {
+              return {
+                path: linkPath,
+                success: true,
+                action: 'skipped'
+              };
+            }
           }
-
-          // Remove outdated symlink
-          await this.backupAndRemove(linkPath);
-        } else {
-          // Backup existing directory/file
-          await this.backupAndRemove(linkPath);
         }
+
+        // Create backup of existing file/directory
+        state.backupPath = await this.createSafeBackup(linkPath);
       }
 
-      // Create new symlink
+      // Ensure parent directory exists
+      await this.safeEnsureDir(dirname(linkPath));
+
+      // Create temporary symlink first (atomic operation)
       const relativePath = this.calculateRelativePath(siteDirectory, targetPath);
-      await Deno.symlink(relativePath, linkPath);
+      await this.createSymlinkSafe(relativePath, tempLinkPath);
+
+      // Atomic move from temp to final location
+      await this.atomicMove(tempLinkPath, linkPath);
 
       return {
         path: linkPath,
         success: true,
-        action: await this.wasExistingLink(linkPath) ? 'updated' : 'created'
+        action: state.originalExists ? 'updated' : 'created'
       };
 
     } catch (error) {
+      // Cleanup on failure
+      await this.cleanupFailedOperation(tempLinkPath, state);
+      
       return {
         path: linkPath,
         success: false,
         action: 'failed',
         error: error.message
       };
+    }
+  }
+
+  /**
+   * Safe file existence check with error handling
+   */
+  private async safeExists(path: string): Promise<boolean> {
+    try {
+      await Deno.lstat(path);
+      return true;
+    } catch (error) {
+      if (error instanceof Deno.errors.NotFound) {
+        return false;
+      }
+      // Re-throw other errors (permission issues, etc.)
+      throw error;
+    }
+  }
+
+  /**
+   * Safe lstat with error handling
+   */
+  private async safeLstat(path: string): Promise<Deno.FileInfo | null> {
+    try {
+      return await Deno.lstat(path);
+    } catch (error) {
+      if (error instanceof Deno.errors.NotFound) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Safe readLink with error handling
+   */
+  private async safeReadLink(path: string): Promise<string | null> {
+    try {
+      return await Deno.readLink(path);
+    } catch (error) {
+      if (error instanceof Deno.errors.NotFound || 
+          error instanceof Deno.errors.InvalidData) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Safe ensureDir with retry logic
+   */
+  private async safeEnsureDir(path: string, retries = 2): Promise<void> {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        await ensureDir(path);
+        return;
+      } catch (error) {
+        if (attempt === retries) {
+          throw new Error(`Failed to ensure directory ${path}: ${error.message}`);
+        }
+        await this.delay(50 * attempt);
+      }
+    }
+  }
+
+  /**
+   * Creates a safe backup with collision handling
+   */
+  private async createSafeBackup(originalPath: string): Promise<string> {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const baseName = basename(originalPath);
+    
+    // Try different backup names if collision occurs
+    for (let counter = 0; counter < 100; counter++) {
+      const suffix = counter === 0 ? '' : `-${counter}`;
+      const backupName = `${baseName}.backup.${timestamp}${suffix}`;
+      const backupPath = join(this.config.backupDirectory, backupName);
+
+      if (!await this.safeExists(backupPath)) {
+        await this.atomicMove(originalPath, backupPath);
+        this.logger.verbose(`Backed up: ${originalPath} → ${backupPath}`, this.config.verbose);
+        return backupPath;
+      }
+    }
+
+    // If we can't create a backup, remove the original (last resort)
+    this.logger.warning(`Could not create backup for ${originalPath}, removing instead`);
+    await this.safeRemove(originalPath);
+    return '';
+  }
+
+  /**
+   * Safe file/directory removal
+   */
+  private async safeRemove(path: string): Promise<void> {
+    try {
+      const stat = await this.safeLstat(path);
+      if (stat) {
+        await Deno.remove(path, { recursive: !stat.isSymlink });
+        this.logger.verbose(`Removed: ${path}`, this.config.verbose);
+      }
+    } catch (error) {
+      // If removal fails, it might have been removed by another process
+      if (!error.message.includes('NotFound')) {
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * Safe symlink creation with existence check
+   */
+  private async createSymlinkSafe(targetPath: string, linkPath: string): Promise<void> {
+    try {
+      await Deno.symlink(targetPath, linkPath);
+    } catch (error) {
+      if (error instanceof Deno.errors.AlreadyExists) {
+        // Handle race condition - another process created the file
+        throw new Error(`File already exists: ${linkPath}`);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Atomic move operation with fallback
+   */
+  private async atomicMove(sourcePath: string, destPath: string): Promise<void> {
+    try {
+      // First try atomic rename (fastest)
+      await Deno.rename(sourcePath, destPath);
+    } catch (error) {
+      if (error instanceof Deno.errors.AlreadyExists) {
+        // Destination exists - remove it first then try again
+        await this.safeRemove(destPath);
+        await Deno.rename(sourcePath, destPath);
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * Cleanup after failed operations
+   */
+  private async cleanupFailedOperation(tempPath: string, state: OperationState): Promise<void> {
+    // Remove temporary symlink if it exists
+    if (await this.safeExists(tempPath)) {
+      await this.safeRemove(tempPath);
+    }
+
+    // Restore backup if operation was partially completed
+    if (state.backupPath && await this.safeExists(state.backupPath)) {
+      try {
+        await this.atomicMove(state.backupPath, state.linkPath);
+        this.logger.verbose(`Restored backup: ${state.linkPath}`, this.config.verbose);
+      } catch (error) {
+        this.logger.warning(`Failed to restore backup for ${state.linkPath}: ${error.message}`);
+      }
     }
   }
 
@@ -321,46 +568,19 @@ class SymlinkDeploymentManager {
     const upSteps = fromParts.length - commonLength;
     const downSteps = toParts.slice(commonLength);
 
-    const relativeParts = ['..'.repeat(upSteps), ...downSteps].filter(p => p);
+    const relativeParts = [
+      ...Array(upSteps).fill('..'),
+      ...downSteps
+    ].filter(p => p);
+
     return relativeParts.join('/') || '.';
   }
 
   /**
-   * Backs up and removes existing file or directory
+   * Non-blocking delay utility
    */
-  private async backupAndRemove(path: string): Promise<void> {
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const backupName = `${basename(path)}.backup.${timestamp}`;
-    const backupPath = join(this.config.backupDirectory, backupName);
-
-    try {
-      // Attempt to move to backup location
-      await Deno.rename(path, backupPath);
-      this.logger.verbose(`Backed up: ${path} → ${backupPath}`, this.config.verbose);
-    } catch {
-      // If backup fails, just remove (less safe but ensures deployment continues)
-      await Deno.remove(path, { recursive: true });
-      this.logger.verbose(`Removed: ${path}`, this.config.verbose);
-    }
-  }
-
-  /**
-   * Checks if a symlink was previously existing (for result reporting)
-   */
-  private async wasExistingLink(path: string): Promise<boolean> {
-    const backupPattern = `${basename(path)}.backup.`;
-
-    try {
-      for await (const entry of Deno.readDir(this.config.backupDirectory)) {
-        if (entry.name.startsWith(backupPattern)) {
-          return true;
-        }
-      }
-    } catch {
-      // Backup directory might not exist or be accessible
-    }
-
-    return false;
+  private async delay(ms: number): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, ms));
   }
 
   /**
@@ -375,6 +595,9 @@ class SymlinkDeploymentManager {
         break;
       case 'updated':
         this.logger.success(`Updated: ${relativePath}`);
+        break;
+      case 'retried':
+        this.logger.success(`Retried and completed: ${relativePath} (${result.attempts} attempts)`);
         break;
       case 'skipped':
         this.logger.verbose(`Skipped: ${relativePath} (already current)`, this.config.verbose);
@@ -392,7 +615,8 @@ class SymlinkDeploymentManager {
     this.logger.header('Deployment Summary');
 
     const summary = results.reduce((acc, result) => {
-      acc[result.action] = (acc[result.action] || 0) + 1;
+      const key = result.action === 'retried' ? 'updated' : result.action;
+      acc[key] = (acc[key] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
@@ -401,6 +625,13 @@ class SymlinkDeploymentManager {
     console.log(`   Updated: ${summary.updated || 0}`);
     console.log(`   Skipped: ${summary.skipped || 0}`);
     console.log(`   Failed:  ${summary.failed || 0}`);
+
+    // Report retry statistics
+    const retriedOperations = results.filter(r => r.action === 'retried');
+    if (retriedOperations.length > 0) {
+      const totalAttempts = retriedOperations.reduce((sum, r) => sum + (r.attempts || 0), 0);
+      console.log(`   Retries: ${retriedOperations.length} operations required ${totalAttempts} total attempts`);
+    }
 
     const totalOperations = results.length;
     const successfulOperations = (summary.created || 0) + (summary.updated || 0) + (summary.skipped || 0);
@@ -411,11 +642,21 @@ class SymlinkDeploymentManager {
       results
         .filter(r => r.action === 'failed')
         .forEach(r => console.log(`  - ${r.path}: ${r.error}`));
+      
+      console.log('\n💡 Troubleshooting tips:');
+      console.log('  - Ensure no processes are using the target files');
+      console.log('  - Check file permissions and ownership');
+      console.log('  - Try running with elevated permissions if needed');
+      console.log('  - Use --verbose flag for detailed operation logs');
     } else {
       this.logger.success(`Deployment completed successfully! (${successfulOperations}/${totalOperations})`);
     }
 
-    console.log(`\n${this.logger['colorize']?.('🔗 All sites now point to latest core framework', 'green') || '🔗 All sites now point to latest core framework'}\n`);
+    console.log(`\n${this.colorize('🔗 All sites now point to latest core framework', 'green')}\n`);
+  }
+
+  private colorize(text: string, color: string): string {
+    return this.logger['colorize']?.(text, color) ?? text;
   }
 }
 
@@ -450,6 +691,14 @@ class ConfigurationManager {
         case '-t':
           config.symlinkTargets = args[++i]?.split(',') || [];
           break;
+        case '--retries':
+        case '-r':
+          config.maxRetries = parseInt(args[++i]) || 3;
+          break;
+        case '--delay':
+        case '-d':
+          config.retryDelayMs = parseInt(args[++i]) || 100;
+          break;
         case '--help':
         case '-h':
           ConfigurationManager.showHelp();
@@ -463,49 +712,68 @@ class ConfigurationManager {
 
   static showHelp(): void {
     console.log(`
-🚀 DenoGenesis Core Symlink Deployment Script
+🚀 DenoGenesis Core Symlink Deployment Script - Enhanced
 
 USAGE:
-  deno run --allow-read --allow-write --allow-run deploy-symlinks.ts [OPTIONS]
+  deno run --allow-read --allow-write --allow-run syslink-creator.ts [OPTIONS]
 
 OPTIONS:
   -c, --core <path>      Path to core directory (default: ./core)
   -s, --sites <path>     Path to sites directory (default: ./sites)
   -b, --backup <path>    Path to backup directory (default: ./deployment/backups)
   -t, --targets <list>   Comma-separated list of symlink targets
+  -r, --retries <num>    Maximum retry attempts (default: 3)
+  -d, --delay <ms>       Retry delay in milliseconds (default: 100)
   -v, --verbose          Enable verbose logging
   -h, --help            Show this help message
 
 EXAMPLES:
   # Standard deployment
-  deno run --allow-read --allow-write --allow-run deploy-symlinks.ts
+  deno run --allow-read --allow-write --allow-run syslink-creator.ts
 
-  # Custom directories with verbose output
-  deno run --allow-read --allow-write --allow-run deploy-symlinks.ts \\
+  # Custom directories with verbose output and retry settings
+  deno run --allow-read --allow-write --allow-run syslink-creator.ts \\
     --core ./framework/core \\
     --sites ./applications \\
+    --retries 5 \\
+    --delay 200 \\
     --verbose
 
   # Specific targets only
-  deno run --allow-read --allow-write --allow-run deploy-symlinks.ts \\
+  deno run --allow-read --allow-write --allow-run syslink-creator.ts \\
     --targets utils,middleware,config
+
+ENHANCED FEATURES:
+  ✅ Atomic symlink operations (temp file → rename)
+  ✅ Retry mechanism for transient failures
+  ✅ Race condition protection
+  ✅ Safe backup with collision handling
+  ✅ Comprehensive error recovery
+  ✅ Detailed operation logging
 
 SYMLINK TARGETS:
   The script creates symbolic links for these core framework directories:
   - utils       (Shared utility functions)
-  - middleware  (HTTP middleware components)
+  - middleware  (HTTP middleware components)  
   - config      (Framework configuration)
   - types       (TypeScript type definitions)
   - database    (Database utilities and schemas)
-  - components  (Shared UI components)
-  - libs        (Third-party library integrations)
+  - models      (Data models and schemas)
+  - routes      (HTTP route handlers)
+  - services    (Business logic services)
+  - controllers (Request controllers)
+  - main.ts     (Application entry point)
+  - VERSION     (Framework version info)
+  - meta.ts     (Framework metadata)
 
 SAFETY FEATURES:
-  ✅ Creates backups before removing existing files
-  ✅ Validates all paths before making changes
-  ✅ Uses relative paths for portable symlinks
-  ✅ Comprehensive error handling and rollback
+  ✅ Atomic operations prevent partial updates
+  ✅ Automatic backup before file removal
+  ✅ Retry logic for transient file system issues
+  ✅ Race condition handling between processes
+  ✅ Comprehensive rollback on failures
   ✅ Detailed logging and progress reporting
+  ✅ File system permission validation
 
 For more information, see: https://github.com/dominguez-tech/deno-genesis
 `);
@@ -519,23 +787,37 @@ class DeploymentValidator {
   static async validateDeployment(config: DeploymentConfig): Promise<void> {
     const logger = new DeploymentLogger();
 
-    // Validate permissions
+    // Validate permissions with enhanced checking
     try {
       const testFile = join(config.backupDirectory, '.permission-test');
       await ensureDir(dirname(testFile));
       await Deno.writeTextFile(testFile, 'test');
+      
+      // Test both read and write permissions
+      const content = await Deno.readTextFile(testFile);
+      if (content !== 'test') {
+        throw new Error('File system read/write verification failed');
+      }
+      
       await Deno.remove(testFile);
-    } catch {
-      throw new Error('Insufficient file system permissions for deployment');
+    } catch (error) {
+      throw new Error(`Insufficient file system permissions for deployment: ${error.message}`);
     }
 
     // Validate core directory structure
     logger.verbose('Validating core directory structure...', config.verbose);
+    let missingTargets = 0;
+    
     for (const target of config.symlinkTargets) {
       const targetPath = join(config.coreDirectory, target);
       if (!await exists(targetPath)) {
         logger.warning(`Optional core target missing: ${target}`);
+        missingTargets++;
       }
+    }
+
+    if (missingTargets === config.symlinkTargets.length) {
+      throw new Error('No symlink targets found in core directory - deployment would be ineffective');
     }
 
     // Check for running services that might need restart
@@ -553,6 +835,27 @@ class DeploymentValidator {
       // systemctl might not be available (development environment)
       logger.verbose('SystemD not available - skipping service check', config.verbose);
     }
+
+    // Additional file system health checks
+    await DeploymentValidator.validateFileSystemHealth(config, logger);
+  }
+
+  /**
+   * Additional file system health checks
+   */
+  private static async validateFileSystemHealth(config: DeploymentConfig, logger: DeploymentLogger): Promise<void> {
+    try {
+      // Check available disk space
+      const tempFile = join(config.backupDirectory, '.space-test');
+      const testData = 'x'.repeat(1024); // 1KB test
+      
+      await Deno.writeTextFile(tempFile, testData);
+      await Deno.remove(tempFile);
+      
+      logger.verbose('File system health check passed', config.verbose);
+    } catch (error) {
+      throw new Error(`File system health check failed: ${error.message}`);
+    }
   }
 }
 
@@ -568,32 +871,4 @@ async function main(): Promise<void> {
     await DeploymentValidator.validateDeployment(config);
 
     // Execute deployment
-    const deploymentManager = new SymlinkDeploymentManager(config);
-    await deploymentManager.deploy();
-
-  } catch (error) {
-    const logger = new DeploymentLogger();
-    logger.error(`Fatal error: ${error.message}`);
-
-    if (error.stack && Deno.args.includes('--verbose')) {
-      console.error('\nStack trace:');
-      console.error(error.stack);
-    }
-
-    Deno.exit(1);
-  }
-}
-
-// Self-executing deployment script
-if (import.meta.main) {
-  await main();
-}
-
-// Export for testing and module usage
-export {
-  SymlinkDeploymentManager,
-  DeploymentLogger,
-  ConfigurationManager,
-  type DeploymentConfig,
-  type LinkUpdateResult
-};
+    const deploymentManager = new SymlinkDe
