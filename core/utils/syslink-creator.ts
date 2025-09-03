@@ -46,6 +46,7 @@ const DEFAULT_CONFIG: DeploymentConfig = {
     'types',
     'utils',
     'main.ts',
+    'VERSION',
     'meta.ts'
   ],
   backupDirectory: './deployment/backups',
