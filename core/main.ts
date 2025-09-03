@@ -131,12 +131,10 @@ const setupStaticFiles = (): void => {
   });
 };
 
-// CORS setup
+// CORS setup - Simplified to use only CORS_ORIGINS from .env
 const setupCORS = (): void => {
   app.use(oakCors({
-    origin: DENO_ENV === 'production' 
-      ? ["https://efficientmoversllc.com"]
-      : [...CORS_ORIGINS, "https://efficientmoversllc.com"],
+    origin: CORS_ORIGINS, // Uses the array directly from .env configuration
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Request-ID'],
