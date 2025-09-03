@@ -2,10 +2,10 @@
 
 /**
  * DenoGenesis Framework Deployment Script
- * 
+ *
  * Updates symbolic links from site directories to the core framework directory
  * to eliminate version drift and ensure consistency across all sites.
- * 
+ *
  * @author DenoGenesis Framework Team
  * @version 1.0.0
  * @requires Deno 1.40+
@@ -36,13 +36,17 @@ const DEFAULT_CONFIG: DeploymentConfig = {
   coreDirectory: './core',
   sitesDirectory: './sites',
   symlinkTargets: [
-    'utils',
-    'middleware', 
     'config',
-    'types',
+    'controllers',
     'database',
-    'components',
-    'libs'
+    'middleware',
+    'models',
+    'routes',
+    'services',
+    'types',
+    'utils',
+    'main.ts',
+    'meta.ts'
   ],
   backupDirectory: './deployment/backups',
   verbose: false
@@ -61,7 +65,7 @@ class DeploymentLogger {
 
   private colorize(text: string, color: string): string {
     if (!this.enableColors) return text;
-    
+
     const colors = {
       red: '\x1b[31m',
       green: '\x1b[32m',
@@ -73,7 +77,7 @@ class DeploymentLogger {
       bold: '\x1b[1m',
       dim: '\x1b[2m'
     } as const;
-    
+
     return `${colors[color as keyof typeof colors] || ''}${text}${colors.reset}`;
   }
 
@@ -125,10 +129,10 @@ class SymlinkDeploymentManager {
   async deploy(): Promise<void> {
     try {
       this.logger.header('DenoGenesis Core Symlink Deployment');
-      
+
       await this.validateEnvironment();
       await this.createBackupDirectory();
-      
+
       const siteDirectories = await this.discoverSites();
       const results: LinkUpdateResult[] = [];
 
@@ -139,7 +143,7 @@ class SymlinkDeploymentManager {
       }
 
       this.reportResults(results);
-      
+
     } catch (error) {
       this.logger.error(`Deployment failed: ${error.message}`);
       Deno.exit(1);
@@ -186,7 +190,7 @@ class SymlinkDeploymentManager {
    */
   private async discoverSites(): Promise<string[]> {
     const siteDirectories: string[] = [];
-    
+
     try {
       for await (const entry of Deno.readDir(this.config.sitesDirectory)) {
         if (entry.isDirectory) {
@@ -211,12 +215,12 @@ class SymlinkDeploymentManager {
 
     for (const target of this.config.symlinkTargets) {
       const result = await this.updateSymlink(
-        siteDirectory, 
-        target, 
+        siteDirectory,
+        target,
         absoluteCoreDir
       );
       results.push(result);
-      
+
       this.logLinkResult(result);
     }
 
@@ -227,8 +231,8 @@ class SymlinkDeploymentManager {
    * Updates or creates a single symbolic link
    */
   private async updateSymlink(
-    siteDirectory: string, 
-    target: string, 
+    siteDirectory: string,
+    target: string,
     absoluteCoreDir: string
   ): Promise<LinkUpdateResult> {
     const linkPath = join(siteDirectory, target);
@@ -248,12 +252,12 @@ class SymlinkDeploymentManager {
       // Handle existing symlink or directory
       if (await exists(linkPath)) {
         const stat = await Deno.lstat(linkPath);
-        
+
         if (stat.isSymlink) {
           // Check if symlink points to correct target
           const currentTarget = await Deno.readLink(linkPath);
           const resolvedCurrent = resolve(dirname(linkPath), currentTarget);
-          
+
           if (resolvedCurrent === targetPath) {
             return {
               path: linkPath,
@@ -261,7 +265,7 @@ class SymlinkDeploymentManager {
               action: 'skipped'
             };
           }
-          
+
           // Remove outdated symlink
           await this.backupAndRemove(linkPath);
         } else {
@@ -297,25 +301,25 @@ class SymlinkDeploymentManager {
   private calculateRelativePath(fromDir: string, toPath: string): string {
     const fromAbsolute = resolve(fromDir);
     const toAbsolute = resolve(toPath);
-    
+
     // Calculate relative path using directory traversal
     const fromParts = fromAbsolute.split('/').filter(p => p);
     const toParts = toAbsolute.split('/').filter(p => p);
-    
+
     // Find common prefix
     let commonLength = 0;
     while (
-      commonLength < fromParts.length && 
+      commonLength < fromParts.length &&
       commonLength < toParts.length &&
       fromParts[commonLength] === toParts[commonLength]
     ) {
       commonLength++;
     }
-    
+
     // Build relative path
     const upSteps = fromParts.length - commonLength;
     const downSteps = toParts.slice(commonLength);
-    
+
     const relativeParts = ['..'.repeat(upSteps), ...downSteps].filter(p => p);
     return relativeParts.join('/') || '.';
   }
@@ -344,7 +348,7 @@ class SymlinkDeploymentManager {
    */
   private async wasExistingLink(path: string): Promise<boolean> {
     const backupPattern = `${basename(path)}.backup.`;
-    
+
     try {
       for await (const entry of Deno.readDir(this.config.backupDirectory)) {
         if (entry.name.startsWith(backupPattern)) {
@@ -354,7 +358,7 @@ class SymlinkDeploymentManager {
     } catch {
       // Backup directory might not exist or be accessible
     }
-    
+
     return false;
   }
 
@@ -363,7 +367,7 @@ class SymlinkDeploymentManager {
    */
   private logLinkResult(result: LinkUpdateResult): void {
     const relativePath = result.path.replace(this.config.sitesDirectory + '/', '');
-    
+
     switch (result.action) {
       case 'created':
         this.logger.success(`Created: ${relativePath}`);
@@ -399,7 +403,7 @@ class SymlinkDeploymentManager {
 
     const totalOperations = results.length;
     const successfulOperations = (summary.created || 0) + (summary.updated || 0) + (summary.skipped || 0);
-    
+
     if (summary.failed && summary.failed > 0) {
       this.logger.warning(`Deployment completed with ${summary.failed} failures`);
       console.log('\nFailed operations:');
@@ -420,10 +424,10 @@ class SymlinkDeploymentManager {
 class ConfigurationManager {
   static parseArgs(args: string[]): Partial<DeploymentConfig> {
     const config: Partial<DeploymentConfig> = {};
-    
+
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
-      
+
       switch (arg) {
         case '--core':
         case '-c':
@@ -452,7 +456,7 @@ class ConfigurationManager {
           break;
       }
     }
-    
+
     return config;
   }
 
@@ -465,7 +469,7 @@ USAGE:
 
 OPTIONS:
   -c, --core <path>      Path to core directory (default: ./core)
-  -s, --sites <path>     Path to sites directory (default: ./sites)  
+  -s, --sites <path>     Path to sites directory (default: ./sites)
   -b, --backup <path>    Path to backup directory (default: ./deployment/backups)
   -t, --targets <list>   Comma-separated list of symlink targets
   -v, --verbose          Enable verbose logging
@@ -488,7 +492,7 @@ EXAMPLES:
 SYMLINK TARGETS:
   The script creates symbolic links for these core framework directories:
   - utils       (Shared utility functions)
-  - middleware  (HTTP middleware components)  
+  - middleware  (HTTP middleware components)
   - config      (Framework configuration)
   - types       (TypeScript type definitions)
   - database    (Database utilities and schemas)
@@ -569,12 +573,12 @@ async function main(): Promise<void> {
   } catch (error) {
     const logger = new DeploymentLogger();
     logger.error(`Fatal error: ${error.message}`);
-    
+
     if (error.stack && Deno.args.includes('--verbose')) {
       console.error('\nStack trace:');
       console.error(error.stack);
     }
-    
+
     Deno.exit(1);
   }
 }
@@ -585,10 +589,10 @@ if (import.meta.main) {
 }
 
 // Export for testing and module usage
-export { 
-  SymlinkDeploymentManager, 
-  DeploymentLogger, 
+export {
+  SymlinkDeploymentManager,
+  DeploymentLogger,
   ConfigurationManager,
   type DeploymentConfig,
-  type LinkUpdateResult 
+  type LinkUpdateResult
 };
