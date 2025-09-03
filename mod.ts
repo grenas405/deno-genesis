@@ -2,15 +2,15 @@
  * =============================================================================
  * DenoGenesis Framework - Main Module (mod.ts)
  * =============================================================================
- * 
+ *
  * This module serves as the central export point for the DenoGenesis framework,
  * aggregating all core functionality from configuration, middleware, and utilities.
- * 
+ *
  * Architecture:
  * - Imports from config/ directory for environment variables and system config
  * - Imports from middleware/ directory for request processing stack
  * - Imports from core/ directory for framework utilities and integrity validation
- * 
+ *
  * @module DenoGenesis
  * @version 1.0.0
  * @author Pedro M. Dominguez - Dominguez Tech Solutions LLC
@@ -37,7 +37,7 @@ export {
 } from "./config/env.ts";
 
 // =============================================================================
-// MIDDLEWARE IMPORTS  
+// MIDDLEWARE IMPORTS
 // =============================================================================
 
 /**
@@ -61,7 +61,7 @@ export {
 export {
   closeDatabaseConnection,
   getDatabaseStatus,
-} from "./core/database/client.ts";
+} from "./database/client.ts";
 
 /**
  * Framework Integrity & Version Management
@@ -70,7 +70,7 @@ export {
 export {
   getFrameworkVersion,
   validateFrameworkIntegrity,
-} from "./core/utils/index.ts";
+} from "./utils/index.ts";
 
 // =============================================================================
 // MODULE DOCUMENTATION
@@ -78,7 +78,7 @@ export {
 
 /**
  * USAGE EXAMPLE:
- * 
+ *
  * ```typescript
  * import {
  *   createMiddlewareStack,
@@ -97,36 +97,36 @@ export {
  *   getFrameworkVersion,
  *   validateFrameworkIntegrity
  * } from "./mod.ts";
- * 
+ *
  * // Initialize middleware stack
  * const middleware = createMiddlewareStack();
  * const manager = new MiddlewareManager();
- * 
+ *
  * // Access environment configuration
  * console.log(`Server running on ${SERVER_HOST}:${PORT}`);
  * console.log(`Environment: ${DENO_ENV}`);
  * console.log(`Site Key: ${SITE_KEY}`);
  * console.log(`Framework Version: ${VERSION} (${BUILD_HASH})`);
- * 
+ *
  * // Framework health checks
  * const dbStatus = await getDatabaseStatus();
  * const frameworkVersion = getFrameworkVersion();
  * const integrityCheck = await validateFrameworkIntegrity();
- * 
+ *
  * console.log('System Status:', {
  *   database: dbStatus,
  *   framework: frameworkVersion,
  *   integrity: integrityCheck
  * });
- * 
+ *
  * // Cleanup on shutdown
  * addEventListener("unload", async () => {
  *   await closeDatabaseConnection();
  * });
  * ```
- * 
+ *
  * MIDDLEWARE CONFIGURATION:
- * 
+ *
  * ```typescript
  * const middlewareConfig: MiddlewareConfig = {
  *   cors: {
@@ -141,7 +141,7 @@ export {
  *     level: DENO_ENV === "production" ? "info" : "debug"
  *   }
  * };
- * 
+ *
  * const stack = createMiddlewareStack(middlewareConfig);
  * ```
  */
@@ -218,7 +218,7 @@ export const DEFAULT_CONFIG = {
  */
 export const STATUS_CODES = {
   HEALTHY: "healthy",
-  DEGRADED: "degraded", 
+  DEGRADED: "degraded",
   UNHEALTHY: "unhealthy",
   UNKNOWN: "unknown",
 } as const;
@@ -241,7 +241,7 @@ export async function initializeFramework(): Promise<{
 }> {
   // Initialize middleware stack with default configuration
   const middleware = createMiddlewareStack();
-  
+
   // Gather environment configuration
   const config: DenoGenesisEnvironment = {
     PORT,
@@ -253,7 +253,7 @@ export async function initializeFramework(): Promise<{
     BUILD_DATE,
     BUILD_HASH,
   };
-  
+
   // Perform health checks
   const status = {
     database: await getDatabaseStatus(),
@@ -263,7 +263,7 @@ export async function initializeFramework(): Promise<{
       dependencyIntegrity: true, // Placeholder for dependency validation
     },
   };
-  
+
   return {
     middleware,
     config,
@@ -279,7 +279,7 @@ export async function shutdownFramework(): Promise<void> {
   try {
     // Close database connections
     await closeDatabaseConnection();
-    
+
     // Additional cleanup tasks can be added here
     console.log("🔒 DenoGenesis framework shutdown completed successfully");
   } catch (error) {
