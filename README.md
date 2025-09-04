@@ -325,29 +325,7 @@ Deno Genesis was built using AI-augmented development practices, proving that in
 
 ### Oklahoma City Success Stories
 
-**Heavenly Roofing LLC**
-- **Challenge:** Manual quote generation taking 2+ hours per estimate
-- **Solution:** Automated estimation system with customer portal
-- **Results:** 
-  - Quote generation reduced to 15 minutes
-  - Customer satisfaction increased 40%
-  - Monthly revenue increased $25,000
 
-**Efficient Movers LLC**  
-- **Challenge:** Scheduling conflicts and poor customer communication
-- **Solution:** Real-time booking system with SMS notifications
-- **Results:**
-  - Scheduling conflicts eliminated
-  - Customer complaints reduced 80%
-  - Booking conversion rate increased 60%
-
-**Dominguez Tech Solutions**
-- **Challenge:** Managing multiple client projects efficiently
-- **Solution:** Multi-tenant project management system
-- **Results:**
-  - Project delivery time improved 50%
-  - Client satisfaction scores at 98%
-  - Revenue per client increased 35%
 
 ---
 
@@ -358,6 +336,7 @@ Deno Genesis was built using AI-augmented development practices, proving that in
 - 🏗️ [Framework Architecture](docs/framework/architecture.md) - System design principles
 - 🎯 [9 Principles of Local-First Software](docs/framework/9_principles.md) - Core philosophy
 - 📋 [Best Practices](docs/framework/best-practices.md) - Coding standards
+- 🤖 [AI Development Guide for Non-Technical Users](docs/guides/ai-development-guide.md) - Complete guide to building with AI assistance
 
 ### Advanced Topics  
 - 🧩 [Component Architecture](docs/framework/component-architecture.md) - Building reusable components
