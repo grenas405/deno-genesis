@@ -573,7 +573,7 @@ This license ensures that improvements to Deno Genesis benefit the entire solopr
 ### Take the First Step
 
 ```bash
-git clone https://github.com/dominguez-tech/deno-genesis.git
+git clone https://github.com/grenas405/deno-genesis.git
 cd deno-genesis
 sudo ./core/utils/setup-mariadb.sh
 deno task start
