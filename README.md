@@ -285,6 +285,8 @@ ConsoleStyler.info("ℹ️ Processing 1,247 records...");
 
 ## 🤖 AI-Augmented Development
 
+- 🤖 [AI Development Guide for Non-Technical Users](docs/guides/ai-development-guide.md) - Complete guide to building with AI assistance
+
 ### The AI-First Development Methodology
 
 Deno Genesis was built using AI-augmented development practices, proving that individual developers can achieve enterprise-level results by leveraging AI effectively.
@@ -336,7 +338,7 @@ Deno Genesis was built using AI-augmented development practices, proving that in
 - 🏗️ [Framework Architecture](docs/framework/architecture.md) - System design principles
 - 🎯 [9 Principles of Local-First Software](docs/framework/9_principles.md) - Core philosophy
 - 📋 [Best Practices](docs/framework/best-practices.md) - Coding standards
-- 🤖 [AI Development Guide for Non-Technical Users](docs/guides/ai-development-guide.md) - Complete guide to building with AI assistance
+
 
 ### Advanced Topics  
 - 🧩 [Component Architecture](docs/framework/component-architecture.md) - Building reusable components
