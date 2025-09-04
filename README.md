@@ -171,7 +171,7 @@ DenoGenesis serves **real businesses** with **vertical-specific implementations*
 - 🏭 **[Industry Guides](docs/09-industries/)** - Vertical-specific implementations
 
 **Essential Reading**:
-- 📜 **[Unix Philosophy + Deno Convergence](docs/02-framework/meta-documentation.md)** - The revolutionary paradigm explained
+- 📜 **[Unix Philosophy + Deno Convergence](docs/02-framework/philosophy.md)** - The revolutionary paradigm explained
 - 🎯 **[9 Principles of Local-First](docs/02-framework/9-principles.md)** - Core philosophy and implementation
 - 💰 **[Cost Analysis](docs/08-business/cost-analysis.md)** - 80% cost reduction breakdown
 
