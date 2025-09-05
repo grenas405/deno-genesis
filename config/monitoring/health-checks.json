@@ -1,0 +1,217 @@
+{
+  "framework": {
+    "description": "DenoGenesis Framework Health Monitoring Configuration",
+    "version": "2.1.0",
+    "lastUpdated": "2025-09-01T00:00:00Z"
+  },
+  "global": {
+    "healthCheckInterval": 30000,
+    "timeout": 10000,
+    "retryCount": 3,
+    "retryDelay": 1000,
+    "enableDetailedMetrics": true,
+    "cacheResults": true,
+    "cacheTTL": 15000
+  },
+  "endpoints": {
+    "framework": {
+      "path": "/_framework/health",
+      "port": 3000,
+      "description": "Main framework health endpoint",
+      "checks": [
+        "system_resources",
+        "framework_integrity", 
+        "site_connectivity",
+        "dependency_status"
+      ],
+      "includeMetrics": true,
+      "includeEnvironment": false,
+      "enableDetailedChecks": true
+    },
+    "sites": {
+      "domtech": {
+        "path": "/health",
+        "port": 3001,
+        "baseUrl": "https://domtech.network",
+        "description": "DomTech main site health",
+        "checks": [
+          "database_connectivity",
+          "api_endpoints",
+          "static_assets",
+          "ssl_certificate"
+        ],
+        "customChecks": [
+          "contact_form_submission",
+          "image_optimization_service"
+        ]
+      },
+      "heavenlyroofing": {
+        "path": "/health",
+        "port": 3002,
+        "baseUrl": "https://heavenly-roofing.com",
+        "description": "Heavenly Roofing business site health",
+        "checks": [
+          "contact_form",
+          "quote_calculator", 
+          "image_gallery",
+          "ssl_certificate"
+        ],
+        "customChecks": [
+          "lead_generation_system",
+          "estimate_calculator"
+        ]
+      },
+      "okdevs": {
+        "path": "/health", 
+        "port": 3003,
+        "baseUrl": "https://okdevs.com",
+        "description": "OK Devs development portfolio health",
+        "checks": [
+          "portfolio_content",
+          "project_showcase",
+          "contact_system",
+          "ssl_certificate"
+        ],
+        "customChecks": [
+          "github_integration",
+          "project_deployment_status"
+        ]
+      },
+      "pedromdominguez": {
+        "path": "/health",
+        "port": 3004, 
+        "baseUrl": "https://pedromdominguez.com",
+        "description": "Pedro's personal portfolio health",
+        "checks": [
+          "blog_system",
+          "portfolio_showcase",
+          "contact_form",
+          "ssl_certificate"
+        ],
+        "customChecks": [
+          "blog_rss_feed",
+          "resume_download"
+        ]
+      },
+      "efficientmovers": {
+        "path": "/health",
+        "port": 3005,
+        "baseUrl": "https://efficient-movers.com", 
+        "description": "Efficient Movers business site health",
+        "checks": [
+          "booking_system",
+          "quote_calculator",
+          "service_areas",
+          "ssl_certificate"
+        ],
+        "customChecks": [
+          "booking_availability_check",
+          "price_calculator_accuracy"
+        ]
+      }
+    }
+  },
+  "dependencies": {
+    "external_apis": [
+      {
+        "name": "cloudflare_dns",
+        "url": "https://1.1.1.1",
+        "type": "api",
+        "timeout": 5000,
+        "critical": true,
+        "description": "DNS resolution service"
+      },
+      {
+        "name": "github_api",
+        "url": "https://api.github.com",
+        "type": "api", 
+        "timeout": 10000,
+        "critical": false,
+        "description": "GitHub API for project data"
+      }
+    ],
+    "internal_services": [
+      {
+        "name": "nginx_proxy",
+        "type": "service",
+        "port": 80,
+        "critical": true,
+        "description": "Nginx reverse proxy"
+      },
+      {
+        "name": "nginx_ssl",
+        "type": "service", 
+        "port": 443,
+        "critical": true,
+        "description": "Nginx SSL termination"
+      }
+    ],
+    "system_resources": [
+      {
+        "name": "disk_space",
+        "type": "filesystem",
+        "path": "/",
+        "warning_threshold": 80,
+        "critical_threshold": 90,
+        "description": "Root filesystem usage"
+      },
+      {
+        "name": "memory_usage",
+        "type": "memory",
+        "warning_threshold": 80,
+        "critical_threshold": 90,
+        "description": "System memory utilization"
+      },
+      {
+        "name": "cpu_load",
+        "type": "cpu",
+        "warning_threshold": 70,
+        "critical_threshold": 90,
+        "description": "CPU load average"
+      }
+    ]
+  },
+  "probes": {
+    "liveness": {
+      "enabled": true,
+      "path": "/_framework/alive",
+      "interval": 10000,
+      "timeout": 5000,
+      "description": "Basic liveness probe"
+    },
+    "readiness": {
+      "enabled": true,
+      "path": "/_framework/ready", 
+      "interval": 30000,
+      "timeout": 15000,
+      "description": "Readiness probe with dependency checks"
+    },
+    "startup": {
+      "enabled": true,
+      "path": "/_framework/startup",
+      "timeout": 30000,
+      "description": "Startup probe for initialization checks"
+    }
+  },
+  "monitoring": {
+    "enableMetricsCollection": true,
+    "metricsRetentionDays": 7,
+    "enableAlertHistory": true,
+    "alertRetentionDays": 30,
+    "enableHealthHistory": true,
+    "healthHistoryRetentionDays": 7,
+    "enablePerformanceMetrics": true,
+    "reportingInterval": 300000,
+    "generateDailyReports": true,
+    "dailyReportTime": "02:00"
+  },
+  "notification": {
+    "enableConsoleAlerts": true,
+    "enableLogAlerts": true,
+    "logLevel": "warn",
+    "enableWebhooks": false,
+    "webhookUrls": [],
+    "enableEmailAlerts": false,
+    "emailRecipients": []
+  }
+}
