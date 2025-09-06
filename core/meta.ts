@@ -1,4 +1,96 @@
-// denogenesis-framework/core/meta.ts
+/**
+ * =============================================================================
+ * DenoGenesis Framework - Core Metadata & Utilities (core/meta.ts)
+ * =============================================================================
+ * 
+ * Comprehensive framework metadata collection, version management, integrity 
+ * validation, and multi-site management system.
+ * 
+ * This module consolidates:
+ * - Framework version information and build metadata
+ * - Multi-site discovery and health monitoring
+ * - Comprehensive integrity validation with detailed reporting
+ * - Site-framework version compatibility checking
+ * - System health diagnostics and recommendations
+ * 
+ * @module CoreMeta
+ * @version 2.0.0
+ * @author Pedro M. Dominguez - Dominguez Tech Solutions LLC
+ * @license AGPL-3.0
+ */
+
+// =============================================================================
+// IMPORTS FROM CONFIG FOR VERSION INFORMATION
+// =============================================================================
+
+import { 
+  VERSION, 
+  BUILD_DATE, 
+  BUILD_HASH, 
+  DENO_ENV 
+} from "../config/env.ts";
+
+// =============================================================================
+// TYPE DEFINITIONS - FRAMEWORK VERSION & STATS
+// =============================================================================
+
+/**
+ * Framework version information structure
+ */
+export interface FrameworkVersionInfo {
+  version: string;
+  buildDate: string;
+  buildHash: string;
+  environment: string;
+  denoVersion: string;
+  frameworkName: string;
+  timestamp: number;
+}
+
+/**
+ * Basic framework integrity check result (legacy compatibility)
+ */
+export interface FrameworkIntegrityResult {
+  overall: boolean;
+  checks: {
+    coreModules: boolean;
+    configuration: boolean;
+    dependencies: boolean;
+    fileSystem: boolean;
+    environment: boolean;
+  };
+  details: {
+    missingFiles?: string[];
+    configErrors?: string[];
+    dependencyIssues?: string[];
+    permissions?: string[];
+    warnings?: string[];
+  };
+  timestamp: number;
+}
+
+/**
+ * Framework runtime statistics
+ */
+export interface FrameworkStats {
+  uptime: number;
+  memoryUsage: {
+    rss: number;
+    heapTotal: number;
+    heapUsed: number;
+    external: number;
+  };
+  activeSites: number;
+  healthySites: number;
+}
+
+// =============================================================================
+// TYPE DEFINITIONS - DETAILED INTEGRITY VALIDATION
+// =============================================================================
+
+/**
+ * Framework metadata structure
+ */
 export interface FrameworkMetadata {
   version: string;
   buildDate: string;
@@ -7,10 +99,117 @@ export interface FrameworkMetadata {
   sites: SiteMetadata[];
 }
 
+/**
+ * Site metadata structure
+ */
+export interface SiteMetadata {
+  name: string;
+  port: number;
+  siteKey: string;
+  domain: string;
+  status: 'active' | 'inactive';
+  frameworkVersion: string;
+}
+
+/**
+ * Detailed integrity check result
+ */
+export interface IntegrityCheckResult {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+  checks: IntegrityCheck[];
+}
+
+/**
+ * Individual integrity check
+ */
+export interface IntegrityCheck {
+  name: string;
+  category: 'critical' | 'warning' | 'info';
+  status: 'passed' | 'failed' | 'warning';
+  message: string;
+  details?: any;
+}
+
+/**
+ * Comprehensive framework health report
+ */
+export interface FrameworkHealthReport {
+  status: "healthy" | "degraded" | "unhealthy";
+  timestamp: string;
+  version: FrameworkVersionInfo;
+  integrity: IntegrityCheckResult;
+  stats: FrameworkStats;
+  recommendations?: string[];
+}
+
+// =============================================================================
+// FRAMEWORK VERSION MANAGEMENT
+// =============================================================================
+
+/**
+ * Get comprehensive framework version information
+ * 
+ * Returns detailed version information including build metadata,
+ * environment details, and runtime information.
+ * 
+ * @returns FrameworkVersionInfo object with complete version details
+ * 
+ * @example
+ * ```typescript
+ * const versionInfo = getFrameworkVersion();
+ * console.log(`Running DenoGenesis ${versionInfo.version} (${versionInfo.buildHash})`);
+ * console.log(`Built on: ${versionInfo.buildDate}`);
+ * console.log(`Environment: ${versionInfo.environment}`);
+ * ```
+ */
+export function getFrameworkVersion(): FrameworkVersionInfo {
+  return {
+    version: VERSION,
+    buildDate: BUILD_DATE,
+    buildHash: BUILD_HASH,
+    environment: DENO_ENV,
+    denoVersion: Deno.version.deno,
+    frameworkName: "DenoGenesis",
+    timestamp: Date.now(),
+  };
+}
+
+/**
+ * Get framework runtime statistics
+ * 
+ * @returns FrameworkStats with current runtime information
+ */
+export function getFrameworkStats(): FrameworkStats {
+  const memoryUsage = Deno.memoryUsage();
+  
+  return {
+    uptime: performance.now(),
+    memoryUsage: {
+      rss: memoryUsage.rss,
+      heapTotal: memoryUsage.heapTotal,
+      heapUsed: memoryUsage.heapUsed,
+      external: memoryUsage.external,
+    },
+    activeSites: 0, // Will be populated by getConnectedSites()
+    healthySites: 0, // Will be populated by getConnectedSites()
+  };
+}
+
+// =============================================================================
+// FRAMEWORK METADATA COLLECTION
+// =============================================================================
+
+/**
+ * Get comprehensive framework metadata including all connected sites
+ * 
+ * @returns Promise<FrameworkMetadata> with complete framework information
+ */
 export async function getFrameworkMetadata(): Promise<FrameworkMetadata> {
   const versionPath = "/home/admin/deno-genesis/VERSION";
   const versionContent = await Deno.readTextFile(versionPath);
-  const lines = versionContent.split('\\n');
+  const lines = versionContent.split('\n');
 
   const version = lines[0] || 'unknown';
   const buildDate = lines.find(line => line.startsWith('Build Date:'))?.replace('Build Date: ', '') || 'unknown';
@@ -26,45 +225,66 @@ export async function getFrameworkMetadata(): Promise<FrameworkMetadata> {
   };
 }
 
+/**
+ * Discover and analyze all connected DenoGenesis sites
+ * 
+ * @returns Promise<SiteMetadata[]> with information about all framework sites
+ */
 export async function getConnectedSites(): Promise<SiteMetadata[]> {
   const sites: SiteMetadata[] = [];
   const sitesPath = "/home/admin/deno-genesis/sites";
 
-  for await (const dirEntry of Deno.readDir(sitesPath)) {
-    if (dirEntry.isDirectory) {
-      const sitePath = `${sitesPath}/${dirEntry.name}`;
-      const versionFile = `${sitePath}/FRAMEWORK_VERSION`;
+  try {
+    for await (const dirEntry of Deno.readDir(sitesPath)) {
+      if (dirEntry.isDirectory) {
+        const sitePath = `${sitesPath}/${dirEntry.name}`;
+        const versionFile = `${sitePath}/FRAMEWORK_VERSION`;
 
-      try {
-        await Deno.stat(versionFile);
-        const siteConfig = await readSiteConfig(`${sitePath}/site-config.ts`);
+        try {
+          await Deno.stat(versionFile);
+          const siteConfig = await readSiteConfig(`${sitePath}/site-config.ts`);
 
-        sites.push({
-          name: siteConfig.name || dirEntry.name,
-          port: siteConfig.port || 3000,
-          siteKey: siteConfig.siteKey || dirEntry.name,
-          domain: siteConfig.domain || 'localhost',
-          status: await checkSiteRunning(siteConfig.port) ? 'active' : 'inactive',
-          frameworkVersion: await getSiteFrameworkVersion(versionFile)
-        });
-      } catch {
-        // Not a framework site
+          sites.push({
+            name: siteConfig.name || dirEntry.name,
+            port: siteConfig.port || 3000,
+            siteKey: siteConfig.siteKey || dirEntry.name,
+            domain: siteConfig.domain || 'localhost',
+            status: await checkSiteRunning(siteConfig.port) ? 'active' : 'inactive',
+            frameworkVersion: await getSiteFrameworkVersion(versionFile)
+          });
+        } catch {
+          // Not a framework site, skip
+        }
       }
     }
+  } catch (error) {
+    console.warn(`Warning: Could not read sites directory: ${error.message}`);
   }
 
   return sites;
 }
 
-export async function getFrameworkVersion(versionFile: string): Promise<string> {
+/**
+ * Get framework version from a site's version file
+ * 
+ * @param versionFile Path to the site's FRAMEWORK_VERSION file
+ * @returns Promise<string> with the framework version
+ */
+export async function getSiteFrameworkVersion(versionFile: string): Promise<string> {
   try {
     const content = await Deno.readTextFile(versionFile);
-    return content.split('\\n')[0];
+    return content.split('\n')[0];
   } catch {
     return 'unknown';
   }
 }
 
+/**
+ * Check if a site is running by testing its health endpoint
+ * 
+ * @param port The port number to check
+ * @returns Promise<boolean> indicating if the site is responding
+ */
 async function checkSiteRunning(port: number): Promise<boolean> {
   try {
     const response = await fetch(`http://localhost:${port}/health`, {
@@ -76,33 +296,124 @@ async function checkSiteRunning(port: number): Promise<boolean> {
   }
 }
 
-// Framework integrity validation interfaces
-export interface IntegrityCheckResult {
-  valid: boolean;
-  errors: string[];
-  warnings: string[];
-  checks: IntegrityCheck[];
+// =============================================================================
+// BASIC FRAMEWORK INTEGRITY VALIDATION (Legacy)
+// =============================================================================
+
+/**
+ * Basic framework integrity validation for backward compatibility
+ * 
+ * Performs essential checks on framework components, configuration,
+ * file system permissions, and runtime environment.
+ * 
+ * @returns Promise<FrameworkIntegrityResult> with basic validation results
+ */
+export async function validateFrameworkIntegrity(): Promise<FrameworkIntegrityResult> {
+  const result: FrameworkIntegrityResult = {
+    overall: true,
+    checks: {
+      coreModules: true,
+      configuration: true,
+      dependencies: true,
+      fileSystem: true,
+      environment: true,
+    },
+    details: {
+      missingFiles: [],
+      configErrors: [],
+      dependencyIssues: [],
+      permissions: [],
+      warnings: [],
+    },
+    timestamp: Date.now(),
+  };
+
+  try {
+    // Core Module Validation
+    const requiredCoreFiles = [
+      "./config/env.ts",
+      "./core/middleware/index.ts",
+      "./core/database/client.ts",
+      "./core/meta.ts",
+    ];
+
+    for (const filePath of requiredCoreFiles) {
+      try {
+        const fileInfo = await Deno.stat(filePath);
+        if (!fileInfo.isFile) {
+          result.details.missingFiles?.push(filePath);
+          result.checks.coreModules = false;
+        }
+      } catch {
+        result.details.missingFiles?.push(filePath);
+        result.checks.coreModules = false;
+      }
+    }
+
+    // Configuration Validation
+    const requiredEnvVars = [
+      'PORT', 'DENO_ENV', 'SITE_KEY', 'SERVER_HOST', 
+      'VERSION', 'BUILD_DATE', 'BUILD_HASH'
+    ];
+
+    for (const envVar of requiredEnvVars) {
+      if (!Deno.env.get(envVar)) {
+        result.details.configErrors?.push(`Missing environment variable: ${envVar}`);
+        result.checks.configuration = false;
+      }
+    }
+
+    // Dependencies Validation
+    try {
+      const denoVersion = Deno.version.deno;
+      if (!denoVersion) {
+        result.details.dependencyIssues?.push("Deno runtime not accessible");
+        result.checks.dependencies = false;
+      }
+    } catch {
+      result.details.dependencyIssues?.push("Failed to check Deno version");
+      result.checks.dependencies = false;
+    }
+
+    // File System Permissions
+    try {
+      await Deno.readDir(".");
+      await Deno.stat("./mod.ts");
+    } catch {
+      result.details.permissions?.push("Insufficient file system permissions");
+      result.checks.fileSystem = false;
+    }
+
+    // Environment Validation
+    if (DENO_ENV === 'production' && BUILD_HASH === 'dev') {
+      result.details.warnings?.push("Production environment with development build");
+      result.checks.environment = false;
+    }
+
+    // Set overall result
+    result.overall = Object.values(result.checks).every(check => check);
+
+  } catch (error) {
+    result.overall = false;
+    result.details.configErrors?.push(`Validation error: ${error.message}`);
+  }
+
+  return result;
 }
 
-export interface IntegrityCheck {
-  name: string;
-  category: 'critical' | 'warning' | 'info';
-  status: 'passed' | 'failed' | 'warning';
-  message: string;
-  details?: any;
-}
+// =============================================================================
+// COMPREHENSIVE FRAMEWORK INTEGRITY VALIDATION
+// =============================================================================
 
-export interface SiteMetadata {
-  name: string;
-  port: number;
-  siteKey: string;
-  domain: string;
-  status: 'active' | 'inactive';
-  frameworkVersion: string;
-}
-
-// Framework integrity validation function
-export async function validateFrameworkIntegrity(): Promise<IntegrityCheckResult> {
+/**
+ * Comprehensive framework integrity validation with detailed reporting
+ * 
+ * Performs extensive validation including site structure, symbolic links,
+ * version compatibility, and shared components.
+ * 
+ * @returns Promise<IntegrityCheckResult> with detailed validation results
+ */
+export async function validateFrameworkIntegrityDetailed(): Promise<IntegrityCheckResult> {
   const result: IntegrityCheckResult = {
     valid: true,
     errors: [],
@@ -110,7 +421,7 @@ export async function validateFrameworkIntegrity(): Promise<IntegrityCheckResult
     checks: []
   };
 
-  console.log("🔍 Starting Framework Integrity Validation...");
+  console.log("🔍 Starting Comprehensive Framework Integrity Validation...");
 
   try {
     // 1. Validate core framework structure
@@ -141,12 +452,12 @@ export async function validateFrameworkIntegrity(): Promise<IntegrityCheckResult
     const failed = result.checks.filter(c => c.status === 'failed').length;
     const warnings = result.checks.filter(c => c.status === 'warning').length;
 
-    console.log(`✅ Integrity validation complete: ${passed} passed, ${failed} failed, ${warnings} warnings`);
-    
+    console.log(`✅ Comprehensive integrity validation complete: ${passed} passed, ${failed} failed, ${warnings} warnings`);
+
     return result;
 
   } catch (error) {
-    console.error("❌ Framework integrity validation failed:", error);
+    console.error("❌ Comprehensive framework integrity validation failed:", error);
     result.valid = false;
     result.errors.push(`Validation process failed: ${error.message}`);
     result.checks.push({
@@ -155,12 +466,123 @@ export async function validateFrameworkIntegrity(): Promise<IntegrityCheckResult
       status: 'failed',
       message: `Integrity validation encountered an error: ${error.message}`
     });
-    
+
     return result;
   }
 }
 
-// Validate core framework directory structure
+// =============================================================================
+// FRAMEWORK HEALTH REPORTING
+// =============================================================================
+
+/**
+ * Generate comprehensive framework health report
+ * 
+ * @returns Promise<FrameworkHealthReport> with complete health assessment
+ */
+export async function getFrameworkHealthReport(): Promise<FrameworkHealthReport> {
+  const integrity = await validateFrameworkIntegrityDetailed();
+  const stats = getFrameworkStats();
+  const version = getFrameworkVersion();
+  
+  // Update stats with site information
+  const sites = await getConnectedSites();
+  stats.activeSites = sites.length;
+  stats.healthySites = sites.filter(site => site.status === 'active').length;
+  
+  // Determine overall health status
+  let status: "healthy" | "degraded" | "unhealthy";
+  const recommendations: string[] = [];
+  
+  if (integrity.valid && stats.healthySites === stats.activeSites) {
+    status = "healthy";
+  } else if (integrity.valid || stats.healthySites > 0) {
+    status = "degraded";
+    recommendations.push("Some systems require attention - monitor performance");
+  } else {
+    status = "unhealthy";
+    recommendations.push("Critical issues detected - immediate attention required");
+  }
+  
+  // Memory usage recommendations
+  const memUsageMB = stats.memoryUsage.rss / (1024 * 1024);
+  if (memUsageMB > 512) {
+    recommendations.push(`Memory usage high (${Math.round(memUsageMB)}MB) - consider optimization`);
+  }
+  
+  // Environment-specific recommendations
+  if (version.environment === "production" && integrity.warnings?.length) {
+    recommendations.push("Production environment has warnings - review before scaling");
+  }
+  
+  return {
+    status,
+    timestamp: new Date().toISOString(),
+    version,
+    integrity,
+    stats,
+    ...(recommendations.length > 0 && { recommendations }),
+  };
+}
+
+/**
+ * Log framework startup information with proper formatting
+ * 
+ * @param includeIntegrityCheck Whether to run full integrity validation on startup
+ */
+export async function logFrameworkStartup(includeIntegrityCheck = true): Promise<void> {
+  const version = getFrameworkVersion();
+  
+  console.log("\n" + "=".repeat(80));
+  console.log("🚀 DENOGENESIS FRAMEWORK STARTUP");
+  console.log("=".repeat(80));
+  console.log(`📦 Version: ${version.version}`);
+  console.log(`🏗️  Build: ${version.buildHash} (${version.buildDate})`);
+  console.log(`🌍 Environment: ${version.environment}`);
+  console.log(`⚡ Deno: ${version.denoVersion}`);
+  console.log(`🕒 Startup Time: ${new Date().toISOString()}`);
+  
+  if (includeIntegrityCheck) {
+    console.log("\n🔍 Running integrity validation...");
+    const integrity = await validateFrameworkIntegrity();
+    
+    if (integrity.overall) {
+      console.log("✅ Framework integrity: PASSED");
+    } else {
+      console.log("⚠️  Framework integrity: ISSUES DETECTED");
+      
+      if (integrity.details.missingFiles?.length) {
+        console.log("📄 Missing files:", integrity.details.missingFiles);
+      }
+      
+      if (integrity.details.configErrors?.length) {
+        console.log("⚙️  Config errors:", integrity.details.configErrors);
+      }
+      
+      if (integrity.details.dependencyIssues?.length) {
+        console.log("📦 Dependency issues:", integrity.details.dependencyIssues);
+      }
+      
+      if (integrity.details.permissions?.length) {
+        console.log("🔐 Permission issues:", integrity.details.permissions);
+      }
+    }
+    
+    if (integrity.details.warnings?.length) {
+      console.log("⚠️  Warnings:", integrity.details.warnings);
+    }
+  }
+  
+  console.log("=".repeat(80) + "\n");
+}
+
+// =============================================================================
+// DETAILED VALIDATION HELPER FUNCTIONS
+// =============================================================================
+
+/**
+ * Validate core framework directory structure
+ */
 async function validateCoreStructure(result: IntegrityCheckResult): Promise<void> {
   const frameworkPath = "/home/admin/deno-genesis";
   const requiredDirectories = [
@@ -249,14 +671,16 @@ async function validateCoreStructure(result: IntegrityCheckResult): Promise<void
   }
 }
 
-// Validate VERSION file format and content
+/**
+ * Validate VERSION file format and content
+ */
 async function validateVersionFile(result: IntegrityCheckResult): Promise<void> {
   const versionPath = "/home/admin/deno-genesis/VERSION";
-  
+
   try {
     const versionContent = await Deno.readTextFile(versionPath);
     const lines = versionContent.split('\n').filter(line => line.trim());
-    
+
     if (lines.length === 0) {
       result.errors.push("VERSION file is empty");
       result.checks.push({
@@ -271,7 +695,7 @@ async function validateVersionFile(result: IntegrityCheckResult): Promise<void> 
     // Validate version format (should be semantic versioning)
     const version = lines[0];
     const versionPattern = /^\d+\.\d+\.\d+/;
-    
+
     if (!versionPattern.test(version)) {
       result.warnings.push(`VERSION format may be invalid: ${version}`);
       result.checks.push({
@@ -338,7 +762,9 @@ async function validateVersionFile(result: IntegrityCheckResult): Promise<void> 
   }
 }
 
-// Validate site structure and symbolic links
+/**
+ * Validate site structure and symbolic links
+ */
 async function validateSiteStructure(result: IntegrityCheckResult): Promise<void> {
   const sitesPath = "/home/admin/deno-genesis/sites";
   const frameworkPath = "/home/admin/deno-genesis";
@@ -354,17 +780,17 @@ async function validateSiteStructure(result: IntegrityCheckResult): Promise<void
     for await (const dirEntry of Deno.readDir(sitesPath)) {
       if (dirEntry.isDirectory) {
         const sitePath = `${sitesPath}/${dirEntry.name}`;
-        
+
         // Check if this is a framework site (has FRAMEWORK_VERSION file)
         const versionFile = `${sitePath}/FRAMEWORK_VERSION`;
         try {
           await Deno.stat(versionFile);
-          
+
           // Validate symbolic links for this site
           for (const linkName of requiredLinks) {
             const linkPath = `${sitePath}/${linkName}`;
             const expectedTarget = `${frameworkPath}/core/${linkName}`;
-            
+
             try {
               const stat = await Deno.lstat(linkPath);
               if (stat.isSymlink) {
@@ -442,7 +868,9 @@ async function validateSiteStructure(result: IntegrityCheckResult): Promise<void
   }
 }
 
-// Validate version compatibility between framework and sites
+/**
+ * Validate version compatibility between framework and sites
+ */
 async function validateVersionCompatibility(result: IntegrityCheckResult): Promise<void> {
   try {
     // Get framework version
@@ -504,189 +932,7 @@ async function validateVersionCompatibility(result: IntegrityCheckResult): Promi
   }
 }
 
-// Validate critical dependencies and permissions
+/**
+ * Validate critical dependencies and permissions
+ */
 async function validateDependencies(result: IntegrityCheckResult): Promise<void> {
-  // Check Deno installation and permissions
-  try {
-    const denoVersion = await new TextDecoder().decode(
-      await new Deno.Command("deno", { args: ["--version"] }).output()
-    );
-    
-    if (denoVersion.includes("deno")) {
-      result.checks.push({
-        name: 'Deno Runtime',
-        category: 'critical',
-        status: 'passed',
-        message: 'Deno runtime is available and accessible'
-      });
-    } else {
-      result.errors.push("Deno runtime validation failed");
-      result.checks.push({
-        name: 'Deno Runtime',
-        category: 'critical',
-        status: 'failed',
-        message: 'Deno runtime validation returned unexpected output'
-      });
-    }
-  } catch (error) {
-    result.errors.push(`Deno runtime not accessible: ${error.message}`);
-    result.checks.push({
-      name: 'Deno Runtime',
-      category: 'critical',
-      status: 'failed',
-      message: `Deno runtime is not accessible: ${error.message}`
-    });
-  }
-
-  // Check read/write permissions on critical directories
-  const criticalPaths = [
-    "/home/admin/deno-genesis",
-    "/home/admin/deno-genesis/sites",
-    "/home/admin/deno-genesis/core"
-  ];
-
-  for (const path of criticalPaths) {
-    try {
-      // Test read access
-      await Deno.readDir(path);
-      
-      // Test write access with a temporary file
-      const testFile = `${path}/.integrity-test-${Date.now()}`;
-      try {
-        await Deno.writeTextFile(testFile, "test");
-        await Deno.remove(testFile);
-        
-        result.checks.push({
-          name: `Directory Permissions: ${path}`,
-          category: 'critical',
-          status: 'passed',
-          message: 'Read/write permissions are sufficient'
-        });
-      } catch {
-        result.warnings.push(`Limited write access to ${path}`);
-        result.checks.push({
-          name: `Directory Permissions: ${path}`,
-          category: 'warning',
-          status: 'warning',
-          message: 'Directory is readable but may have limited write access'
-        });
-      }
-    } catch (error) {
-      result.errors.push(`Cannot access directory: ${path}`);
-      result.checks.push({
-        name: `Directory Permissions: ${path}`,
-        category: 'critical',
-        status: 'failed',
-        message: `Directory is not accessible: ${error.message}`
-      });
-    }
-  }
-}
-
-// Validate shared components structure
-async function validateSharedComponents(result: IntegrityCheckResult): Promise<void> {
-  const sharedComponentsPath = "/home/admin/deno-genesis/shared-components";
-  
-  try {
-    await Deno.stat(sharedComponentsPath);
-    
-    // Check if shared components directory has content
-    let hasComponents = false;
-    for await (const entry of Deno.readDir(sharedComponentsPath)) {
-      if (entry.isFile && entry.name.endsWith('.html')) {
-        hasComponents = true;
-        break;
-      }
-    }
-
-    if (hasComponents) {
-      result.checks.push({
-        name: 'Shared Components',
-        category: 'info',
-        status: 'passed',
-        message: 'Shared components directory exists and contains components'
-      });
-    } else {
-      result.warnings.push("Shared components directory is empty");
-      result.checks.push({
-        name: 'Shared Components',
-        category: 'warning',
-        status: 'warning',
-        message: 'Shared components directory exists but appears to be empty'
-      });
-    }
-
-    // Validate that sites have shared components linked
-    const sitesPath = "/home/admin/deno-genesis/sites";
-    for await (const dirEntry of Deno.readDir(sitesPath)) {
-      if (dirEntry.isDirectory) {
-        const siteSharedPath = `${sitesPath}/${dirEntry.name}/public/shared-components`;
-        try {
-          const stat = await Deno.lstat(siteSharedPath);
-          if (stat.isSymlink) {
-            result.checks.push({
-              name: `Shared Components Link: ${dirEntry.name}`,
-              category: 'info',
-              status: 'passed',
-              message: 'Shared components are properly linked'
-            });
-          } else {
-            result.warnings.push(`Site ${dirEntry.name}: shared-components is not a symbolic link`);
-            result.checks.push({
-              name: `Shared Components Link: ${dirEntry.name}`,
-              category: 'warning',
-              status: 'warning',
-              message: 'Shared components path exists but is not a symbolic link'
-            });
-          }
-        } catch {
-          // Missing shared components link - may be intentional for some sites
-          result.checks.push({
-            name: `Shared Components Link: ${dirEntry.name}`,
-            category: 'info',
-            status: 'warning',
-            message: 'Shared components link is not configured for this site'
-          });
-        }
-      }
-    }
-
-  } catch {
-    result.warnings.push("Shared components directory not found");
-    result.checks.push({
-      name: 'Shared Components Directory',
-      category: 'warning',
-      status: 'warning',
-      message: 'Shared components directory does not exist'
-    });
-  }
-}
-
-// Helper function to read site config (simplified version)
-async function readSiteConfig(configPath: string): Promise<any> {
-  try {
-    // In a real implementation, you'd need to properly parse the TypeScript module
-    // For now, we'll return a basic structure to satisfy the interface
-    const content = await Deno.readTextFile(configPath);
-    
-    // Basic parsing to extract SITE_CONFIG values
-    const nameMatch = content.match(/name:\s*["']([^"']+)["']/);
-    const portMatch = content.match(/port:\s*(\d+)/);
-    const siteKeyMatch = content.match(/siteKey:\s*["']([^"']+)["']/);
-    const domainMatch = content.match(/domain:\s*["']([^"']+)["']/);
-    
-    return {
-      name: nameMatch ? nameMatch[1] : 'Unknown',
-      port: portMatch ? parseInt(portMatch[1]) : 3000,
-      siteKey: siteKeyMatch ? siteKeyMatch[1] : 'unknown',
-      domain: domainMatch ? domainMatch[1] : 'localhost'
-    };
-  } catch {
-    return {
-      name: 'Unknown',
-      port: 3000,
-      siteKey: 'unknown',
-      domain: 'localhost'
-    };
-  }
-}
