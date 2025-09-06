@@ -92,7 +92,7 @@ export {
   type IntegrityCheckResult,
   type IntegrityCheck,
   type FrameworkHealthReport,
-} from "./core/meta.ts";
+} from "./meta.ts";
 
 // =============================================================================
 // UTILITIES

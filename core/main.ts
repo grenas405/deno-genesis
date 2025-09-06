@@ -2,11 +2,11 @@
  * ============================================================================
  * DENOGENESIS FRAMEWORK - MAIN APPLICATION ENTRY POINT
  * ============================================================================
- * 
+ *
  * This is the main entry point for a DenoGenesis Framework application.
  * Updated to use the centralized mod.ts export hub and ConsoleStyler for
  * professional output formatting.
- * 
+ *
  * @author Pedro M. Dominguez - Dominguez Tech Solutions LLC
  * @version 1.4.0
  * @license AGPL-3.0
@@ -315,7 +315,7 @@ setTimeout(() => {
   const metrics = monitor.getMetrics();
 
   ConsoleStyler.logSection("📊 SYSTEM STATUS", "green");
-  
+
   const metricsData = [
     { metric: 'Version', value: version },
     { metric: 'Uptime', value: `${metrics.uptime}ms` },
@@ -375,6 +375,7 @@ ConsoleStyler.logSuccess(`🚀 DenoGenesis server is now running on http://local
 ConsoleStyler.logInfo(`🌐 External access: http://${SERVER_HOST}:${port}`);
 ConsoleStyler.logInfo(`❤️ Health check: http://localhost:${port}/health`);
 ConsoleStyler.logInfo(`ℹ️ System info: http://localhost:${port}/api/system/info`);
+ConsoleStyler.asciiArt('DENOGENESIS');
 
 try {
   await app.listen({
