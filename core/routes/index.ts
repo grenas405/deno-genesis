@@ -11,7 +11,7 @@ import { Router } from "https://deno.land/x/oak@v12.6.1/mod.ts";
 import { ConsoleStyler } from "../mod.ts";
 
 // Route module imports
-import pageRoutes from "./pageRoutes.ts";
+//import pageRoutes from "./pageRoutes.ts";
 import authRoutes from "./authRoutes.ts";
 import appointmentRoutes from "./appointmentRoutes.ts";
 import contactRoutes from "./contactRoutes.ts";
