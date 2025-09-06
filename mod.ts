@@ -73,26 +73,26 @@ export {
 } from "./config/env.ts";
 
 // =============================================================================
-// FRAMEWORK METADATA & VALIDATION
+// FRAMEWORK METADATA & HEALTH MONITORING
 // =============================================================================
 
+/**
+ * Advanced Framework Metadata & Health Monitoring
+ * Comprehensive framework health, multi-site management, and integrity validation
+ */
 export {
+  getFrameworkStats,
   getFrameworkMetadata,
   getConnectedSites,
-  getSiteFrameworkVersion,
-  validateFrameworkIntegrity,
-  validateFrameworkIntegrityDetailed,
   getFrameworkHealthReport,
   logFrameworkStartup,
-  type FrameworkVersionInfo,
   type FrameworkStats,
   type FrameworkMetadata,
   type SiteMetadata,
-  type FrameworkIntegrityResult,
   type IntegrityCheckResult,
   type IntegrityCheck,
   type FrameworkHealthReport,
-} from "./meta.ts";
+} from "./core/meta.ts";
 
 // =============================================================================
 // UTILITIES
