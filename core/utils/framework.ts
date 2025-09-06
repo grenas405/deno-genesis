@@ -2,20 +2,20 @@
  * =============================================================================
  * DenoGenesis Framework - Core Utilities (core/utils/framework.ts)
  * =============================================================================
- * 
+ *
  * Framework utility functions, constants, and configuration.
- * 
+ *
  * @module FrameworkUtils
  * @version 1.0.0
  * @author Pedro M. Dominguez - Dominguez Tech Solutions LLC
  * @license AGPL-3.0
  */
 
-import { 
-  VERSION, 
-  BUILD_DATE, 
-  BUILD_HASH 
-} from "../../config/env.ts";
+import {
+  VERSION,
+  BUILD_DATE,
+  BUILD_HASH
+} from "../../../core/config/env.ts";
 
 // =============================================================================
 // MIME TYPES
@@ -67,19 +67,19 @@ export const frameworkConfig = {
   description: "Local-First Digital Sovereignty Framework",
   author: "Pedro M. Dominguez - Dominguez Tech Solutions LLC",
   license: "AGPL-3.0",
-  
+
   runtime: {
     platform: "Deno",
     minimumVersion: "1.40.0",
     tsconfig: "deno-compatible",
     permissions: [
       "--allow-net",
-      "--allow-read", 
+      "--allow-read",
       "--allow-write",
       "--allow-env"
     ]
   },
-  
+
   architecture: {
     pattern: "MVC with Service Layer",
     database: "Multi-tenant MariaDB/MySQL",
@@ -87,11 +87,11 @@ export const frameworkConfig = {
     middleware: "Oak-based stack",
     deployment: "Symbolic link prevention of version drift"
   },
-  
+
   features: {
     core: [
       "Professional logging with ConsoleStyler",
-      "Advanced middleware orchestration", 
+      "Advanced middleware orchestration",
       "Database abstraction layer",
       "Multi-tenant architecture",
       "Environment configuration management"
@@ -118,7 +118,7 @@ export const frameworkConfig = {
       "Symbolic link management"
     ]
   },
-  
+
   philosophy: [
     "Elegant Simplicity - sophisticated architecture through simple patterns",
     "Local-first architecture for business sovereignty",
@@ -151,7 +151,7 @@ export const DENOGENESIS_METADATA = {
 export function displayFrameworkBanner(version?: string, buildDate?: string): void {
   const frameworkVersion = version || frameworkConfig.version;
   const date = buildDate || new Date().toISOString().split('T')[0];
-  
+
   console.log("\n" + "=".repeat(80));
   console.log("\x1b[35m%s\x1b[0m", "✨ DENOGENESIS FRAMEWORK STARTUP ✨");
   console.log("=".repeat(80));
@@ -166,7 +166,7 @@ export function displayFrameworkBanner(version?: string, buildDate?: string): vo
 export function registerSignalHandlers(version?: string, cleanup?: () => Promise<void>): void {
   const handleShutdown = async (signal: string) => {
     console.log("\x1b[33m%s\x1b[0m", `\n🛑 Received ${signal}, shutting down DenoGenesis ${version || frameworkConfig.version} gracefully...`);
-    
+
     if (cleanup) {
       try {
         await cleanup();
@@ -174,14 +174,14 @@ export function registerSignalHandlers(version?: string, cleanup?: () => Promise
         console.log("\x1b[31m%s\x1b[0m", `❌ Error during cleanup: ${error.message}`);
       }
     }
-    
+
     console.log("\x1b[32m%s\x1b[0m", `✅ DenoGenesis Framework shutdown complete`);
     Deno.exit(0);
   };
 
   Deno.addSignalListener("SIGINT", () => handleShutdown("SIGINT"));
   Deno.addSignalListener("SIGTERM", () => handleShutdown("SIGTERM"));
-  
+
   globalThis.addEventListener("unhandledrejection", (event) => {
     console.log("\x1b[31m%s\x1b[0m", `❌ Unhandled promise rejection: ${event.reason}`);
     event.preventDefault();
@@ -190,13 +190,13 @@ export function registerSignalHandlers(version?: string, cleanup?: () => Promise
 
 export function registerErrorHandlers(version?: string): void {
   const frameworkVersion = version || frameworkConfig.version;
-  
+
   globalThis.addEventListener("error", (event) => {
     console.log("\x1b[31m%s\x1b[0m", `❌ Uncaught exception in DenoGenesis ${frameworkVersion}:`);
     console.log("\x1b[31m%s\x1b[0m", `   Error: ${event.error?.message || event.message}`);
     console.log("\x1b[31m%s\x1b[0m", `   Stack: ${event.error?.stack || 'No stack trace available'}`);
   });
-  
+
   globalThis.addEventListener("unhandledrejection", (event) => {
     console.log("\x1b[31m%s\x1b[0m", `❌ Unhandled promise rejection in DenoGenesis ${frameworkVersion}:`);
     console.log("\x1b[31m%s\x1b[0m", `   Reason: ${event.reason}`);

@@ -77,8 +77,6 @@ export {
 // =============================================================================
 
 export {
-  getFrameworkVersion,
-  getFrameworkStats,
   getFrameworkMetadata,
   getConnectedSites,
   getSiteFrameworkVersion,
