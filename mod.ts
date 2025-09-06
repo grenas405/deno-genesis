@@ -105,6 +105,18 @@ export {
   BUILD_HASH,
 } from "./config/env.ts";
 
+// ================================================================================
+// CONSOLE STYLING & LOGGING UTILITIES
+// ================================================================================
+export {
+  ConsoleStyler,
+  type DenoGenesisConfig,
+  type LogEntry,
+  type LogLevel,
+  type PerformanceMetrics,
+  type TableColumn,
+} from "./utils/consoleStyler.ts";
+
 // =============================================================================
 // FRAMEWORK UTILITIES
 // =============================================================================
