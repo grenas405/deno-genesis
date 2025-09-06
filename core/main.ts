@@ -61,17 +61,6 @@ import {
 } from "./mod.ts";
 
 // ============================================================================
-// CONSOLE STYLER INITIALIZATION
-// ============================================================================
-
-const styler = new ConsoleStyler({
-  enableColors: true,
-  logLevel: DENO_ENV === 'development' ? 'debug' : 'info',
-  includeTimestamp: true,
-  includeLevel: true
-});
-
-// ============================================================================
 // APPLICATION INITIALIZATION
 // ============================================================================
 
@@ -90,14 +79,14 @@ const buildDate = BUILD_DATE || DENOGENESIS_METADATA.buildDate;
 displayFrameworkBanner(version, buildDate);
 
 if (BUILD_HASH) {
-  styler.info(`Build Hash: ${BUILD_HASH}`);
+  ConsoleStyler.logInfo(`🔗 Build Hash: ${BUILD_HASH}`);
 }
 
 // ============================================================================
 // ENTERPRISE MIDDLEWARE CONFIGURATION
 // ============================================================================
 
-styler.info("Initializing Enterprise Middleware Stack...");
+ConsoleStyler.logInfo("🔧 Initializing Enterprise Middleware Stack...");
 
 const middlewareConfig: MiddlewareConfig = {
   environment: DENO_ENV,
@@ -135,7 +124,7 @@ const middlewareConfig: MiddlewareConfig = {
 };
 
 // Create the middleware stack
-styler.info("Creating middleware stack...");
+ConsoleStyler.logInfo("⚙️ Creating middleware stack...");
 const { monitor, middlewares } = createMiddlewareStack(middlewareConfig);
 
 // Apply middleware with professional logging
@@ -152,18 +141,18 @@ middlewares.forEach((middleware, index) => {
   app.use(middleware);
   const component = middlewareComponents[index];
   if (component) {
-    styler.success(`${component.name} initialized`);
-    styler.debug(`${component.description}`);
+    ConsoleStyler.logSuccess(`✅ ${component.name} initialized`);
+    ConsoleStyler.logDebug(`🔍 ${component.description}`);
   }
 });
 
-styler.success("Middleware orchestration completed successfully!");
+ConsoleStyler.logSuccess("🎯 Middleware orchestration completed successfully!");
 
 // ============================================================================
 // ENHANCED STATIC FILE MIDDLEWARE
 // ============================================================================
 
-styler.info("Configuring static file handler...");
+ConsoleStyler.logInfo("📁 Configuring static file handler...");
 
 // Use centralized MIME types from framework
 const mimeTypes = DEFAULT_MIME_TYPES;
@@ -196,7 +185,7 @@ app.use(async (ctx, next) => {
     } catch (error) {
       // File not found, let it fall through to next middleware
       if (DENO_ENV === 'development') {
-        styler.debug(`Static file not found: ${filePath}`);
+        ConsoleStyler.logDebug(`🔍 Static file not found: ${filePath}`);
       }
     }
   }
@@ -204,7 +193,7 @@ app.use(async (ctx, next) => {
   await next();
 });
 
-styler.success(`Enhanced static file handler configured (${supportedExtensions.length} file types)`);
+ConsoleStyler.logSuccess(`📁 Enhanced static file handler configured (${supportedExtensions.length} file types)`);
 
 // ============================================================================
 // ENHANCED CORS CONFIGURATION
@@ -225,17 +214,17 @@ app.use(oakCors({
 // ROUTES CONFIGURATION
 // ============================================================================
 
-styler.info("Configuring API routes...");
+ConsoleStyler.logInfo("🛣️ Configuring API routes...");
 app.use(router.routes());
 app.use(router.allowedMethods());
-styler.success("API routes configured successfully");
+ConsoleStyler.logSuccess("🛣️ API routes configured successfully");
 
 // ============================================================================
 // 404 FALLBACK HANDLER
 // ============================================================================
 
 app.use(async (ctx) => {
-  styler.warn(`404 Not Found: ${ctx.request.url.pathname}`);
+  ConsoleStyler.logWarning(`❌ 404 Not Found: ${ctx.request.url.pathname}`);
   ctx.response.status = 404;
 
   // Add version header to 404 responses
@@ -272,7 +261,7 @@ const middlewareManager = MiddlewareManager.getInstance(middlewareConfig);
 // SERVER STARTUP INFORMATION
 // ============================================================================
 
-styler.banner("DenoGenesis Framework - Server Startup");
+ConsoleStyler.logSection("🚀 DENOGENESIS FRAMEWORK - SERVER STARTUP", "cyan");
 
 const serverInfo = [
   { label: 'Framework Version', value: version },
@@ -285,12 +274,9 @@ const serverInfo = [
   { label: 'Database Status', value: getDatabaseStatus() ? 'Connected' : 'Disconnected' }
 ];
 
-styler.table([
-  { label: 'Property', value: 'Value' },
-  ...serverInfo
-], { 
-  headers: ['Property', 'Value'],
-  columnWidths: [20, 40]
+// Display server information using ConsoleStyler methods
+serverInfo.forEach(info => {
+  ConsoleStyler.logInfo(`📋 ${info.label}: ${info.value}`);
 });
 
 // ============================================================================
@@ -298,26 +284,27 @@ styler.table([
 // ============================================================================
 
 if (DENO_ENV === "development") {
-  styler.warn("Development mode active - Enhanced debugging enabled");
-  styler.info("Hot reload and detailed logging available");
-  styler.info(`Version: ${version} (${buildDate})`);
+  ConsoleStyler.logWarning("⚠️ Development mode active - Enhanced debugging enabled");
+  ConsoleStyler.logInfo("🔄 Hot reload and detailed logging available");
+  ConsoleStyler.logInfo(`📦 Version: ${version} (${buildDate})`);
 } else {
-  styler.success("Production mode active - Optimized for performance");
-  styler.info("Security headers and caching enabled");
-  styler.info(`Production version: ${version}`);
+  ConsoleStyler.logSuccess("🏭 Production mode active - Optimized for performance");
+  ConsoleStyler.logInfo("🔒 Security headers and caching enabled");
+  ConsoleStyler.logInfo(`🏭 Production version: ${version}`);
 }
 
 // ============================================================================
 // MIDDLEWARE STATUS DISPLAY
 // ============================================================================
 
+ConsoleStyler.logInfo("🔍 Middleware Manager Status:");
 middlewareManager.logStatus();
 
 // ============================================================================
 // FINAL SUCCESS MESSAGES
 // ============================================================================
 
-styler.success(`DenoGenesis Framework ${version} initialization complete!`);
+ConsoleStyler.logSuccess(`🎉 DenoGenesis Framework ${version} initialization complete!`);
 
 // ============================================================================
 // SYSTEM METRICS DISPLAY
@@ -327,6 +314,8 @@ styler.success(`DenoGenesis Framework ${version} initialization complete!`);
 setTimeout(() => {
   const metrics = monitor.getMetrics();
 
+  ConsoleStyler.logSection("📊 SYSTEM STATUS", "green");
+  
   const metricsData = [
     { metric: 'Version', value: version },
     { metric: 'Uptime', value: `${metrics.uptime}ms` },
@@ -338,17 +327,13 @@ setTimeout(() => {
     { metric: 'Database', value: getDatabaseStatus() ? 'Connected' : 'Disconnected' }
   ];
 
-  styler.table([
-    { metric: 'Metric', value: 'Value' },
-    ...metricsData
-  ], {
-    headers: ['Metric', 'Value'],
-    columnWidths: [15, 25],
-    title: 'System Status'
+  // Display metrics using ConsoleStyler
+  metricsData.forEach(metric => {
+    ConsoleStyler.logInfo(`📈 ${metric.metric}: ${metric.value}`);
   });
 
-  styler.banner(`Local-First Digital Sovereignty Platform ${version} - Ready!`);
-  styler.info("Framework validated for academic research collaboration");
+  ConsoleStyler.logSection(`🌐 LOCAL-FIRST DIGITAL SOVEREIGNTY PLATFORM ${version} - READY!`, "gold");
+  ConsoleStyler.logInfo("🎓 Framework validated for academic research collaboration");
 }, 2000);
 
 // ============================================================================
@@ -356,28 +341,28 @@ setTimeout(() => {
 // ============================================================================
 
 const handleShutdown = async (signal: string) => {
-  styler.warn(`Received ${signal}, shutting down DenoGenesis ${version} gracefully...`);
+  ConsoleStyler.logWarning(`⚠️ Received ${signal}, shutting down DenoGenesis ${version} gracefully...`);
 
   // Log final metrics
   const finalMetrics = monitor.getMetrics();
-  styler.info(`Final metrics: ${finalMetrics.requests || 0} requests processed`);
+  ConsoleStyler.logInfo(`📊 Final metrics: ${finalMetrics.requests || 0} requests processed`);
 
   // Close database connection
   try {
     await closeDatabaseConnection();
-    styler.success("Database connection closed gracefully");
+    ConsoleStyler.logSuccess("✅ Database connection closed gracefully");
   } catch (error) {
-    styler.error(`Error closing database: ${error.message}`);
+    ConsoleStyler.logError(`❌ Error closing database: ${error.message}`);
   }
 
-  styler.success(`DenoGenesis Framework ${version} shutdown complete`);
+  ConsoleStyler.logSuccess(`✅ DenoGenesis Framework ${version} shutdown complete`);
   Deno.exit(0);
 };
 
 // Register framework signal and error handlers
 registerSignalHandlers(version, async () => {
   const finalMetrics = monitor.getMetrics();
-  styler.info(`Final metrics: ${finalMetrics.requests || 0} requests processed`);
+  ConsoleStyler.logInfo(`📊 Final metrics: ${finalMetrics.requests || 0} requests processed`);
 });
 
 registerErrorHandlers(version);
@@ -386,10 +371,10 @@ registerErrorHandlers(version);
 // SERVER STARTUP & FINAL CONFIGURATION
 // ============================================================================
 
-styler.success(`DenoGenesis server is now running on http://localhost:${port}`);
-styler.info(`External access: http://${SERVER_HOST}:${port}`);
-styler.info(`Health check: http://localhost:${port}/health`);
-styler.info(`System info: http://localhost:${port}/api/system/info`);
+ConsoleStyler.logSuccess(`🚀 DenoGenesis server is now running on http://localhost:${port}`);
+ConsoleStyler.logInfo(`🌐 External access: http://${SERVER_HOST}:${port}`);
+ConsoleStyler.logInfo(`❤️ Health check: http://localhost:${port}/health`);
+ConsoleStyler.logInfo(`ℹ️ System info: http://localhost:${port}/api/system/info`);
 
 try {
   await app.listen({
@@ -397,14 +382,14 @@ try {
     hostname: SERVER_HOST === 'localhost' ? '0.0.0.0' : SERVER_HOST
   });
 } catch (error) {
-  styler.error(`Failed to start DenoGenesis ${version}: ${error.message}`);
-  styler.error("Check if port is already in use or permissions are correct");
+  ConsoleStyler.logError(`❌ Failed to start DenoGenesis ${version}: ${error.message}`);
+  ConsoleStyler.logError("🔍 Check if port is already in use or permissions are correct");
 
   // Close database connection before exit
   try {
     await closeDatabaseConnection();
   } catch (dbError) {
-    styler.error(`Error closing database during startup failure: ${dbError.message}`);
+    ConsoleStyler.logError(`❌ Error closing database during startup failure: ${dbError.message}`);
   }
 
   Deno.exit(1);
