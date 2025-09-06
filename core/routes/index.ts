@@ -23,7 +23,6 @@ const router = new Router();
 // === ROUTES - Thin router pattern ===
 
 // Static pages (no prefix needed)
-router.use(pageRoutes.routes(), pageRoutes.allowedMethods());
 
 // API route registration - Clean, declarative mapping
 const apiRoutes = [

@@ -2,19 +2,19 @@
  * =============================================================================
  * DenoGenesis Framework - Main Module (mod.ts)
  * =============================================================================
- * 
+ *
  * This module serves as the central export point for the DenoGenesis framework,
  * aggregating all core functionality from configuration, middleware, utilities,
  * and external dependencies. Designed to prevent version drift and maintain
  * consistency across all DenoGenesis sites.
- * 
+ *
  * Architecture:
  * - Imports from config/ directory for environment variables and system config
  * - Imports from middleware/ directory for request processing stack
  * - Imports from core/ directory for framework utilities and integrity validation
  * - Exports Oak framework components for consistent usage
  * - Provides framework metadata and utility functions
- * 
+ *
  * @module DenoGenesis
  * @version 1.4.0-enterprise
  * @author Pedro M. Dominguez - Dominguez Tech Solutions LLC
@@ -29,13 +29,13 @@
  * Oak Framework Exports
  * Core Oak framework components for HTTP server functionality
  */
-export { 
+export {
   Application,
-  send 
+  send
 } from "https://deno.land/x/oak@v12.6.1/mod.ts";
 
-export { 
-  oakCors 
+export {
+  oakCors
 } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 
 // =============================================================================
@@ -46,8 +46,8 @@ export {
  * Environment Configuration Loading
  * Dotenv loader for environment variable management
  */
-export { 
-  config as loadEnv 
+export {
+  config as loadEnv
 } from "https://deno.land/x/dotenv@v3.2.2/mod.ts";
 
 // =============================================================================
@@ -58,9 +58,9 @@ export {
  * Routing System
  * Import the main router from routes/index.ts
  */
-export { 
-  default as router 
-} from "./core/routes/index.ts";
+export {
+  default as router
+} from "./routes/index.ts";
 
 /**
  * Middleware Stack Components
@@ -70,7 +70,7 @@ export {
   createMiddlewareStack,
   MiddlewareManager,
   type MiddlewareConfig,
-} from "./core/middleware/index.ts";
+} from "./middleware/index.ts";
 
 // =============================================================================
 // DATABASE LAYER
@@ -84,7 +84,7 @@ export {
   db,
   closeDatabaseConnection,
   getDatabaseStatus,
-} from "./core/database/client.ts";
+} from "./database/client.ts";
 
 // =============================================================================
 // ENVIRONMENT CONFIGURATION
@@ -272,7 +272,7 @@ export const DENOGENESIS_METADATA = {
     tsconfig: "deno-compatible",
     permissions: [
       "--allow-net",
-      "--allow-read", 
+      "--allow-read",
       "--allow-write",
       "--allow-env"
     ]
@@ -287,7 +287,7 @@ export const DENOGENESIS_METADATA = {
   features: {
     core: [
       "Professional logging with ConsoleStyler",
-      "Advanced middleware orchestration", 
+      "Advanced middleware orchestration",
       "Database abstraction layer",
       "Multi-tenant architecture",
       "Environment configuration management"
@@ -331,7 +331,7 @@ export const DENOGENESIS_METADATA = {
 export {
   getFrameworkVersion,
   validateFrameworkIntegrity,
-} from "./core/utils/index.ts";
+} from "./utils/index.ts";
 
 /**
  * Console Styling & Logging
@@ -344,7 +344,7 @@ export {
   type LogLevel,
   type PerformanceMetrics,
   type TableColumn,
-} from "./core/utils/consoleStyler.ts";
+} from "./utils/consoleStyler.ts";
 
 // =============================================================================
 // MODULE DOCUMENTATION
@@ -352,28 +352,28 @@ export {
 
 /**
  * USAGE EXAMPLE:
- * 
+ *
  * ```typescript
  * import {
  *   // Core Oak Framework
  *   Application,
  *   send,
  *   oakCors,
- * 
+ *
  *   // Environment Management
  *   loadEnv,
- * 
+ *
  *   // DenoGenesis Framework Components
  *   router,
  *   createMiddlewareStack,
  *   MiddlewareManager,
  *   type MiddlewareConfig,
- * 
+ *
  *   // Database Layer
  *   db,
  *   getDatabaseStatus,
  *   closeDatabaseConnection,
- * 
+ *
  *   // Environment Configuration
  *   PORT,
  *   DENO_ENV,
@@ -384,7 +384,7 @@ export {
  *   BUILD_DATE,
  *   BUILD_HASH,
  *   frameworkConfig,
- * 
+ *
  *   // Framework Utilities
  *   DEFAULT_MIME_TYPES,
  *   displayFrameworkBanner,
@@ -392,49 +392,49 @@ export {
  *   registerErrorHandlers,
  *   DENOGENESIS_METADATA
  * } from "./mod.ts";
- * 
+ *
  * // Initialize framework
  * displayFrameworkBanner();
  * registerSignalHandlers();
  * registerErrorHandlers();
- * 
+ *
  * // Create Oak application
  * const app = new Application();
- * 
+ *
  * // Configure middleware
  * const middlewareConfig: MiddlewareConfig = {
  *   environment: DENO_ENV,
  *   port: PORT,
  *   // ... other config
  * };
- * 
+ *
  * const { middlewares } = createMiddlewareStack(middlewareConfig);
  * middlewares.forEach(middleware => app.use(middleware));
- * 
+ *
  * // Register routes
  * app.use(router.routes());
  * app.use(router.allowedMethods());
- * 
+ *
  * // Start server
  * console.log(`🚀 Server starting on ${SERVER_HOST}:${PORT}`);
  * await app.listen({ port: PORT });
  * ```
- * 
+ *
  * FRAMEWORK ARCHITECTURE:
- * 
+ *
  * The DenoGenesis framework is designed with a modular architecture where:
  * - All core functionality is centralized in the /core directory
  * - Sites reference core components via symbolic links to prevent version drift
  * - The mod.ts file serves as the single source of truth for exports
  * - Professional logging and styling is available framework-wide
- * 
+ *
  * DEPLOYMENT WORKFLOW:
- * 
+ *
  * 1. Core framework development happens in /core
- * 2. Sites use symbolic links to reference core components  
+ * 2. Sites use symbolic links to reference core components
  * 3. The syslink-creator.ts script maintains these symbolic links
  * 4. mod.ts provides centralized access to all framework functionality
- * 
+ *
  * This ensures consistency, prevents code duplication, and maintains
  * professional development standards across all DenoGenesis projects.
  */
