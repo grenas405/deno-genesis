@@ -2,10 +2,10 @@
  * =============================================================================
  * DenoGenesis Framework - Main Module (mod.ts)
  * =============================================================================
- * 
+ *
  * Central export point for the DenoGenesis framework. All core functionality
  * is exported from this module to ensure consistency and prevent version drift.
- * 
+ *
  * @module DenoGenesis
  * @version 1.4.0-enterprise
  * @author Pedro M. Dominguez - Dominguez Tech Solutions LLC
@@ -16,36 +16,36 @@
 // CORE OAK FRAMEWORK
 // =============================================================================
 
-export { 
+export {
   Application,
-  send 
+  send
 } from "https://deno.land/x/oak@v12.6.1/mod.ts";
 
-export { 
-  oakCors 
+export {
+  oakCors
 } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 
 // =============================================================================
 // ENVIRONMENT MANAGEMENT
 // =============================================================================
 
-export { 
-  config as loadEnv 
+export {
+  config as loadEnv
 } from "https://deno.land/x/dotenv@v3.2.2/mod.ts";
 
 // =============================================================================
 // FRAMEWORK COMPONENTS
 // =============================================================================
 
-export { 
-  default as router 
-} from "./core/routes/index.ts";
+export {
+  default as router
+} from "./routes/index.ts";
 
 export {
   createMiddlewareStack,
   MiddlewareManager,
   type MiddlewareConfig,
-} from "./core/middleware/index.ts";
+} from "./middleware/index.ts";
 
 // =============================================================================
 // DATABASE LAYER
@@ -55,7 +55,7 @@ export {
   db,
   closeDatabaseConnection,
   getDatabaseStatus,
-} from "./core/database/client.ts";
+} from "./database/client.ts";
 
 // =============================================================================
 // ENVIRONMENT CONFIGURATION
@@ -94,7 +94,7 @@ export {
   type IntegrityCheckResult,
   type IntegrityCheck,
   type FrameworkHealthReport,
-} from "./core/meta.ts";
+} from "./meta.ts";
 
 // =============================================================================
 // UTILITIES
@@ -107,7 +107,7 @@ export {
   type LogLevel,
   type PerformanceMetrics,
   type TableColumn,
-} from "./core/utils/consoleStyler.ts";
+} from "./utils/consoleStyler.ts";
 
 export {
   DEFAULT_MIME_TYPES,
@@ -116,4 +116,4 @@ export {
   displayFrameworkBanner,
   registerSignalHandlers,
   registerErrorHandlers,
-} from "./core/utils/framework.ts";
+} from "./utils/framework.ts";
