@@ -1,30 +1,19 @@
-// /database/client.ts
-// ================================================================================
-// 🗄️ DenoGenesis Universal Database Client
-// Enhanced database connection with environment variable integration
-// ================================================================================
+/**
+ * DenoGenesis Universal Database Client
+ * Enhanced database connection with environment variable integration
+ */
 
 import { Client } from "https://deno.land/x/mysql@v2.12.1/mod.ts";
-import {
-  bold,
-  green,
-  red,
-  cyan,
-  magenta,
-  yellow,
-} from "https://deno.land/std@0.224.0/fmt/colors.ts";
-
-// Import environment configuration
 import { 
   dbConfig, 
   DENO_ENV, 
-  SITE_KEY,
-  getEnvironmentInfo 
-} from "../config/env.ts";
+  getEnvironmentInfo,
+  ConsoleStyler
+} from "./mod.ts";
 
-// ================================================================================
-// 🚀 DATABASE CONNECTION CLASS
-// ================================================================================
+// ============================================================================
+// DATABASE CONNECTION CLASS
+// ============================================================================
 
 class DatabaseManager {
   private client: Client | null = null;
@@ -43,30 +32,25 @@ class DatabaseManager {
     while (this.connectionAttempts < this.maxRetries) {
       try {
         this.connectionAttempts++;
-        
-        console.log(bold(cyan(`🔄 Attempting database connection (${this.connectionAttempts}/${this.maxRetries})...`)));
-        
+        ConsoleStyler.logInfo(`🔄 Database connection attempt ${this.connectionAttempts}/${this.maxRetries}`);
+
         this.client = new Client();
         await this.client.connect(dbConfig);
-        
-        // Test connection
         await this.testConnection();
-        
+
         this.isConnected = true;
         this.logSuccessfulConnection();
-        
         return this.client;
-        
+
       } catch (error) {
-        console.error(bold(red(`❌ Database connection attempt ${this.connectionAttempts} failed:`)), red(error.message));
-        
+        ConsoleStyler.logError(`❌ Connection attempt ${this.connectionAttempts} failed: ${error.message}`);
+
         if (this.connectionAttempts >= this.maxRetries) {
-          console.error(bold(red("❌ Maximum database connection retries exceeded")));
+          ConsoleStyler.logError("❌ Maximum database connection retries exceeded");
           this.logConnectionFailure(error);
           Deno.exit(1);
         }
-        
-        // Wait before retry
+
         await this.delay(2000 * this.connectionAttempts);
       }
     }
@@ -83,7 +67,6 @@ class DatabaseManager {
     }
 
     const result = await this.client.execute("SELECT 1 as test, NOW() as timestamp");
-    
     if (!result || result.length === 0) {
       throw new Error("Database test query failed");
     }
@@ -94,49 +77,58 @@ class DatabaseManager {
    */
   private logSuccessfulConnection(): void {
     const envInfo = getEnvironmentInfo();
+
+    ConsoleStyler.logSection("✅ DATABASE CONNECTED", "green");
     
-    console.log(bold(magenta("✨=====================================================✨")));
-    console.log(bold(green("✅ DenoGenesis Universal Database Connected")));
-    console.log(bold(magenta("✨=====================================================✨")));
-    console.log(cyan("🗄️  Database:"), yellow(dbConfig.db));
-    console.log(cyan("🌐 Host:"), yellow(`${dbConfig.hostname}:${dbConfig.port || 3306}`));
-    console.log(cyan("👤 User:"), yellow(dbConfig.username));
-    console.log(cyan("🏊 Pool Size:"), yellow(dbConfig.poolSize.toString()));
-    console.log(cyan("🌍 Environment:"), yellow(envInfo.environment));
-    console.log(cyan("🔑 Site Key:"), yellow(envInfo.siteKey));
-    console.log(cyan("⚡ Port:"), yellow(envInfo.port.toString()));
-    
-    // Feature flags
-    console.log(cyan("🎛️  Features:"));
-    console.log(`   WebSockets: ${envInfo.features.websockets ? green('✅') : red('❌')}`);
-    console.log(`   Multi-tenant: ${envInfo.features.multiTenant ? green('✅') : red('❌')}`);
-    console.log(`   Real-time Sync: ${envInfo.features.realTimeSync ? green('✅') : red('❌')}`);
-    console.log(`   Analytics: ${envInfo.features.analytics ? green('✅') : red('❌')}`);
-    console.log(`   Notifications: ${envInfo.features.notifications ? green('✅') : red('❌')}`);
-    
-    console.log(bold(magenta("✨=====================================================✨")));
-    console.log(bold(green("🚀 Ready for Local-First Digital Sovereignty!")));
-    console.log(bold(magenta("✨=====================================================✨")));
+    const dbInfo = [
+      ['Database', dbConfig.db],
+      ['Host', `${dbConfig.hostname}:${dbConfig.port || 3306}`],
+      ['User', dbConfig.username],
+      ['Pool Size', dbConfig.poolSize.toString()],
+      ['Environment', envInfo.environment],
+      ['Site Key', envInfo.siteKey],
+      ['Port', envInfo.port.toString()]
+    ];
+
+    dbInfo.forEach(([label, value]) => {
+      ConsoleStyler.logInfo(`🗄️ ${label}: ${value}`);
+    });
+
+    ConsoleStyler.logInfo("🎛️ Features:");
+    const features = envInfo.features;
+    Object.entries(features).forEach(([key, enabled]) => {
+      const status = enabled ? '✅' : '❌';
+      ConsoleStyler.logInfo(`   ${key}: ${status}`);
+    });
+
+    ConsoleStyler.logSuccess("🚀 Ready for Local-First Digital Sovereignty!");
   }
 
   /**
    * Log connection failure details
    */
   private logConnectionFailure(error: Error): void {
-    console.log(bold(red("❌ Database Connection Failed")));
-    console.log(bold(red("================================")));
-    console.log(red("Error:"), error.message);
-    console.log(red("Config:"));
-    console.log(`   Host: ${dbConfig.hostname}:${dbConfig.port || 3306}`);
-    console.log(`   Database: ${dbConfig.db}`);
-    console.log(`   User: ${dbConfig.username}`);
-    console.log(`   Environment: ${DENO_ENV}`);
-    console.log(bold(red("================================")));
-    console.log(red("Please check:"));
-    console.log(red("1. Database server is running"));
-    console.log(red("2. Environment variables are correct"));
-    console.log(red("3. Database user has proper permissions"));
-    console.log(red("4. Network connectivity to database"));
+    ConsoleStyler.logError("❌ Database Connection Failed");
+    ConsoleStyler.logError(`Error: ${error.message}`);
+    
+    const configInfo = [
+      `Host: ${dbConfig.hostname}:${dbConfig.port || 3306}`,
+      `Database: ${dbConfig.db}`,
+      `User: ${dbConfig.username}`,
+      `Environment: ${DENO_ENV}`
+    ];
+
+    configInfo.forEach(info => ConsoleStyler.logError(`Config - ${info}`));
+
+    const troubleshooting = [
+      "1. Database server is running",
+      "2. Environment variables are correct", 
+      "3. Database user has proper permissions",
+      "4. Network connectivity to database"
+    ];
+
+    ConsoleStyler.logWarning("Please check:");
+    troubleshooting.forEach(step => ConsoleStyler.logWarning(step));
   }
 
   /**
@@ -164,9 +156,9 @@ class DatabaseManager {
       try {
         await this.client.close();
         this.isConnected = false;
-        console.log(bold(yellow("🔌 Database connection closed gracefully")));
+        ConsoleStyler.logWarning("🔌 Database connection closed gracefully");
       } catch (error) {
-        console.error(bold(red("❌ Error closing database connection:")), error.message);
+        ConsoleStyler.logError(`❌ Error closing database connection: ${error.message}`);
       }
     }
   }
@@ -182,10 +174,10 @@ class DatabaseManager {
     try {
       return await this.client.execute(sql, params);
     } catch (error) {
-      console.error(bold(red("❌ Database query error:")), error.message);
-      console.error(red("SQL:"), sql);
+      ConsoleStyler.logError(`❌ Database query error: ${error.message}`);
+      ConsoleStyler.logError(`SQL: ${sql}`);
       if (params) {
-        console.error(red("Params:"), params);
+        ConsoleStyler.logError(`Params: ${JSON.stringify(params)}`);
       }
       throw error;
     }
@@ -199,21 +191,19 @@ class DatabaseManager {
   }
 }
 
-// ================================================================================
-// 🌟 SINGLETON DATABASE INSTANCE
-// ================================================================================
+// ============================================================================
+// SINGLETON DATABASE INSTANCE
+// ============================================================================
 
 const databaseManager = new DatabaseManager();
 
 // Initialize connection
 export const db = await databaseManager.connect();
-
-// Export database manager for advanced usage
 export { databaseManager };
 
-// ================================================================================
-// 🎯 CONVENIENCE FUNCTIONS
-// ================================================================================
+// ============================================================================
+// CONVENIENCE FUNCTIONS
+// ============================================================================
 
 /**
  * Execute a query with parameters
@@ -236,13 +226,12 @@ export async function closeDatabaseConnection(): Promise<void> {
   await databaseManager.close();
 }
 
-// ================================================================================
-// 🔄 GRACEFUL SHUTDOWN HANDLER
-// ================================================================================
+// ============================================================================
+// GRACEFUL SHUTDOWN HANDLER
+// ============================================================================
 
-// Handle graceful shutdown
 const handleShutdown = async (signal: string) => {
-  console.log(bold(yellow(`\n🛑 Received ${signal}, shutting down database connections...`)));
+  ConsoleStyler.logWarning(`🛑 Received ${signal}, shutting down database connections...`);
   await closeDatabaseConnection();
 };
 
@@ -250,16 +239,15 @@ const handleShutdown = async (signal: string) => {
 Deno.addSignalListener("SIGINT", () => handleShutdown("SIGINT"));
 Deno.addSignalListener("SIGTERM", () => handleShutdown("SIGTERM"));
 
-// ================================================================================
-// 🎮 DEVELOPMENT UTILITIES
-// ================================================================================
+// ============================================================================
+// DEVELOPMENT UTILITIES
+// ============================================================================
 
-// Export for development/debugging
 if (DENO_ENV === "development") {
   // @ts-ignore - Development only
   globalThis.db = db;
   // @ts-ignore - Development only  
   globalThis.dbManager = databaseManager;
-  
-  console.log(cyan("🔧 Development mode: Database available as global.db"));
+
+  ConsoleStyler.logInfo("🔧 Development mode: Database available as global.db");
 }
