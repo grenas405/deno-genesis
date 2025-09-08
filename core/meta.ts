@@ -32,12 +32,12 @@
 // IMPORTS - UNIX PHILOSOPHY: MINIMAL DEPENDENCIES
 // =============================================================================
 
-// Note: In actual implementation, these would import from ../config/env.ts
-// For demonstration, we'll define fallback values
-const VERSION = Deno.env.get('FRAMEWORK_VERSION') || '2.1.0';
-const BUILD_DATE = Deno.env.get('BUILD_DATE') || new Date().toISOString();
-const BUILD_HASH = Deno.env.get('BUILD_HASH') || 'dev';
-const DENO_ENV = Deno.env.get('DENO_ENV') || 'development';
+import { 
+  VERSION, 
+  BUILD_DATE, 
+  BUILD_HASH, 
+  DENO_ENV 
+} from "../config/env.ts";
 
 // =============================================================================
 // TYPE DEFINITIONS - UNIX PHILOSOPHY: CLEAR INTERFACES
@@ -698,4 +698,13 @@ async function validateCoreStructure(result: IntegrityCheckResult): Promise<void
   for (const dir of requiredDirectories) {
     const fullPath = `${frameworkPath}/${dir}`;
     try {
-      const stat = await Deno.stat(f
+      const stat = await Deno.stat(fullPath);
+      if (stat.isDirectory) {
+        result.checks.push({
+          name: `Core Directory: ${dir}`,
+          category: 'critical',
+          status: 'passed',
+          message: 'Directory exists and is accessible'
+        });
+      } else {
+        result.errors.push(`${dir} 
