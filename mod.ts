@@ -81,7 +81,7 @@ export {
  * Database connection lifecycle management and main db instance
  */
 export {
-  db,
+  dbconfig,
   closeDatabaseConnection,
   getDatabaseStatus,
 } from "./database/client.ts";
