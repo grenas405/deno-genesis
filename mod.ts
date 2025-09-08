@@ -110,20 +110,37 @@ export {
 // =============================================================================
 
 /**
- * Framework Core Utilities
- * MIME types and process handlers following Unix Philosophy:
- * - DEFAULT_MIME_TYPES: Static file serving configuration
- * - registerSignalHandlers: Process signal management
- * - registerErrorHandlers: Global error handling
+ * MIME Type Configuration
+ * Static file serving utilities following Unix Philosophy:
+ * - DEFAULT_MIME_TYPES: File extension to MIME type mappings
+ * - getMimeType: Pure function for extension lookup
+ * - getSupportedExtensions: List of supported file types
+ * - isExtensionSupported: Extension validation predicate
  */
 export {
   DEFAULT_MIME_TYPES,
+  getMimeType,
+  getSupportedExtensions,
+  isExtensionSupported,
+  MIME_TYPES_METADATA,
+} from "./utils/mime-types.ts";
+
+/**
+ * Process Handler Utilities
+ * Process lifecycle management following Unix Philosophy:
+ * - registerSignalHandlers: Graceful shutdown signal handling
+ * - registerErrorHandlers: Global error and rejection handling
+ * - validateHandlerSetup: Handler configuration validation
+ */
+export {
   registerSignalHandlers,
   registerErrorHandlers,
+  validateHandlerSetup,
   type SignalHandlerRegistration,
   type ErrorHandlerRegistration,
-  FRAMEWORK_METADATA,
-} from "./utils/framework.ts";
+  type HandlerValidationResult,
+  PROCESS_HANDLERS_METADATA,
+} from "./utils/process-handlers.ts";
 
 /**
  * Framework Integrity & Version Management
