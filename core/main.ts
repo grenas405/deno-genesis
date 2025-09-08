@@ -41,7 +41,7 @@ import {
   type MiddlewareConfig,
   
   // Database Layer - Data persistence
-  db,
+  dbconfig,
   getDatabaseStatus,
   closeDatabaseConnection,
   
