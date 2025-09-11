@@ -548,11 +548,11 @@ async function main(): Promise<void> {
     };
     
     // Display startup summary
-    ConsoleStyler.printBox(
-      `Server starting on ${bootstrapConfig.host}:${bootstrapConfig.port}\nEnvironment: ${DENO_ENV}\nFramework: DenoGenesis v${VERSION}`,
-      "Server Configuration",
-      "green"
-    );
+    ConsoleStyler.logBox([
+      `Server starting on ${bootstrapConfig.host}:${bootstrapConfig.port}`,
+      `Environment: ${DENO_ENV}`,
+      `Framework: DenoGenesis v${VERSION}`
+    ], "Server Configuration", "green");
     
     // Start the server
     ConsoleStyler.logSuccess(`🚀 Server listening on http://${bootstrapConfig.host}:${bootstrapConfig.port}`);
