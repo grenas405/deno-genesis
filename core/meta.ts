@@ -3,7 +3,6 @@
  * DenoGenesis Framework - Meta Information and Integrity Validation (meta.ts)
  * =============================================================================
  *
-<<<<<<< HEAD
  * Unix Philosophy Implementation:
  * - Do one thing well: Framework metadata and integrity validation
  * - Work with other tools: Structured data output for automation
@@ -25,18 +24,6 @@
  * @module CoreMeta
  * @version 2.1.0
  * @author Pedro M. Dominguez - DenoGenesis Framework Team
-=======
- * This module provides comprehensive framework integrity validation, version
- * management, and metadata services. Following Unix Philosophy principles:
- * - Do one thing well: Framework integrity validation
- * - Avoid captive user interfaces: Return structured data
- * - Store data in flat text files: Human-readable metadata
- * - Make everything a filter: Input -> Transform -> Output
- *
- * @module core/meta
- * @version 1.5.0-unix-compliant
- * @author Pedro M. Dominguez - Dominguez Tech Solutions LLC
->>>>>>> refs/remotes/origin/main
  * @license AGPL-3.0
  * @follows Unix Philosophy + Deno security model
  */
@@ -49,11 +36,7 @@ import {
   VERSION,
   BUILD_DATE,
   BUILD_HASH,
-<<<<<<< HEAD
-  DENO_ENV
-=======
   DENO_ENV,
->>>>>>> refs/remotes/origin/main
 } from "./config/env.ts";
 
 // =============================================================================
@@ -449,13 +432,13 @@ async function checkFrameworkLinks(sitePath: string): Promise<boolean> {
 =======
  * Get framework directory path
  * Unix Philosophy: Canonical path resolution
- * 
+ *
  * @returns Promise<string> absolute framework path
  */
 export async function getFrameworkPath(): Promise<string> {
   try {
     const currentDir = Deno.cwd();
-    
+
     // Check if we're in a framework directory (has VERSION file)
     try {
       await Deno.stat(`${currentDir}/VERSION`);
@@ -473,7 +456,7 @@ export async function getFrameworkPath(): Promise<string> {
         }
       }
     }
-    
+
     // Default to current directory if VERSION not found
     return currentDir;
   } catch {
@@ -484,13 +467,13 @@ export async function getFrameworkPath(): Promise<string> {
 /**
  * Get framework metadata for monitoring and deployment
  * Unix Philosophy: Machine-readable metadata
- * 
+ *
  * @returns Promise<FrameworkMetadata> framework metadata
  */
 export async function getFrameworkMetadata(): Promise<FrameworkMetadata> {
   const frameworkPath = await getFrameworkPath();
   const integrity = await validateFrameworkIntegrityDetailed();
-  
+
   // Count sites in sites directory
   let siteCount = 0;
   try {
@@ -753,7 +736,7 @@ export async function validateFrameworkIntegrityDetailed(): Promise<IntegrityChe
  */
 async function validateCoreStructure(result: IntegrityCheckResult): Promise<void> {
   const frameworkPath = await getFrameworkPath();
-  
+
   const requiredDirectories = [
     'core',
     'core/middleware',
@@ -848,7 +831,7 @@ async function validateVersionFile(result: IntegrityCheckResult): Promise<void> 
   try {
     const versionContent = await Deno.readTextFile(versionFilePath);
     const versionLines = versionContent.trim().split('\n');
-    
+
     // Check basic format
     if (versionLines.length < 3) {
       result.warnings.push('VERSION file has fewer than expected lines');
@@ -870,7 +853,7 @@ async function validateVersionFile(result: IntegrityCheckResult): Promise<void> 
     // Validate version string format (semantic versioning)
     const versionLine = versionLines[0];
     const semanticVersionRegex = /^\d+\.\d+\.\d+(-[a-zA-Z0-9-]+)?$/;
-    
+
     if (semanticVersionRegex.test(versionLine)) {
       result.checks.push({
         name: 'VERSION Semantic Format',
@@ -915,12 +898,12 @@ async function validateSiteStructure(result: IntegrityCheckResult): Promise<void
       if (entry.isDirectory) {
         siteCount++;
         const sitePath = `${sitesPath}/${entry.name}`;
-        
+
         // Check for core symbolic link
         try {
           const coreLinkPath = `${sitePath}/core`;
           const coreLinkStat = await Deno.lstat(coreLinkPath);
-          
+
           if (coreLinkStat.isSymlink) {
             result.checks.push({
               name: `Site Core Link: ${entry.name}`,
@@ -974,7 +957,7 @@ async function validateSiteStructure(result: IntegrityCheckResult): Promise<void
  */
 async function validateVersionCompatibility(result: IntegrityCheckResult): Promise<void> {
   const frameworkVersion = VERSION;
-  
+
   // This is a placeholder for more sophisticated version compatibility checking
   // In a real implementation, you would check each site's version requirements
   result.checks.push({
@@ -992,12 +975,12 @@ async function validateVersionCompatibility(result: IntegrityCheckResult): Promi
  */
 async function validateDependencies(result: IntegrityCheckResult): Promise<void> {
   const frameworkPath = await getFrameworkPath();
-  
+
   // Check if mod.ts can be imported (basic dependency check)
   try {
     const modPath = `${frameworkPath}/mod.ts`;
     await Deno.stat(modPath);
-    
+
     result.checks.push({
       name: 'Core Dependencies',
       category: 'critical',
@@ -1022,7 +1005,7 @@ async function validateDependencies(result: IntegrityCheckResult): Promise<void>
 /**
  * Check individual site health status
  * Unix Philosophy: Pure function, structured output
- * 
+ *
  * @param siteName Site identifier
  * @param port Port number to check
  * @returns Promise<{status, port, responseTime?}> health status
@@ -1047,9 +1030,9 @@ export async function checkSiteHealth(siteName: string, port: number): Promise<{
       responseTime: Math.round(responseTime)
     };
   } catch {
-    return { 
-      status: 'inactive', 
-      port 
+    return {
+      status: 'inactive',
+      port
     };
   }
 }
@@ -1061,7 +1044,7 @@ export async function checkSiteHealth(siteName: string, port: number): Promise<{
 /**
  * Validate environment configuration
  * Unix Philosophy: Pure validation function
- * 
+ *
  * @returns boolean configuration validity
  */
 function validateEnvironmentConfig(): boolean {
@@ -1069,7 +1052,7 @@ function validateEnvironmentConfig(): boolean {
     // Basic environment validation
     const requiredEnvVars = ['DENO_ENV'];
     const validEnvironments = ['development', 'staging', 'production'];
-    
+
     if (!validEnvironments.includes(DENO_ENV)) {
       return false;
     }
@@ -1087,7 +1070,7 @@ function validateEnvironmentConfig(): boolean {
 /**
  * Get all connected sites in the framework
  * Unix Philosophy: Discover filesystem structure
- * 
+ *
  * @returns Promise<SiteInfo[]> array of site information
  */
 export async function getConnectedSites(): Promise<SiteInfo[]> {
@@ -1097,15 +1080,15 @@ export async function getConnectedSites(): Promise<SiteInfo[]> {
 
   try {
     const sitesDir = await Deno.readDir(sitesPath);
-    
+
     for await (const entry of sitesDir) {
       if (entry.isDirectory) {
         const sitePath = `${sitesPath}/${entry.name}`;
-        
+
         try {
           // Try to read site configuration or main.ts for port info
           let port: number | undefined;
-          
+
           // Check for common port patterns in main.ts
           try {
             const mainPath = `${sitePath}/main.ts`;
@@ -1153,12 +1136,12 @@ export async function getConnectedSites(): Promise<SiteInfo[]> {
 /**
  * Get framework runtime statistics
  * Unix Philosophy: Observable system metrics
- * 
+ *
  * @returns FrameworkStats current runtime statistics
  */
 export function getFrameworkStats(): FrameworkStats {
   const memInfo = Deno.memoryUsage();
-  
+
   return {
     uptime: performance.now(),
     memoryUsage: {
@@ -1176,7 +1159,7 @@ export function getFrameworkStats(): FrameworkStats {
 /**
  * Get comprehensive framework health report
  * Unix Philosophy: Complete system state analysis
- * 
+ *
  * @returns Promise<FrameworkHealthReport> complete health assessment
  */
 export async function getFrameworkHealthReport(): Promise<FrameworkHealthReport> {
@@ -1184,11 +1167,11 @@ export async function getFrameworkHealthReport(): Promise<FrameworkHealthReport>
   const integrity = await validateFrameworkIntegrityDetailed();
   const stats = getFrameworkStats();
   const sites = await getConnectedSites();
-  
+
   // Determine overall health status
   let status: 'healthy' | 'degraded' | 'unhealthy';
   const recommendations: string[] = [];
-  
+
   if (integrity.valid) {
     status = 'healthy';
   } else if (integrity.summary.failed > 0 && integrity.summary.failed < 3) {
@@ -1198,21 +1181,21 @@ export async function getFrameworkHealthReport(): Promise<FrameworkHealthReport>
     status = 'unhealthy';
     recommendations.push("Critical issues detected - immediate attention required");
   }
-  
+
   // Memory usage recommendations
   const memUsageMB = stats.memoryUsage.rss / (1024 * 1024);
   if (memUsageMB > 512) {
     recommendations.push(`Memory usage high (${Math.round(memUsageMB)}MB) - consider optimization`);
   }
-  
+
   // Site health recommendations
   const activeSites = sites.filter(s => s.status === 'active').length;
   const errorSites = sites.filter(s => s.status === 'error').length;
-  
+
   if (errorSites > 0) {
     recommendations.push(`${errorSites} sites have errors - check site configurations`);
   }
-  
+
   return {
     status,
     version,
@@ -1235,7 +1218,7 @@ export async function getFrameworkHealthReport(): Promise<FrameworkHealthReport>
 /**
  * Framework Meta Module Metadata
  * Unix Philosophy: Store data in flat text files
- * 
+ *
  * This metadata can be written to flat files for monitoring,
  * deployment verification, and system documentation.
  */
@@ -1253,7 +1236,7 @@ export const FRAMEWORK_METADATA = {
   /** Module capabilities */
   capabilities: [
     "framework_validation",
-    "version_management", 
+    "version_management",
     "integrity_checking",
     "site_health_monitoring",
     "structured_reporting",
