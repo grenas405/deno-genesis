@@ -506,7 +506,11 @@ async function main() {
     };
 
     // Create and apply middleware
-    const { monitor, middlewares } = createMiddlewareStack(middlewareConfig);
+    const middlewareStack = createMiddlewareStack(middlewareConfig);
+    const { monitor } = middlewareStack;
+    
+    // Get the middlewares array safely
+    const middlewares = middlewareStack.middlewares || [];
 
     // Apply each middleware to the application
     middlewares.forEach((middleware, index) => {
@@ -527,7 +531,7 @@ async function main() {
     app.use(router.routes());
     app.use(router.allowedMethods());
     
-    // Count registered routes for metrics
+    // Count registered routes for metrics (safely)
     const routeCount = (router as any).stack?.length || 0;
     ConsoleStyler.logSuccess(`Routes registered successfully (${routeCount} endpoints)`);
 
@@ -540,12 +544,12 @@ async function main() {
       startupTime: totalStartupTime,
       memoryUsage,
       featuresEnabled: [
-        config.middleware.enableCors && 'CORS',
-        config.middleware.enableSecurity && 'Security',
-        config.middleware.enableLogging && 'Logging',
-        config.middleware.enableHealthCheck && 'Health Check',
-        config.static.enableCaching && 'Static Caching',
-        config.database.enabled && 'Database',
+        config.middleware.enableCors ? 'CORS' : null,
+        config.middleware.enableSecurity ? 'Security' : null,
+        config.middleware.enableLogging ? 'Logging' : null,
+        config.middleware.enableHealthCheck ? 'Health Check' : null,
+        config.static.enableCaching ? 'Static Caching' : null,
+        config.database.enabled ? 'Database' : null,
       ].filter(Boolean) as string[],
     };
 
