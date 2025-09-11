@@ -134,7 +134,7 @@ const bootstrapConfig: AppBootstrapConfig = {
   port: PORT,
   host: SERVER_HOST,
   environment: DENO_ENV,
-  corsOrigins: CORS_ORIGINS.split(',').map(origin => origin.trim()),
+  corsOrigins: CORS_ORIGINS,
   enableFrameworkIntegrity: true,
   enableDatabaseConnection: true,
   enableAdvancedLogging: DENO_ENV === 'development',
@@ -493,7 +493,7 @@ async function main(): Promise<void> {
     // Create and configure middleware stack
     const middlewareConfig: MiddlewareConfig = {
       enableCors: true,
-      corsOrigins: bootstrapConfig.corsOrigins,
+      corsOrigins: CORS_ORIGINS,
       enableLogging: bootstrapConfig.enableAdvancedLogging,
       enableCompression: DENO_ENV === 'production',
       enableSecurity: true,
