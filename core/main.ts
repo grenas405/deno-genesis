@@ -86,7 +86,6 @@ interface AppBootstrapConfig {
   port: number;
   host: string;
   environment: string;
-  corsOrigins: string[];
   enableFrameworkIntegrity: boolean;
   enableDatabaseConnection: boolean;
   enableAdvancedLogging: boolean;
@@ -492,11 +491,36 @@ async function main(): Promise<void> {
     
     // Create and configure middleware stack
     const middlewareConfig: MiddlewareConfig = {
-      enableCors: true,
-      corsOrigins: CORS_ORIGINS,
-      enableLogging: bootstrapConfig.enableAdvancedLogging,
-      enableCompression: DENO_ENV === 'production',
-      enableSecurity: true,
+      environment: DENO_ENV,
+      port: PORT,
+      staticFiles: {
+        root: `${Deno.cwd()}/static`,
+        enableCaching: DENO_ENV === 'production',
+        maxAge: DENO_ENV === 'production' ? 86400 : 300,
+      },
+      cors: {
+        allowedOrigins: CORS_ORIGINS,
+        developmentOrigins: CORS_ORIGINS.filter(origin => origin.includes('localhost')),
+        credentials: true,
+        maxAge: DENO_ENV === 'production' ? 86400 : 300,
+      },
+      security: {
+        enableHSTS: DENO_ENV === 'production',
+        contentSecurityPolicy: DENO_ENV === 'production'
+          ? "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+          : "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+        frameOptions: 'SAMEORIGIN',
+      },
+      logging: {
+        logLevel: DENO_ENV === 'development' ? 'debug' : 'info',
+        logRequests: true,
+        logResponses: DENO_ENV === 'development',
+      },
+      healthCheck: {
+        endpoint: '/health',
+        includeMetrics: true,
+        includeEnvironment: DENO_ENV === 'development',
+      },
     };
     
     const middlewareStack = createMiddlewareStack(middlewareConfig);
@@ -605,7 +629,7 @@ async function main(): Promise<void> {
 
 // ============================================================================
 // UNIX PRINCIPLE 5: SINGLE ENTRY POINT
-// ============================================================================
+// =========================================
 
 /**
  * Application entry point with error boundary
