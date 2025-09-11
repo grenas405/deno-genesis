@@ -1,15 +1,20 @@
 /**
  * DenoGenesis Universal Database Client
  * Enhanced database connection with environment variable integration
+ * 
+ * FIXED: Removed circular dependency by importing config directly
  */
 
 import { Client } from "https://deno.land/x/mysql@v2.12.1/mod.ts";
-import {
+
+// ⚠️ CRITICAL FIX: Import directly from config to avoid circular dependency
+import { 
   dbConfig,
-  getEnvironmentInfo,
-  DENO_ENV,
-  ConsoleStyler
-} from "../mod.ts";
+  DENO_ENV 
+} from "../config/env.ts";
+
+// Import utilities that don't create circular dependencies
+import { ConsoleStyler } from "../utils/console-styler.ts";
 
 // ============================================================================
 // DATABASE CONNECTION CLASS
@@ -73,11 +78,9 @@ class DatabaseManager {
   }
 
   /**
-   * Log successful connection with environment info
+   * Log successful connection with basic info
    */
   private logSuccessfulConnection(): void {
-    const envInfo = getEnvironmentInfo();
-
     ConsoleStyler.logSection("✅ DATABASE CONNECTED", "green");
 
     const dbInfo = [
@@ -85,23 +88,14 @@ class DatabaseManager {
       ['Host', `${dbConfig.hostname}:${dbConfig.port || 3306}`],
       ['User', dbConfig.username],
       ['Pool Size', dbConfig.poolSize.toString()],
-      ['Environment', envInfo.environment],
-      ['Site Key', envInfo.siteKey],
-      ['Port', envInfo.port.toString()]
+      ['Environment', DENO_ENV]
     ];
 
     dbInfo.forEach(([label, value]) => {
       ConsoleStyler.logInfo(`🗄️ ${label}: ${value}`);
     });
 
-    ConsoleStyler.logInfo("🎛️ Features:");
-    const features = envInfo.features;
-    Object.entries(features).forEach(([key, enabled]) => {
-      const status = enabled ? '✅' : '❌';
-      ConsoleStyler.logInfo(`   ${key}: ${status}`);
-    });
-
-    ConsoleStyler.logSuccess("🚀 Ready for Local-First Digital Sovereignty!");
+    ConsoleStyler.logSuccess("🚀 Database ready for operations!");
   }
 
   /**
@@ -123,12 +117,19 @@ class DatabaseManager {
     const troubleshooting = [
       "1. Database server is running",
       "2. Environment variables are correct",
-      "3. Database user has proper permissions",
+      "3. Database user has proper permissions", 
       "4. Network connectivity to database"
     ];
 
     ConsoleStyler.logWarning("Please check:");
     troubleshooting.forEach(step => ConsoleStyler.logWarning(step));
+  }
+
+  /**
+   * Simple delay utility
+   */
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   /**
@@ -166,15 +167,16 @@ class DatabaseManager {
   /**
    * Execute query with error handling
    */
-  async query(sql: string, params?: any[]): Promise<any> {
-    if (!this.client || !this.isConnected) {
-      throw new Error("Database not connected");
+  async query(sql: string, params?: unknown[]): Promise<unknown> {
+    if (!this.isConnected || !this.client) {
+      throw new Error("Database not connected. Call connect() first.");
     }
 
     try {
-      return await this.client.execute(sql, params);
+      const result = await this.client.execute(sql, params);
+      return result;
     } catch (error) {
-      ConsoleStyler.logError(`❌ Database query error: ${error.message}`);
+      ConsoleStyler.logError(`❌ Database query failed: ${error.message}`);
       ConsoleStyler.logError(`SQL: ${sql}`);
       if (params) {
         ConsoleStyler.logError(`Params: ${JSON.stringify(params)}`);
@@ -184,70 +186,78 @@ class DatabaseManager {
   }
 
   /**
-   * Utility delay function
+   * Execute transaction with automatic rollback on error
    */
-  private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  async transaction(callback: (client: Client) => Promise<void>): Promise<void> {
+    if (!this.isConnected || !this.client) {
+      throw new Error("Database not connected. Call connect() first.");
+    }
+
+    try {
+      await this.client.execute("START TRANSACTION");
+      await callback(this.client);
+      await this.client.execute("COMMIT");
+    } catch (error) {
+      await this.client.execute("ROLLBACK");
+      ConsoleStyler.logError(`❌ Transaction failed and rolled back: ${error.message}`);
+      throw error;
+    }
   }
 }
 
 // ============================================================================
-// SINGLETON DATABASE INSTANCE
-// ============================================================================
-
-const databaseManager = new DatabaseManager();
-
-// Initialize connection
-export const db = await databaseManager.connect();
-export { databaseManager };
-
-// ============================================================================
-// CONVENIENCE FUNCTIONS
+// SINGLETON INSTANCE AND EXPORTS
 // ============================================================================
 
 /**
- * Execute a query with parameters
+ * Global database manager instance
+ * Lazy initialization to prevent startup issues
  */
-export async function executeQuery(sql: string, params?: any[]): Promise<any> {
-  return await databaseManager.query(sql, params);
+let databaseManager: DatabaseManager | null = null;
+
+/**
+ * Get or create database manager instance
+ */
+function getDatabaseManager(): DatabaseManager {
+  if (!databaseManager) {
+    databaseManager = new DatabaseManager();
+  }
+  return databaseManager;
+}
+
+/**
+ * Main database connection instance
+ * Call db.connect() before using
+ */
+export const db = getDatabaseManager();
+
+/**
+ * Initialize database connection
+ * Call this in your main.ts before starting the server
+ */
+export async function initializeDatabase(): Promise<Client> {
+  const manager = getDatabaseManager();
+  return await manager.connect();
+}
+
+/**
+ * Close database connection gracefully
+ */
+export async function closeDatabaseConnection(): Promise<void> {
+  if (databaseManager) {
+    await databaseManager.close();
+  }
 }
 
 /**
  * Get database connection status
  */
-export function getDatabaseStatus(): boolean {
-  return databaseManager.isDbConnected();
-}
-
-/**
- * Close database connection (for graceful shutdown)
- */
-export async function closeDatabaseConnection(): Promise<void> {
-  await databaseManager.close();
-}
-
-// ============================================================================
-// GRACEFUL SHUTDOWN HANDLER
-// ============================================================================
-
-const handleShutdown = async (signal: string) => {
-  ConsoleStyler.logWarning(`🛑 Received ${signal}, shutting down database connections...`);
-  await closeDatabaseConnection();
-};
-
-// Register shutdown handlers
-Deno.addSignalListener("SIGINT", () => handleShutdown("SIGINT"));
-Deno.addSignalListener("SIGTERM", () => handleShutdown("SIGTERM"));
-
-// ============================================================================
-// DEVELOPMENT UTILITIES
-// ============================================================================
-
-if (DENO_ENV === "development") {
-  // @ts-ignore - Development only
-  globalThis.db = db;
-  // @ts-ignore - Development only
-  globalThis.dbManager = databaseManager;
-
-  ConsoleStyler.logInfo("🔧 Development mode: Database available as global.db");
+export function getDatabaseStatus(): {
+  connected: boolean;
+  manager: DatabaseManager | null;
+} {
+  return {
+    connected: databaseManager?.isDbConnected() ?? false,
+    manager: databaseManager
+  };
 }
