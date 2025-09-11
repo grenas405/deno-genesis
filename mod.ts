@@ -81,7 +81,7 @@ export {
  * Database connection lifecycle management and main db instance
  */
 export {
-  dbconfig,
+  db,
   closeDatabaseConnection,
   getDatabaseStatus,
 } from "./database/client.ts";
@@ -95,6 +95,7 @@ export {
  * Imports all environment variables and system configuration from config/env.ts
  */
 export {
+  dbConfig,
   PORT,
   DENO_ENV,
   SITE_KEY,
@@ -103,6 +104,7 @@ export {
   VERSION,
   BUILD_DATE,
   BUILD_HASH,
+  getEnvironmentInfo,
 } from "./config/env.ts";
 
 // =============================================================================
@@ -211,7 +213,7 @@ export {
  * } from "./mod.ts";
  *
  * // Unix Philosophy: Each step does one thing well
- * 
+ *
  * // 1. Initialize error and signal handling
  * const errorHandlers = registerErrorHandlers();
  * const signalHandlers = registerSignalHandlers(async () => {
@@ -271,7 +273,7 @@ export {
  * DEPLOYMENT WORKFLOW:
  *
  * 1. Core framework development happens in /core
- * 2. Sites use symbolic links to reference core components  
+ * 2. Sites use symbolic links to reference core components
  * 3. The syslink-creator.ts script maintains these symbolic links
  * 4. mod.ts provides centralized access to all framework functionality
  * 5. Each component follows Unix Philosophy for maintainability

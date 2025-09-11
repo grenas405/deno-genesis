@@ -4,12 +4,12 @@
  */
 
 import { Client } from "https://deno.land/x/mysql@v2.12.1/mod.ts";
-import { 
-  dbConfig, 
-  DENO_ENV, 
+import {
+  dbConfig,
   getEnvironmentInfo,
+  DENO_ENV,
   ConsoleStyler
-} from "./mod.ts";
+} from "../mod.ts";
 
 // ============================================================================
 // DATABASE CONNECTION CLASS
@@ -79,7 +79,7 @@ class DatabaseManager {
     const envInfo = getEnvironmentInfo();
 
     ConsoleStyler.logSection("✅ DATABASE CONNECTED", "green");
-    
+
     const dbInfo = [
       ['Database', dbConfig.db],
       ['Host', `${dbConfig.hostname}:${dbConfig.port || 3306}`],
@@ -110,7 +110,7 @@ class DatabaseManager {
   private logConnectionFailure(error: Error): void {
     ConsoleStyler.logError("❌ Database Connection Failed");
     ConsoleStyler.logError(`Error: ${error.message}`);
-    
+
     const configInfo = [
       `Host: ${dbConfig.hostname}:${dbConfig.port || 3306}`,
       `Database: ${dbConfig.db}`,
@@ -122,7 +122,7 @@ class DatabaseManager {
 
     const troubleshooting = [
       "1. Database server is running",
-      "2. Environment variables are correct", 
+      "2. Environment variables are correct",
       "3. Database user has proper permissions",
       "4. Network connectivity to database"
     ];
@@ -246,7 +246,7 @@ Deno.addSignalListener("SIGTERM", () => handleShutdown("SIGTERM"));
 if (DENO_ENV === "development") {
   // @ts-ignore - Development only
   globalThis.db = db;
-  // @ts-ignore - Development only  
+  // @ts-ignore - Development only
   globalThis.dbManager = databaseManager;
 
   ConsoleStyler.logInfo("🔧 Development mode: Database available as global.db");
