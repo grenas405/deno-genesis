@@ -305,7 +305,6 @@ function createStartupInfo(config: ApplicationBootstrap) {
  * @param config Application bootstrap configuration
  */
 function displayBanner(startupInfo: ReturnType<typeof createStartupInfo>, config: ApplicationBootstrap) {
-  ConsoleStyler.clear();
   ConsoleStyler.logCustom("\n" + "=".repeat(80), "", "cyan");
   ConsoleStyler.logCustom("🚀 DENOGENESIS FRAMEWORK - UNIX PHILOSOPHY EDITION", "", "brightCyan");
   ConsoleStyler.logCustom("=".repeat(80), "", "cyan");
@@ -316,7 +315,7 @@ function displayBanner(startupInfo: ReturnType<typeof createStartupInfo>, config
   ConsoleStyler.logInfo(`🔧 Site: ${config.framework.siteKey}`);
   ConsoleStyler.logInfo(`🕒 Started: ${startupInfo.timestamp}`);
   ConsoleStyler.logCustom("=".repeat(80), "", "cyan");
-  
+
   // Add final ready message
   ConsoleStyler.logCustom("\n" + "=".repeat(80), "", "cyan");
   ConsoleStyler.logSuccess("🎯 DenoGenesis Framework Ready!");
