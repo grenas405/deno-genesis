@@ -144,16 +144,6 @@ export {
   PROCESS_HANDLERS_METADATA,
 } from "./utils/process-handlers.ts";
 
-/**
- * Framework Integrity & Version Management
- * Framework version information and validation utilities
- */
-export {
-  getFrameworkVersion,
-  validateFrameworkIntegrity,
-  type FrameworkVersionInfo,
-  type FrameworkIntegrityResult,
-} from "./utils/index.ts";
 
 /**
  * Console Styling & Logging
@@ -167,6 +157,12 @@ export {
   type PerformanceMetrics,
   type TableColumn,
 } from "./utils/consoleStyler.ts";
+
+export {
+  validateFrameworkIntegrity,
+  getFrameworkVersion,
+} from "./meta.ts";
+
 
 // =============================================================================
 // UNIX PHILOSOPHY COMPLIANCE DOCUMENTATION

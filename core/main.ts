@@ -61,22 +61,17 @@ import {
   getSupportedExtensions,
   isExtensionSupported,
 
+  validateFrameworkIntegrity,
+  getFrameworkVersion,
+
   // Process Handler Utilities - Process lifecycle management
   registerSignalHandlers,
   registerErrorHandlers,
   validateHandlerSetup,
 
-  // Framework Utilities - Version and integrity management
-  getFrameworkVersion,
-  validateFrameworkIntegrity,
 
   // Console Utilities - Professional logging
   ConsoleStyler,
-  type DenoGenesisConfig,
-  type LogEntry,
-  type LogLevel,
-  type PerformanceMetrics,
-  type TableColumn,
 } from "./mod.ts";
 
 // ============================================================================

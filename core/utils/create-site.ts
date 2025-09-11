@@ -1,7 +1,3 @@
-private async createFavicon(): Promise<void> {
-    // Create a simple SVG favicon as placeholder
-    const faviconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" fill="${this.config.template.primaryColor}
 
 // =============================================================================
 // CLI INTERFACE AND MAIN EXECUTION

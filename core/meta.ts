@@ -3,25 +3,25 @@
  * =============================================================================
  * DenoGenesis Framework - Core Metadata & Integrity System (core/meta.ts)
  * =============================================================================
- * 
+ *
  * Unix Philosophy Implementation:
  * - Do one thing well: Framework metadata and integrity validation
  * - Work with other tools: Structured data output for automation
  * - Clear interfaces: Composable functions with predictable outputs
- * 
+ *
  * Deno Benefits:
  * - Type safety for all metadata structures
  * - Modern APIs for file system operations
  * - Security through explicit permissions
  * - Direct execution without build steps
- * 
+ *
  * Core Responsibilities:
  * - Framework version information and build metadata
  * - Multi-site discovery and health monitoring
  * - Comprehensive integrity validation with detailed reporting
  * - Site-framework version compatibility checking
  * - System health diagnostics and recommendations
- * 
+ *
  * @module CoreMeta
  * @version 2.1.0
  * @author Pedro M. Dominguez - DenoGenesis Framework Team
@@ -32,12 +32,12 @@
 // IMPORTS - UNIX PHILOSOPHY: MINIMAL DEPENDENCIES
 // =============================================================================
 
-import { 
-  VERSION, 
-  BUILD_DATE, 
-  BUILD_HASH, 
-  DENO_ENV 
-} from "../config/env.ts";
+import {
+  VERSION,
+  BUILD_DATE,
+  BUILD_HASH,
+  DENO_ENV
+} from "./config/env.ts";
 
 // =============================================================================
 // TYPE DEFINITIONS - UNIX PHILOSOPHY: CLEAR INTERFACES
@@ -178,7 +178,7 @@ export interface FrameworkHealthReport {
 /**
  * Get comprehensive framework version information
  * Unix Philosophy: Single source of truth for version data
- * 
+ *
  * @returns FrameworkVersionInfo with complete version details
  */
 export function getFrameworkVersion(): FrameworkVersionInfo {
@@ -196,25 +196,25 @@ export function getFrameworkVersion(): FrameworkVersionInfo {
 /**
  * Get framework metadata from authoritative sources
  * Unix Philosophy: Read from filesystem for truth
- * 
+ *
  * @returns Promise<FrameworkMetadata> with current metadata
  */
 export async function getFrameworkMetadata(): Promise<FrameworkMetadata> {
   const frameworkPath = await getFrameworkPath();
   const version = getFrameworkVersion();
-  
+
   try {
     // Read VERSION file for authoritative version info
     const versionPath = `${frameworkPath}/VERSION`;
     const versionContent = await Deno.readTextFile(versionPath);
     const [fileVersion, fileBuildDate, fileBuildHash] = versionContent.trim().split('|');
-    
+
     // Get basic integrity status
     const basicIntegrity = await validateFrameworkIntegrity();
-    
+
     // Count sites
     const sites = await getConnectedSites();
-    
+
     return {
       version: fileVersion || version.version,
       buildDate: fileBuildDate || version.buildDate,
@@ -228,7 +228,7 @@ export async function getFrameworkMetadata(): Promise<FrameworkMetadata> {
   } catch (error) {
     // Graceful degradation - return best available info
     console.warn(`⚠️ Could not read VERSION file: ${error.message}`);
-    
+
     return {
       version: version.version,
       buildDate: version.buildDate,
@@ -245,12 +245,12 @@ export async function getFrameworkMetadata(): Promise<FrameworkMetadata> {
 /**
  * Get current framework runtime statistics
  * Unix Philosophy: Observable system metrics
- * 
+ *
  * @returns FrameworkStats with current runtime information
  */
 export function getFrameworkStats(): FrameworkStats {
   const memoryUsage = Deno.memoryUsage();
-  
+
   return {
     uptime: performance.now(),
     memoryUsage: {
@@ -272,7 +272,7 @@ export function getFrameworkStats(): FrameworkStats {
 /**
  * Detect framework root path
  * Unix Philosophy: Auto-discovery with fallbacks
- * 
+ *
  * @returns Promise<string> framework root path
  */
 async function getFrameworkPath(): Promise<string> {
@@ -288,7 +288,7 @@ async function getFrameworkPath(): Promise<string> {
       console.warn(`⚠️ DENOGENESIS_ROOT path not accessible: ${envPath}`);
     }
   }
-  
+
   // Try standard locations
   const standardPaths = [
     '/home/admin/deno-genesis',
@@ -296,7 +296,7 @@ async function getFrameworkPath(): Promise<string> {
     './deno-genesis',
     '.'
   ];
-  
+
   for (const path of standardPaths) {
     try {
       const stat = await Deno.stat(path);
@@ -304,7 +304,7 @@ async function getFrameworkPath(): Promise<string> {
         // Verify it's actually a DenoGenesis framework directory
         const versionFile = `${path}/VERSION`;
         const modFile = `${path}/mod.ts`;
-        
+
         try {
           await Deno.stat(versionFile);
           await Deno.stat(modFile);
@@ -317,7 +317,7 @@ async function getFrameworkPath(): Promise<string> {
       // Path doesn't exist, continue
     }
   }
-  
+
   // Fallback to current directory
   console.warn('⚠️ Could not detect DenoGenesis framework path, using current directory');
   return Deno.cwd();
@@ -330,46 +330,46 @@ async function getFrameworkPath(): Promise<string> {
 /**
  * Discover all connected sites
  * Unix Philosophy: Filesystem as source of truth
- * 
+ *
  * @returns Promise<SiteInfo[]> array of discovered sites
  */
 export async function getConnectedSites(): Promise<SiteInfo[]> {
   const frameworkPath = await getFrameworkPath();
   const sites: SiteInfo[] = [];
-  
+
   try {
     const sitesPath = `${frameworkPath}/sites`;
     const siteDirs = await readDirectory(sitesPath);
-    
+
     for (const siteDir of siteDirs) {
       const sitePath = `${sitesPath}/${siteDir}`;
       const siteInfo = await analyzeSite(siteDir, sitePath);
       sites.push(siteInfo);
     }
-    
+
     console.log(`📍 Discovered ${sites.length} sites`);
   } catch (error) {
     console.warn(`⚠️ Could not scan sites directory: ${error.message}`);
   }
-  
+
   return sites.sort((a, b) => a.name.localeCompare(b.name));
 }
 
 /**
  * Analyze individual site
  * Unix Philosophy: Pure function with clear inputs/outputs
- * 
+ *
  * @param siteName Site directory name
  * @param sitePath Full path to site
  * @returns Promise<SiteInfo> site analysis result
  */
 async function analyzeSite(siteName: string, sitePath: string): Promise<SiteInfo> {
   const currentTime = new Date().toISOString();
-  
+
   try {
     // Check if site has framework links
     const hasFrameworkLinks = await checkFrameworkLinks(sitePath);
-    
+
     if (!hasFrameworkLinks) {
       return {
         name: siteName,
@@ -380,15 +380,15 @@ async function analyzeSite(siteName: string, sitePath: string): Promise<SiteInfo
         lastChecked: currentTime
       };
     }
-    
+
     // Determine framework version
     const frameworkVersion = await getSiteFrameworkVersion(sitePath);
     const currentFrameworkVersion = getFrameworkVersion().version;
     const versionMatch = frameworkVersion === currentFrameworkVersion;
-    
+
     // Check site status
     const { status, port, responseTime } = await getSiteStatus(siteName);
-    
+
     return {
       name: siteName,
       path: sitePath,
@@ -401,7 +401,7 @@ async function analyzeSite(siteName: string, sitePath: string): Promise<SiteInfo
     };
   } catch (error) {
     console.warn(`⚠️ Error analyzing site ${siteName}: ${error.message}`);
-    
+
     return {
       name: siteName,
       path: sitePath,
@@ -416,13 +416,13 @@ async function analyzeSite(siteName: string, sitePath: string): Promise<SiteInfo
 /**
  * Check if site has framework symbolic links
  * Unix Philosophy: Filesystem inspection for truth
- * 
+ *
  * @param sitePath Path to site directory
  * @returns Promise<boolean> true if framework links exist
  */
 async function checkFrameworkLinks(sitePath: string): Promise<boolean> {
   const frameworkDirs = ['middleware', 'database', 'config', 'utils', 'types'];
-  
+
   for (const dir of frameworkDirs) {
     try {
       const stat = await Deno.lstat(`${sitePath}/${dir}`);
@@ -433,14 +433,14 @@ async function checkFrameworkLinks(sitePath: string): Promise<boolean> {
       // Directory doesn't exist or not accessible
     }
   }
-  
+
   return false;
 }
 
 /**
  * Get site's framework version
  * Unix Philosophy: Read from authoritative source
- * 
+ *
  * @param sitePath Path to site directory
  * @returns Promise<string> framework version or 'unknown'
  */
@@ -467,7 +467,7 @@ async function getSiteFrameworkVersion(sitePath: string): Promise<string> {
 /**
  * Get site operational status
  * Unix Philosophy: Network check for live status
- * 
+ *
  * @param siteName Site identifier
  * @returns Promise<{status, port?, responseTime?}> site status
  */
@@ -490,32 +490,32 @@ async function getSiteStatus(siteName: string): Promise<{
     'pedromdominguez': 3003,
     'efficientmovers': 3004
   };
-  
+
   const port = sitePortMap[siteName];
   if (!port) {
     return { status: 'inactive' };
   }
-  
+
   try {
     const startTime = performance.now();
-    
+
     // Quick health check
     const response = await fetch(`http://localhost:${port}/health`, {
       method: 'HEAD',
       signal: AbortSignal.timeout(3000)
     });
-    
+
     const responseTime = performance.now() - startTime;
-    
+
     return {
       status: response.ok ? 'active' : 'error',
       port,
       responseTime: Math.round(responseTime)
     };
   } catch {
-    return { 
-      status: 'inactive', 
-      port 
+    return {
+      status: 'inactive',
+      port
     };
   }
 }
@@ -527,7 +527,7 @@ async function getSiteStatus(siteName: string): Promise<{
 /**
  * Basic framework integrity validation (legacy compatibility)
  * Unix Philosophy: Maintain backward compatibility
- * 
+ *
  * @returns Promise<FrameworkIntegrityResult> basic integrity result
  */
 export async function validateFrameworkIntegrity(): Promise<FrameworkIntegrityResult> {
@@ -552,7 +552,7 @@ export async function validateFrameworkIntegrity(): Promise<FrameworkIntegrityRe
 
   try {
     const frameworkPath = await getFrameworkPath();
-    
+
     // Core Module Validation
     const requiredCoreFiles = [
       'mod.ts',
@@ -605,7 +605,7 @@ export async function validateFrameworkIntegrity(): Promise<FrameworkIntegrityRe
 /**
  * Comprehensive framework integrity validation
  * Unix Philosophy: Thorough, composable validation
- * 
+ *
  * @returns Promise<IntegrityCheckResult> detailed validation results
  */
 export async function validateFrameworkIntegrityDetailed(): Promise<IntegrityCheckResult> {
@@ -643,7 +643,7 @@ export async function validateFrameworkIntegrityDetailed(): Promise<IntegrityChe
     result.summary.total = result.checks.length;
 
     // Set overall validity (no critical failures)
-    result.valid = result.checks.filter(check => 
+    result.valid = result.checks.filter(check =>
       check.category === 'critical' && check.status === 'failed'
     ).length === 0;
 
@@ -653,7 +653,7 @@ export async function validateFrameworkIntegrityDetailed(): Promise<IntegrityChe
     console.error(`❌ Integrity validation failed: ${error.message}`);
     result.valid = false;
     result.errors.push(`Validation process failed: ${error.message}`);
-    
+
     result.checks.push({
       name: 'Validation Process',
       category: 'critical',
@@ -664,47 +664,3 @@ export async function validateFrameworkIntegrityDetailed(): Promise<IntegrityChe
 
   return result;
 }
-
-// =============================================================================
-// DETAILED VALIDATION FUNCTIONS - COMPOSABLE UNITS
-// =============================================================================
-
-/**
- * Validate core framework directory structure
- * Unix Philosophy: Check filesystem for required components
- */
-async function validateCoreStructure(result: IntegrityCheckResult): Promise<void> {
-  const frameworkPath = await getFrameworkPath();
-  
-  const requiredDirectories = [
-    'core',
-    'core/middleware',
-    'core/database',
-    'core/config',
-    'core/utils',
-    'core/types',
-    'sites'
-  ];
-
-  const requiredFiles = [
-    'VERSION',
-    'mod.ts',
-    'core/meta.ts',
-    'core/middleware/index.ts',
-    'core/config/env.ts'
-  ];
-
-  // Check directories
-  for (const dir of requiredDirectories) {
-    const fullPath = `${frameworkPath}/${dir}`;
-    try {
-      const stat = await Deno.stat(fullPath);
-      if (stat.isDirectory) {
-        result.checks.push({
-          name: `Core Directory: ${dir}`,
-          category: 'critical',
-          status: 'passed',
-          message: 'Directory exists and is accessible'
-        });
-      } else {
-        result.errors.push(`${dir} 
