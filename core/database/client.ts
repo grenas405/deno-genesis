@@ -1,20 +1,20 @@
 /**
  * DenoGenesis Universal Database Client
  * Enhanced database connection with environment variable integration
- * 
+ *
  * FIXED: Removed circular dependency by importing config directly
  */
 
 import { Client } from "https://deno.land/x/mysql@v2.12.1/mod.ts";
 
 // ⚠️ CRITICAL FIX: Import directly from config to avoid circular dependency
-import { 
+import {
   dbConfig,
-  DENO_ENV 
+  DENO_ENV
 } from "../config/env.ts";
 
 // Import utilities that don't create circular dependencies
-import { ConsoleStyler } from "../utils/console-styler.ts";
+import { ConsoleStyler } from "../utils/consoleStyler.ts";
 
 // ============================================================================
 // DATABASE CONNECTION CLASS
@@ -117,7 +117,7 @@ class DatabaseManager {
     const troubleshooting = [
       "1. Database server is running",
       "2. Environment variables are correct",
-      "3. Database user has proper permissions", 
+      "3. Database user has proper permissions",
       "4. Network connectivity to database"
     ];
 
