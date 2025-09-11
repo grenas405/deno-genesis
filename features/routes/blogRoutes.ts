@@ -4,7 +4,7 @@ import {
   createBlogPost,
   updateBlogPost,
   deleteBlogPost,
-} from "../controllers/blogController.ts";
+} from "../controllers/blogsController.ts";
 import { verifyAdminToken } from "../middleware/authMiddleware.ts";
 
 const router = new Router();
