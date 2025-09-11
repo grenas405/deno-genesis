@@ -3,7 +3,7 @@
  * DENOGENESIS FRAMEWORK - ENHANCED MAIN APPLICATION ENTRY POINT
  * ============================================================================
  *
- * Unix Philosophy Implementation:
+ * Unix Philosophy Implementation with Enhanced Logging:
  * 1. Do One Thing Well: Application bootstrap and server management
  * 2. Make Everything a Filter: Clear input → process → output flow
  * 3. Avoid Captive User Interfaces: Structured logging and error reporting
@@ -12,17 +12,18 @@
  *
  * Enhanced with comprehensive ConsoleStyler integration for enterprise-grade
  * application monitoring, debugging, and operational visibility.
+ * All imports centralized through mod.ts for version consistency.
  *
  * @author Pedro M. Dominguez - Dominguez Tech Solutions LLC
  * @version 2.1.0-enhanced-logging
  * @license AGPL-3.0
  * @framework DenoGenesis Framework
- * @follows Unix Philosophy + Deno security model
+ * @follows Unix Philosophy + Centralized Module Pattern
  * ============================================================================
  */
 
 // ============================================================================
-// FRAMEWORK IMPORTS - UNIX PHILOSOPHY COMPLIANT
+// CENTRALIZED FRAMEWORK IMPORTS - ALL THROUGH MOD.TS
 // ============================================================================
 
 import {
@@ -60,6 +61,7 @@ import {
   getSupportedExtensions,
   isExtensionSupported,
 
+  // Framework Utilities
   validateFrameworkIntegrity,
   getFrameworkVersion,
 
@@ -73,14 +75,11 @@ import {
 } from "./mod.ts";
 
 // ============================================================================
-// UNIX PRINCIPLE 1: DO ONE THING WELL
+// APPLICATION CONFIGURATION - UNIX PHILOSOPHY COMPLIANT
 // ============================================================================
 
 /**
  * Application Bootstrap Configuration
- *
- * Pure data structure that defines how the application should be configured.
- * Following Unix principle of storing configuration in flat, readable formats.
  */
 interface AppBootstrapConfig {
   port: number;
@@ -113,7 +112,7 @@ interface DependencyInfo {
 }
 
 // ============================================================================
-// UNIX PRINCIPLE 2: GLOBAL APPLICATION STATE
+// GLOBAL APPLICATION STATE
 // ============================================================================
 
 /**
@@ -133,14 +132,13 @@ const bootstrapConfig: AppBootstrapConfig = {
   port: PORT,
   host: SERVER_HOST,
   environment: DENO_ENV,
-  corsOrigins: CORS_ORIGINS,
   enableFrameworkIntegrity: true,
   enableDatabaseConnection: true,
   enableAdvancedLogging: DENO_ENV === 'development',
 };
 
 // ============================================================================
-// UNIX PRINCIPLE 3: COMPOSABLE UTILITY FUNCTIONS
+// UTILITY FUNCTIONS - PURE FUNCTIONS FOR DATA TRANSFORMATION
 // ============================================================================
 
 /**
@@ -157,11 +155,13 @@ function generateAppConfig(): any {
     description: "Enterprise-grade Deno framework following Unix Philosophy",
     features: [
       "Unix Philosophy Compliant",
+      "Centralized Module System",
       "Type-Safe Routing",
-      "Advanced Middleware",
+      "Essential Middleware Stack",
       "Enterprise Logging",
       "Database Integration",
-      "Security Hardened"
+      "Security Hardened",
+      "Performance Monitoring"
     ],
     database: "SQLite with Enterprise Extensions",
     ai: {
@@ -295,34 +295,14 @@ async function validateFramework(): Promise<boolean> {
 function createRequestLogger() {
   return async (ctx: any, next: any) => {
     const startTime = performance.now();
-    const method = ctx.request.method;
-    const url = ctx.request.url.pathname;
     
     appMetrics.totalRequests++;
     
     try {
       await next();
-      const duration = performance.now() - startTime;
-      const status = ctx.response.status;
-      
-      // Log route with timing
-      ConsoleStyler.logRoute(
-        method,
-        url,
-        `Status: ${status}`,
-        duration
-      );
-      
     } catch (error) {
       appMetrics.totalErrors++;
-      const duration = performance.now() - startTime;
-      
-      ConsoleStyler.logError(`Request failed: ${method} ${url}`, {
-        error: error.message,
-        duration: `${duration.toFixed(2)}ms`,
-        userAgent: ctx.request.headers.get("user-agent")
-      });
-      throw error;
+      throw error; // Let middleware handle the actual logging
     }
   };
 }
@@ -336,45 +316,33 @@ function displayPerformanceMetrics() {
     ? ((appMetrics.totalRequests - appMetrics.totalErrors) / appMetrics.totalRequests * 100).toFixed(2)
     : "100.00";
 
-  const metrics = {
-    uptime: `${(uptime / 1000).toFixed(1)}s`,
-    requests: appMetrics.totalRequests,
-    errors: appMetrics.totalErrors,
-    successRate: `${successRate}%`,
-    memory: (() => {
-      try {
-        const memUsage = Deno.memoryUsage();
-        return {
-          heapUsed: ConsoleStyler.formatBytes ? ConsoleStyler.formatBytes(memUsage.heapUsed) : `${(memUsage.heapUsed / 1024 / 1024).toFixed(2)}MB`,
-          heapTotal: ConsoleStyler.formatBytes ? ConsoleStyler.formatBytes(memUsage.heapTotal) : `${(memUsage.heapTotal / 1024 / 1024).toFixed(2)}MB`,
-          external: ConsoleStyler.formatBytes ? ConsoleStyler.formatBytes(memUsage.external) : `${(memUsage.external / 1024 / 1024).toFixed(2)}MB`,
-          rss: ConsoleStyler.formatBytes ? ConsoleStyler.formatBytes(memUsage.rss) : `${(memUsage.rss / 1024 / 1024).toFixed(2)}MB`,
-        };
-      } catch {
-        return {
-          heapUsed: "N/A",
-          heapTotal: "N/A", 
-          external: "N/A",
-          rss: "N/A"
-        };
-      }
-    })(),
-    database: {
-      connections: appMetrics.dbConnections,
-      queries: 0, // Would be tracked in actual implementation
-      avgQueryTime: 0
-    }
+  const formatBytes = (bytes: number): string => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  ConsoleStyler.printTable([
-    { label: "Uptime", value: metrics.uptime },
-    { label: "Total Requests", value: metrics.requests.toString() },
-    { label: "Errors", value: metrics.errors.toString() },
-    { label: "Success Rate", value: metrics.successRate },
-    { label: "Heap Used", value: metrics.memory.heapUsed },
-    { label: "Heap Total", value: metrics.memory.heapTotal },
-    { label: "DB Connections", value: metrics.database.connections.toString() }
-  ], "Application Metrics");
+  const metrics = [
+    { label: "Uptime", value: `${(uptime / 1000).toFixed(1)}s` },
+    { label: "Total Requests", value: appMetrics.totalRequests.toString() },
+    { label: "Errors", value: appMetrics.totalErrors.toString() },
+    { label: "Success Rate", value: `${successRate}%` },
+    { label: "DB Connections", value: appMetrics.dbConnections.toString() }
+  ];
+
+  try {
+    const memUsage = Deno.memoryUsage();
+    metrics.push(
+      { label: "Heap Used", value: formatBytes(memUsage.heapUsed) },
+      { label: "Heap Total", value: formatBytes(memUsage.heapTotal) }
+    );
+  } catch {
+    metrics.push({ label: "Memory", value: "N/A" });
+  }
+
+  ConsoleStyler.printTable(metrics, "Application Metrics");
 }
 
 /**
@@ -419,7 +387,7 @@ function setupGracefulShutdown(app: Application) {
 }
 
 // ============================================================================
-// UNIX PRINCIPLE 4: MAIN APPLICATION FLOW
+// MAIN APPLICATION FLOW - ENHANCED WITH COMPREHENSIVE LOGGING
 // ============================================================================
 
 /**
@@ -480,15 +448,6 @@ async function main(): Promise<void> {
     const app = new Application();
     ConsoleStyler.logSuccess("Oak application instance created");
     
-    // Setup error handling
-    app.addEventListener("error", (evt) => {
-      appMetrics.totalErrors++;
-      ConsoleStyler.logError("Application error", {
-        error: evt.error.message,
-        stack: evt.error.stack
-      });
-    });
-    
     // Create and configure middleware stack
     const middlewareConfig: MiddlewareConfig = {
       environment: DENO_ENV,
@@ -523,20 +482,24 @@ async function main(): Promise<void> {
       },
     };
     
-    const middlewareStack = createMiddlewareStack(middlewareConfig);
+    // CORRECT: Destructure the returned object to get the middlewares array
+    const { middlewares, monitor } = createMiddlewareStack(middlewareConfig);
+    
     ConsoleStyler.logSuccess("Middleware stack configured", { 
-      middlewareCount: middlewareStack.length,
-      cors: middlewareConfig.enableCors,
-      compression: middlewareConfig.enableCompression 
+      middlewareCount: middlewares.length,
+      cors: middlewareConfig.cors.allowedOrigins.length > 0,
+      security: middlewareConfig.security.enableHSTS 
     });
     
-    // Add request logging middleware
+    // Add simple request counter (metrics only - let middleware handle logging)
     app.use(createRequestLogger());
     
-    // Apply middleware stack
-    middlewareStack.forEach(middleware => {
+    // Apply essential middleware stack
+    middlewares.forEach((middleware) => {
       app.use(middleware);
     });
+    
+    ConsoleStyler.logSuccess(`Essential middleware applied (${middlewares.length} components + request counter)`);
     
     // Add router
     app.use(router.routes());
@@ -628,8 +591,8 @@ async function main(): Promise<void> {
 }
 
 // ============================================================================
-// UNIX PRINCIPLE 5: SINGLE ENTRY POINT
-// =========================================
+// APPLICATION ENTRY POINT
+// ============================================================================
 
 /**
  * Application entry point with error boundary
