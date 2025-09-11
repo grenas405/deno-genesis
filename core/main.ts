@@ -72,6 +72,11 @@ import {
 
   // Console Utilities - Professional logging
   ConsoleStyler,
+  type DenoGenesisConfig,
+  type LogEntry,
+  type LogLevel,
+  type PerformanceMetrics,
+  type TableColumn,
 } from "./mod.ts";
 
 // ============================================================================
