@@ -294,18 +294,18 @@ function displayStartupInfo(config: ApplicationBootstrap) {
     },
   };
 
-  // Display banner using structured logging
+  // Display banner using structured logging with ConsoleStyler
   ConsoleStyler.clear();
-  console.log("\n" + "=".repeat(80));
-  console.log("🚀 DENOGENESIS FRAMEWORK - UNIX PHILOSOPHY EDITION");
-  console.log("=".repeat(80));
-  console.log(`📦 Framework: ${startupInfo.framework.name} v${startupInfo.framework.version}`);
-  console.log(`🏗️ Build: ${startupInfo.framework.buildHash || 'development'} (${startupInfo.framework.buildDate})`);
-  console.log(`🌍 Environment: ${startupInfo.server.environment}`);
-  console.log(`⚡ Deno: ${Deno.version.deno}`);
-  console.log(`🔧 Site: ${config.framework.siteKey}`);
-  console.log(`🕒 Started: ${startupInfo.timestamp}`);
-  console.log("=".repeat(80));
+  ConsoleStyler.logCustom("\n" + "=".repeat(80), "", "cyan");
+  ConsoleStyler.logCustom("🚀 DENOGENESIS FRAMEWORK - UNIX PHILOSOPHY EDITION", "", "brightCyan");
+  ConsoleStyler.logCustom("=".repeat(80), "", "cyan");
+  ConsoleStyler.logInfo(`📦 Framework: ${startupInfo.framework.name} v${startupInfo.framework.version}`);
+  ConsoleStyler.logInfo(`🏗️ Build: ${startupInfo.framework.buildHash || 'development'} (${startupInfo.framework.buildDate})`);
+  ConsoleStyler.logInfo(`🌍 Environment: ${startupInfo.server.environment}`);
+  ConsoleStyler.logInfo(`⚡ Deno: ${Deno.version.deno}`);
+  ConsoleStyler.logInfo(`🔧 Site: ${config.framework.siteKey}`);
+  ConsoleStyler.logInfo(`🕒 Started: ${startupInfo.timestamp}`);
+  ConsoleStyler.logCustom("=".repeat(80), "", "cyan");
 
   return startupInfo;
 }
@@ -412,13 +412,13 @@ async function main() {
     ConsoleStyler.logSuccess("✅ Routes registered successfully");
 
     // Step 10: Final startup summary
-    console.log("\n" + "=".repeat(80));
+    ConsoleStyler.logCustom("\n" + "=".repeat(80), "", "cyan");
     ConsoleStyler.logSuccess("🎯 DenoGenesis Framework Ready!");
-    console.log(`🌐 Local: ${startupInfo.urls.local}`);
-    console.log(`🔗 External: ${startupInfo.urls.external}`);
-    console.log(`💚 Health: ${startupInfo.urls.health}`);
-    console.log(`📊 System: ${startupInfo.urls.systemInfo}`);
-    console.log("=".repeat(80) + "\n");
+    ConsoleStyler.logInfo(`🌐 Local: ${startupInfo.urls.local}`);
+    ConsoleStyler.logInfo(`🔗 External: ${startupInfo.urls.external}`);
+    ConsoleStyler.logInfo(`💚 Health: ${startupInfo.urls.health}`);
+    ConsoleStyler.logInfo(`📊 System: ${startupInfo.urls.systemInfo}`);
+    ConsoleStyler.logCustom("=".repeat(80) + "\n", "", "cyan");
 
     // Step 11: Start server (final action)
     await app.listen({
@@ -445,7 +445,8 @@ async function main() {
     ConsoleStyler.logError(`   → ${error.message}`);
 
     if (DENO_ENV === 'development') {
-      console.error("Stack trace:", error.stack);
+      ConsoleStyler.logError("Stack trace:");
+      ConsoleStyler.logError(error.stack || 'No stack trace available');
     }
 
     // Attempt graceful cleanup
