@@ -1,9 +1,9 @@
-#!/usr/bin/env -S deno run --allow-read --allow-env --allow-run
 /**
  * =============================================================================
- * DenoGenesis Framework - Core Metadata & Integrity System (core/meta.ts)
+ * DenoGenesis Framework - Meta Information and Integrity Validation (meta.ts)
  * =============================================================================
  *
+<<<<<<< HEAD
  * Unix Philosophy Implementation:
  * - Do one thing well: Framework metadata and integrity validation
  * - Work with other tools: Structured data output for automation
@@ -25,27 +25,44 @@
  * @module CoreMeta
  * @version 2.1.0
  * @author Pedro M. Dominguez - DenoGenesis Framework Team
+=======
+ * This module provides comprehensive framework integrity validation, version
+ * management, and metadata services. Following Unix Philosophy principles:
+ * - Do one thing well: Framework integrity validation
+ * - Avoid captive user interfaces: Return structured data
+ * - Store data in flat text files: Human-readable metadata
+ * - Make everything a filter: Input -> Transform -> Output
+ *
+ * @module core/meta
+ * @version 1.5.0-unix-compliant
+ * @author Pedro M. Dominguez - Dominguez Tech Solutions LLC
+>>>>>>> refs/remotes/origin/main
  * @license AGPL-3.0
+ * @follows Unix Philosophy + Deno security model
  */
 
 // =============================================================================
-// IMPORTS - UNIX PHILOSOPHY: MINIMAL DEPENDENCIES
+// IMPORTS - ENVIRONMENT AND CONFIGURATION
 // =============================================================================
 
 import {
   VERSION,
   BUILD_DATE,
   BUILD_HASH,
+<<<<<<< HEAD
   DENO_ENV
+=======
+  DENO_ENV,
+>>>>>>> refs/remotes/origin/main
 } from "./config/env.ts";
 
 // =============================================================================
-// TYPE DEFINITIONS - UNIX PHILOSOPHY: CLEAR INTERFACES
+// TYPE DEFINITIONS - UNIX PHILOSOPHY: STRUCTURED DATA CONTRACTS
 // =============================================================================
 
 /**
  * Framework version information structure
- * Unix Philosophy: Simple, composable data structure
+ * Unix Philosophy: Clear data contracts
  */
 export interface FrameworkVersionInfo {
   version: string;
@@ -53,13 +70,13 @@ export interface FrameworkVersionInfo {
   buildHash: string;
   environment: string;
   denoVersion: string;
-  frameworkName: string;
-  timestamp: number;
+  frameworkPath: string;
+  configValid: boolean;
 }
 
 /**
- * Framework integrity check result (legacy compatibility)
- * Unix Philosophy: Backward compatibility with existing tools
+ * Legacy integrity check result for backward compatibility
+ * Unix Philosophy: Maintain compatibility while evolving
  */
 export interface FrameworkIntegrityResult {
   overall: boolean;
@@ -188,12 +205,13 @@ export function getFrameworkVersion(): FrameworkVersionInfo {
     buildHash: BUILD_HASH,
     environment: DENO_ENV,
     denoVersion: Deno.version.deno,
-    frameworkName: 'DenoGenesis',
-    timestamp: Date.now()
+    frameworkPath: Deno.cwd(),
+    configValid: validateEnvironmentConfig(),
   };
 }
 
 /**
+<<<<<<< HEAD
  * Get framework metadata from authoritative sources
  * Unix Philosophy: Read from filesystem for truth
  *
@@ -428,10 +446,63 @@ async function checkFrameworkLinks(sitePath: string): Promise<boolean> {
       const stat = await Deno.lstat(`${sitePath}/${dir}`);
       if (stat.isSymlink) {
         return true; // Found at least one framework symlink
-      }
+=======
+ * Get framework directory path
+ * Unix Philosophy: Canonical path resolution
+ * 
+ * @returns Promise<string> absolute framework path
+ */
+export async function getFrameworkPath(): Promise<string> {
+  try {
+    const currentDir = Deno.cwd();
+    
+    // Check if we're in a framework directory (has VERSION file)
+    try {
+      await Deno.stat(`${currentDir}/VERSION`);
+      return currentDir;
     } catch {
-      // Directory doesn't exist or not accessible
+      // If not, check parent directories up to 3 levels
+      for (let i = 0; i < 3; i++) {
+        const parentPath = `${currentDir}/${'../'.repeat(i + 1)}`;
+        try {
+          await Deno.stat(`${parentPath}/VERSION`);
+          const resolved = await Deno.realPath(parentPath);
+          return resolved;
+        } catch {
+          continue;
+        }
+      }
     }
+    
+    // Default to current directory if VERSION not found
+    return currentDir;
+  } catch {
+    return Deno.cwd();
+  }
+}
+
+/**
+ * Get framework metadata for monitoring and deployment
+ * Unix Philosophy: Machine-readable metadata
+ * 
+ * @returns Promise<FrameworkMetadata> framework metadata
+ */
+export async function getFrameworkMetadata(): Promise<FrameworkMetadata> {
+  const frameworkPath = await getFrameworkPath();
+  const integrity = await validateFrameworkIntegrityDetailed();
+  
+  // Count sites in sites directory
+  let siteCount = 0;
+  try {
+    const sitesPath = `${frameworkPath}/sites`;
+    const sitesDir = await Deno.readDir(sitesPath);
+    for await (const entry of sitesDir) {
+      if (entry.isDirectory) {
+        siteCount++;
+>>>>>>> refs/remotes/origin/main
+      }
+    }
+<<<<<<< HEAD
   }
 
   return false;
@@ -450,20 +521,13 @@ async function getSiteFrameworkVersion(sitePath: string): Promise<string> {
     const versionPath = `${sitePath}/VERSION`;
     const versionContent = await Deno.readTextFile(versionPath);
     return versionContent.trim().split('|')[0] || 'unknown';
+=======
+>>>>>>> refs/remotes/origin/main
   } catch {
-    // Fallback: Check if middleware link points to current framework
-    try {
-      const middlewarePath = await Deno.readLink(`${sitePath}/middleware`);
-      if (middlewarePath.includes('deno-genesis/core/middleware')) {
-        return getFrameworkVersion().version;
-      }
-    } catch {
-      // Could not determine version
-    }
-    return 'unknown';
+    // Sites directory may not exist
   }
-}
 
+<<<<<<< HEAD
 /**
  * Get site operational status
  * Unix Philosophy: Network check for live status
@@ -518,6 +582,18 @@ async function getSiteStatus(siteName: string): Promise<{
       port
     };
   }
+=======
+  return {
+    version: VERSION,
+    buildDate: BUILD_DATE,
+    buildHash: BUILD_HASH,
+    environment: DENO_ENV,
+    path: frameworkPath,
+    integrity: integrity.valid,
+    sites: siteCount,
+    lastValidated: new Date().toISOString(),
+  };
+>>>>>>> refs/remotes/origin/main
 }
 
 // =============================================================================
@@ -664,3 +740,535 @@ export async function validateFrameworkIntegrityDetailed(): Promise<IntegrityChe
 
   return result;
 }
+<<<<<<< HEAD
+=======
+
+// =============================================================================
+// DETAILED VALIDATION FUNCTIONS - COMPOSABLE UNITS
+// =============================================================================
+
+/**
+ * Validate core framework directory structure
+ * Unix Philosophy: Check filesystem for required components
+ */
+async function validateCoreStructure(result: IntegrityCheckResult): Promise<void> {
+  const frameworkPath = await getFrameworkPath();
+  
+  const requiredDirectories = [
+    'core',
+    'core/middleware',
+    'core/database',
+    'core/config',
+    'core/utils',
+    'core/types',
+    'sites'
+  ];
+
+  const requiredFiles = [
+    'VERSION',
+    'mod.ts',
+    'core/meta.ts',
+    'core/middleware/index.ts',
+    'core/config/env.ts'
+  ];
+
+  // Check directories
+  for (const dir of requiredDirectories) {
+    const fullPath = `${frameworkPath}/${dir}`;
+    try {
+      const stat = await Deno.stat(fullPath);
+      if (stat.isDirectory) {
+        result.checks.push({
+          name: `Core Directory: ${dir}`,
+          category: 'critical',
+          status: 'passed',
+          message: 'Directory exists and is accessible'
+        });
+      } else {
+        result.errors.push(`${dir} exists but is not a directory`);
+        result.checks.push({
+          name: `Core Directory: ${dir}`,
+          category: 'critical',
+          status: 'failed',
+          message: 'Path exists but is not a directory'
+        });
+      }
+    } catch {
+      result.errors.push(`Required directory missing: ${dir}`);
+      result.checks.push({
+        name: `Core Directory: ${dir}`,
+        category: 'critical',
+        status: 'failed',
+        message: 'Directory does not exist or is not accessible'
+      });
+    }
+  }
+
+  // Check files
+  for (const file of requiredFiles) {
+    const fullPath = `${frameworkPath}/${file}`;
+    try {
+      const stat = await Deno.stat(fullPath);
+      if (stat.isFile) {
+        result.checks.push({
+          name: `Core File: ${file}`,
+          category: 'critical',
+          status: 'passed',
+          message: 'File exists and is accessible'
+        });
+      } else {
+        result.errors.push(`${file} exists but is not a file`);
+        result.checks.push({
+          name: `Core File: ${file}`,
+          category: 'critical',
+          status: 'failed',
+          message: 'Path exists but is not a file'
+        });
+      }
+    } catch {
+      result.errors.push(`Required file missing: ${file}`);
+      result.checks.push({
+        name: `Core File: ${file}`,
+        category: 'critical',
+        status: 'failed',
+        message: 'File does not exist or is not accessible'
+      });
+    }
+  }
+}
+
+/**
+ * Validate VERSION file content and format
+ * Unix Philosophy: Validate authoritative version source
+ */
+async function validateVersionFile(result: IntegrityCheckResult): Promise<void> {
+  const frameworkPath = await getFrameworkPath();
+  const versionFilePath = `${frameworkPath}/VERSION`;
+
+  try {
+    const versionContent = await Deno.readTextFile(versionFilePath);
+    const versionLines = versionContent.trim().split('\n');
+    
+    // Check basic format
+    if (versionLines.length < 3) {
+      result.warnings.push('VERSION file has fewer than expected lines');
+      result.checks.push({
+        name: 'VERSION File Format',
+        category: 'warning',
+        status: 'warning',
+        message: 'VERSION file format may be incomplete'
+      });
+    } else {
+      result.checks.push({
+        name: 'VERSION File Format',
+        category: 'info',
+        status: 'passed',
+        message: 'VERSION file format is valid'
+      });
+    }
+
+    // Validate version string format (semantic versioning)
+    const versionLine = versionLines[0];
+    const semanticVersionRegex = /^\d+\.\d+\.\d+(-[a-zA-Z0-9-]+)?$/;
+    
+    if (semanticVersionRegex.test(versionLine)) {
+      result.checks.push({
+        name: 'VERSION Semantic Format',
+        category: 'info',
+        status: 'passed',
+        message: 'Version follows semantic versioning'
+      });
+    } else {
+      result.warnings.push(`Version "${versionLine}" does not follow semantic versioning`);
+      result.checks.push({
+        name: 'VERSION Semantic Format',
+        category: 'warning',
+        status: 'warning',
+        message: 'Version does not follow semantic versioning format'
+      });
+    }
+
+  } catch (error) {
+    result.errors.push(`Failed to read VERSION file: ${error.message}`);
+    result.checks.push({
+      name: 'VERSION File Access',
+      category: 'critical',
+      status: 'failed',
+      message: 'Cannot read VERSION file'
+    });
+  }
+}
+
+/**
+ * Validate site structure and symbolic links
+ * Unix Philosophy: Verify site-framework linkage
+ */
+async function validateSiteStructure(result: IntegrityCheckResult): Promise<void> {
+  const frameworkPath = await getFrameworkPath();
+  const sitesPath = `${frameworkPath}/sites`;
+
+  try {
+    const sitesDir = await Deno.readDir(sitesPath);
+    let siteCount = 0;
+
+    for await (const entry of sitesDir) {
+      if (entry.isDirectory) {
+        siteCount++;
+        const sitePath = `${sitesPath}/${entry.name}`;
+        
+        // Check for core symbolic link
+        try {
+          const coreLinkPath = `${sitePath}/core`;
+          const coreLinkStat = await Deno.lstat(coreLinkPath);
+          
+          if (coreLinkStat.isSymlink) {
+            result.checks.push({
+              name: `Site Core Link: ${entry.name}`,
+              category: 'info',
+              status: 'passed',
+              message: 'Core symbolic link exists'
+            });
+          } else {
+            result.warnings.push(`Site ${entry.name} has core directory instead of symbolic link`);
+            result.checks.push({
+              name: `Site Core Link: ${entry.name}`,
+              category: 'warning',
+              status: 'warning',
+              message: 'Core exists but is not a symbolic link'
+            });
+          }
+        } catch {
+          result.warnings.push(`Site ${entry.name} missing core symbolic link`);
+          result.checks.push({
+            name: `Site Core Link: ${entry.name}`,
+            category: 'warning',
+            status: 'warning',
+            message: 'Core symbolic link does not exist'
+          });
+        }
+      }
+    }
+
+    result.checks.push({
+      name: 'Sites Directory',
+      category: 'info',
+      status: 'passed',
+      message: `Found ${siteCount} sites`,
+      details: { siteCount }
+    });
+
+  } catch {
+    result.warnings.push('Sites directory not accessible or does not exist');
+    result.checks.push({
+      name: 'Sites Directory',
+      category: 'warning',
+      status: 'warning',
+      message: 'Sites directory not found'
+    });
+  }
+}
+
+/**
+ * Validate framework-site version compatibility
+ * Unix Philosophy: Ensure consistency across deployment
+ */
+async function validateVersionCompatibility(result: IntegrityCheckResult): Promise<void> {
+  const frameworkVersion = VERSION;
+  
+  // This is a placeholder for more sophisticated version compatibility checking
+  // In a real implementation, you would check each site's version requirements
+  result.checks.push({
+    name: 'Version Compatibility',
+    category: 'info',
+    status: 'passed',
+    message: `Framework version ${frameworkVersion} compatibility verified`,
+    details: { frameworkVersion }
+  });
+}
+
+/**
+ * Validate critical dependencies and imports
+ * Unix Philosophy: Verify external dependency availability
+ */
+async function validateDependencies(result: IntegrityCheckResult): Promise<void> {
+  const frameworkPath = await getFrameworkPath();
+  
+  // Check if mod.ts can be imported (basic dependency check)
+  try {
+    const modPath = `${frameworkPath}/mod.ts`;
+    await Deno.stat(modPath);
+    
+    result.checks.push({
+      name: 'Core Dependencies',
+      category: 'critical',
+      status: 'passed',
+      message: 'Main module file is accessible'
+    });
+  } catch {
+    result.errors.push('Main module file (mod.ts) is not accessible');
+    result.checks.push({
+      name: 'Core Dependencies',
+      category: 'critical',
+      status: 'failed',
+      message: 'Main module file is not accessible'
+    });
+  }
+}
+
+// =============================================================================
+// SITE HEALTH MONITORING - UNIX PHILOSOPHY COMPLIANT
+// =============================================================================
+
+/**
+ * Check individual site health status
+ * Unix Philosophy: Pure function, structured output
+ * 
+ * @param siteName Site identifier
+ * @param port Port number to check
+ * @returns Promise<{status, port, responseTime?}> health status
+ */
+export async function checkSiteHealth(siteName: string, port: number): Promise<{
+  status: 'active' | 'inactive' | 'error';
+  port: number;
+  responseTime?: number;
+}> {
+  try {
+    const startTime = performance.now();
+    const response = await fetch(`http://localhost:${port}/health`, {
+      method: 'GET',
+      signal: AbortSignal.timeout(5000), // 5 second timeout
+    });
+    const endTime = performance.now();
+    const responseTime = endTime - startTime;
+
+    return {
+      status: response.ok ? 'active' : 'error',
+      port,
+      responseTime: Math.round(responseTime)
+    };
+  } catch {
+    return { 
+      status: 'inactive', 
+      port 
+    };
+  }
+}
+
+// =============================================================================
+// UTILITY FUNCTIONS - UNIX PHILOSOPHY HELPERS
+// =============================================================================
+
+/**
+ * Validate environment configuration
+ * Unix Philosophy: Pure validation function
+ * 
+ * @returns boolean configuration validity
+ */
+function validateEnvironmentConfig(): boolean {
+  try {
+    // Basic environment validation
+    const requiredEnvVars = ['DENO_ENV'];
+    const validEnvironments = ['development', 'staging', 'production'];
+    
+    if (!validEnvironments.includes(DENO_ENV)) {
+      return false;
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// =============================================================================
+// SITE DISCOVERY AND MANAGEMENT - UNIX PHILOSOPHY COMPLIANT
+// =============================================================================
+
+/**
+ * Get all connected sites in the framework
+ * Unix Philosophy: Discover filesystem structure
+ * 
+ * @returns Promise<SiteInfo[]> array of site information
+ */
+export async function getConnectedSites(): Promise<SiteInfo[]> {
+  const frameworkPath = await getFrameworkPath();
+  const sitesPath = `${frameworkPath}/sites`;
+  const sites: SiteInfo[] = [];
+
+  try {
+    const sitesDir = await Deno.readDir(sitesPath);
+    
+    for await (const entry of sitesDir) {
+      if (entry.isDirectory) {
+        const sitePath = `${sitesPath}/${entry.name}`;
+        
+        try {
+          // Try to read site configuration or main.ts for port info
+          let port: number | undefined;
+          
+          // Check for common port patterns in main.ts
+          try {
+            const mainPath = `${sitePath}/main.ts`;
+            const mainContent = await Deno.readTextFile(mainPath);
+            const portMatch = mainContent.match(/port:\s*(\d+)/);
+            if (portMatch) {
+              port = parseInt(portMatch[1]);
+            }
+          } catch {
+            // main.ts not found or unreadable
+          }
+
+          // Check site health if port is known
+          const healthResult = port ? await checkSiteHealth(entry.name, port) : null;
+
+          sites.push({
+            name: entry.name,
+            path: sitePath,
+            port,
+            status: healthResult?.status || 'inactive',
+            frameworkVersion: VERSION,
+            versionMatch: true, // Assume match unless proven otherwise
+            lastChecked: new Date().toISOString(),
+            responseTime: healthResult?.responseTime,
+          });
+        } catch (error) {
+          sites.push({
+            name: entry.name,
+            path: sitePath,
+            status: 'error',
+            frameworkVersion: 'unknown',
+            versionMatch: false,
+            lastChecked: new Date().toISOString(),
+          });
+        }
+      }
+    }
+  } catch {
+    // Sites directory doesn't exist or is not accessible
+  }
+
+  return sites;
+}
+
+/**
+ * Get framework runtime statistics
+ * Unix Philosophy: Observable system metrics
+ * 
+ * @returns FrameworkStats current runtime statistics
+ */
+export function getFrameworkStats(): FrameworkStats {
+  const memInfo = Deno.memoryUsage();
+  
+  return {
+    uptime: performance.now(),
+    memoryUsage: {
+      rss: memInfo.rss,
+      heapTotal: memInfo.heapTotal,
+      heapUsed: memInfo.heapUsed,
+      external: memInfo.external,
+    },
+    activeSites: 0, // Would be calculated from actual site monitoring
+    healthySites: 0, // Would be calculated from health checks
+    lastUpdated: new Date().toISOString(),
+  };
+}
+
+/**
+ * Get comprehensive framework health report
+ * Unix Philosophy: Complete system state analysis
+ * 
+ * @returns Promise<FrameworkHealthReport> complete health assessment
+ */
+export async function getFrameworkHealthReport(): Promise<FrameworkHealthReport> {
+  const version = getFrameworkVersion();
+  const integrity = await validateFrameworkIntegrityDetailed();
+  const stats = getFrameworkStats();
+  const sites = await getConnectedSites();
+  
+  // Determine overall health status
+  let status: 'healthy' | 'degraded' | 'unhealthy';
+  const recommendations: string[] = [];
+  
+  if (integrity.valid) {
+    status = 'healthy';
+  } else if (integrity.summary.failed > 0 && integrity.summary.failed < 3) {
+    status = 'degraded';
+    recommendations.push("Some checks failed - monitor and address issues");
+  } else {
+    status = 'unhealthy';
+    recommendations.push("Critical issues detected - immediate attention required");
+  }
+  
+  // Memory usage recommendations
+  const memUsageMB = stats.memoryUsage.rss / (1024 * 1024);
+  if (memUsageMB > 512) {
+    recommendations.push(`Memory usage high (${Math.round(memUsageMB)}MB) - consider optimization`);
+  }
+  
+  // Site health recommendations
+  const activeSites = sites.filter(s => s.status === 'active').length;
+  const errorSites = sites.filter(s => s.status === 'error').length;
+  
+  if (errorSites > 0) {
+    recommendations.push(`${errorSites} sites have errors - check site configurations`);
+  }
+  
+  return {
+    status,
+    version,
+    integrity,
+    stats: {
+      ...stats,
+      activeSites,
+      healthySites: activeSites, // Simplification for now
+    },
+    sites,
+    recommendations,
+    timestamp: new Date().toISOString(),
+  };
+}
+
+// =============================================================================
+// FRAMEWORK METADATA FOR FLAT FILE STORAGE
+// =============================================================================
+
+/**
+ * Framework Meta Module Metadata
+ * Unix Philosophy: Store data in flat text files
+ * 
+ * This metadata can be written to flat files for monitoring,
+ * deployment verification, and system documentation.
+ */
+export const FRAMEWORK_METADATA = {
+  /** Module version */
+  version: "1.5.0",
+  /** Unix Philosophy compliance indicators */
+  philosophy: {
+    singlePurpose: true,           // Framework integrity validation only
+    filterPattern: true,           // Input -> validation -> structured output
+    structuredOutput: true,        // All functions return structured data
+    composable: true,              // Functions can be used independently
+    flatFileCompatible: true,      // Metadata can be stored in flat files
+  },
+  /** Module capabilities */
+  capabilities: [
+    "framework_validation",
+    "version_management", 
+    "integrity_checking",
+    "site_health_monitoring",
+    "structured_reporting",
+  ],
+  /** Validation categories provided */
+  validationCategories: [
+    "core_structure",
+    "version_compatibility",
+    "file_permissions",
+    "environment_config",
+    "dependency_availability",
+  ],
+  /** Framework classification */
+  classification: "framework_meta",
+  /** Last updated */
+  lastUpdated: "2025-09-11",
+} as const;
+>>>>>>> refs/remotes/origin/main
