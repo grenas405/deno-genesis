@@ -5,6 +5,9 @@
 // Extended with advanced features for enterprise-grade applications
 // ================================================================================
 
+
+import { BannerRenderer, EnhancedBannerRenderer } from './bannerRenderer.ts'
+
 export interface DenoGenesisConfig {
   version: string;
   buildDate: string;
@@ -127,37 +130,98 @@ export class ConsoleStyler {
   private static logHistory: LogEntry[] = [];
   private static maxLogHistory = 1000;
 
-  /**
-   * Enhanced banner with dynamic features and AI status
+    /**
+   * Enhanced banner with improved architecture and theming
+   * Replaces the original printBanner method
    */
   static printBanner(config: DenoGenesisConfig): void {
-    const aiStatus = config.ai?.enabled ? '🤖 AI-Enabled' : '⚙️  Standard Mode';
-    const features = config.features?.join(', ') || 'Core Features';
+    // Use the new enhanced banner renderer
+    EnhancedBannerRenderer.printBanner(config);
+  }
 
-    const banner = `
-╔════════════════════════════════════════════════════════════════════════════════╗
-║                          🚀 DENOGENESIS FRAMEWORK                                    ║
-║                     Enterprise Digital Sovereignty Platform                          ║
-║                         Democratizing Local-First Architecture                       ║
-╠════════════════════════════════════════════════════════════════════════════════╣
-║  Version:     ${config.version.padEnd(20)} │  Environment: ${config.environment.padEnd(20)} ║
-║  Build Date:  ${config.buildDate.padEnd(20)} │  Port:        ${config.port.toString().padEnd(20)} ║    
-║  Author:      ${config.author.padEnd(20)} │  Location:    Oklahoma City, OK    ║
-║  Repository:  ${config.repository.padEnd(20)} │  AI Status:   ${aiStatus.padEnd(20)} ║
-╠════════════════════════════════════════════════════════════════════════════════╣
-║  🎯 Mission: Democratizing Digital Sovereignty Through Local-First Architecture ║
-║  🔧 Tech:    Deno + Oak + PostgreSQL + WebSocket + AI Integration             ║
-║  🌐 Impact:  Enabling businesses to own their digital infrastructure          ║
-║  ✨ Features: ${features.substring(0, 60).padEnd(60)} ║
-╚════════════════════════════════════════════════════════════════════════════════╝`;
+  /**
+   * Quick startup banner for faster initialization
+   */
+  static printQuickBanner(): void {
+    EnhancedBannerRenderer.printQuickBanner();
+  }
 
-    console.log(this.colors.cyan + banner + this.colors.reset);
+  /**
+   * Environment-specific banner variants
+   */
+  static printEnvironmentBanner(config: DenoGenesisConfig): void {
+    const themeMap: Record<string, string> = {
+      'production': 'default',
+      'staging': 'default', 
+      'development': 'minimal',
+      'test': 'minimal'
+    };
+    
+    const theme = themeMap[config.environment] || 'default';
+    EnhancedBannerRenderer.printBanner(config, theme);
+  }
 
-    // Add AI model information if available
-    if (config.ai?.enabled && config.ai.models) {
-      this.logCustom(`AI Models: ${config.ai.models.join(', ')}`, '🧠', 'accent');
+  /**
+   * Performance-aware banner with metrics
+   */
+  static printBannerWithStartupMetrics(
+    config: DenoGenesisConfig,
+    startupTime: number,
+    memoryUsage?: number
+  ): void {
+    EnhancedBannerRenderer.printBannerWithMetrics(config, {
+      startupTime,
+      memoryUsage: memoryUsage || this.getMemoryUsage(),
+      loadedModules: this.getLoadedModulesCount()
+    });
+  }
+
+  /**
+   * Adaptive banner that responds to terminal capabilities
+   */
+  static printAdaptiveBanner(config: DenoGenesisConfig): void {
+    // Check if we're in a CI environment or limited terminal
+    const isLimitedEnvironment = Deno.env.get('CI') === 'true' || 
+                                Deno.env.get('TERM') === 'dumb';
+    
+    if (isLimitedEnvironment) {
+      // Use minimal output for CI/CD environments
+      this.printSimpleBanner(config);
+    } else {
+      // Use responsive banner for interactive terminals
+      EnhancedBannerRenderer.printResponsiveBanner(config);
     }
   }
+
+  // ================================================================================
+  // Private Helper Methods
+  // ================================================================================
+
+  private static getMemoryUsage(): number {
+    try {
+      return Deno.memoryUsage().rss;
+    } catch {
+      return 0;
+    }
+  }
+
+  private static getLoadedModulesCount(): number {
+    // This would need to be implemented based on your module tracking
+    // For now, return a placeholder
+    return 0;
+  }
+
+  private static printSimpleBanner(config: DenoGenesisConfig): void {
+    console.log(`🚀 DenoGenesis v${config.version} - ${config.environment}`);
+    console.log(`   Author: ${config.author} | Port: ${config.port}`);
+    
+    if (config.ai?.enabled) {
+      console.log(`   AI: Enabled ${config.ai.models ? `(${config.ai.models.join(', ')})` : ''}`);
+    }
+    
+    console.log(''); // Add spacing
+  }
+
 
   /**
    * Enhanced section headers with customizable styles
