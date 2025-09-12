@@ -152,7 +152,9 @@ git clone https://github.com/grenas405/deno-genesis.git
 cd deno-genesis
 
 # Initialize the primordial database
-./core/utils/setup-mariadb.sh
+./core/utils/setup-mariadb.ts
+
+
 
 # Launch the first node
 deno run --allow-all sites/okdevs/main.ts
