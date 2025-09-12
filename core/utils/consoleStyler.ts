@@ -558,6 +558,166 @@ export class ConsoleStyler {
     return `${labelStr}${this.colors.green}${filledBar}${this.colors.dim}${emptyBar}${this.colors.reset} ${progressInfo}`;
   }
 
+
+  /**
+ * Print formatted table for structured data display
+ * Unix Philosophy: Transform data (array) into formatted output (table)
+ * 
+ * @param data Array of objects to display as table rows
+ * @param title Optional table title
+ * @param options Configuration for table formatting
+ */
+static printTable(
+  data: Array<{ label: string; value: string | number }> | Record<string, any>[],
+  title?: string,
+  options: {
+    maxWidth?: number;
+    showIndex?: boolean;
+    sortBy?: string;
+    formatters?: Record<string, (value: any) => string>;
+  } = {}
+): void {
+  if (!data || data.length === 0) {
+    console.log(`${this.colors.warning}No data to display${this.colors.reset}`);
+    return;
+  }
+
+  // Display title if provided
+  if (title) {
+    this.logSection(title, 'cyan');
+  }
+
+  // Handle simple label/value array format (for metrics)
+  if (data.length > 0 && 'label' in data[0] && 'value' in data[0]) {
+    this.printSimpleTable(data as Array<{ label: string; value: string | number }>);
+    return;
+  }
+
+  // Handle complex object array format
+  this.printComplexTable(data as Record<string, any>[], options);
+}
+
+/**
+ * Print simple key-value table (for metrics, config display)
+ */
+private static printSimpleTable(data: Array<{ label: string; value: string | number }>): void {
+  // Calculate column widths
+  const labelWidth = Math.max(
+    5, // Minimum label width
+    ...data.map(row => row.label.length)
+  );
+  const valueWidth = Math.max(
+    5, // Minimum value width  
+    ...data.map(row => String(row.value).length)
+  );
+
+  // Table formatting
+  const separator = '─'.repeat(labelWidth) + '─┼─' + '─'.repeat(valueWidth);
+  const headerRow = `${this.colors.bright}${'Label'.padEnd(labelWidth)} │ ${'Value'.padEnd(valueWidth)}${this.colors.reset}`;
+
+  // Draw table
+  console.log(`${this.colors.bright}┌─${separator}─┐${this.colors.reset}`);
+  console.log(`${this.colors.bright}│ ${headerRow} │${this.colors.reset}`);
+  console.log(`${this.colors.bright}├─${separator}─┤${this.colors.reset}`);
+
+  data.forEach((row, index) => {
+    const label = row.label.padEnd(labelWidth);
+    const value = String(row.value).padEnd(valueWidth);
+    const rowColor = index % 2 === 0 ? '' : this.colors.dim;
+    
+    console.log(`${rowColor}│ ${this.colors.cyan}${label}${this.colors.reset}${rowColor} │ ${this.colors.bright}${value}${this.colors.reset}${rowColor} │${this.colors.reset}`);
+  });
+
+  console.log(`${this.colors.bright}└─${separator}─┘${this.colors.reset}`);
+}
+
+/**
+ * Print complex table with multiple columns
+ */
+private static printComplexTable(
+  data: Record<string, any>[],
+  options: {
+    maxWidth?: number;
+    showIndex?: boolean;
+    sortBy?: string;
+    formatters?: Record<string, (value: any) => string>;
+  }
+): void {
+  const { maxWidth = 120, showIndex = false, sortBy, formatters = {} } = options;
+
+  // Extract all unique keys from data
+  const keys = [...new Set(data.flatMap(Object.keys))];
+  const labels = keys.map(key => key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1'));
+
+  // Add index column if requested
+  if (showIndex) {
+    keys.unshift('#');
+    labels.unshift('#');
+  }
+
+  // Sort data if specified
+  let sortedData = [...data];
+  if (sortBy && keys.includes(sortBy)) {
+    sortedData.sort((a, b) => {
+      const aVal = a[sortBy];
+      const bVal = b[sortBy];
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        return aVal - bVal;
+      }
+      return String(aVal).localeCompare(String(bVal));
+    });
+  }
+
+  // Calculate column widths
+  const maxWidths = keys.map((key, index) => {
+    if (key === '#') return 3; // Fixed width for index
+    
+    const label = labels[index];
+    const columnData = sortedData.map(row => {
+      const value = row[key];
+      return formatters[key] ? formatters[key](value) : String(value || '');
+    });
+    return Math.min(
+      Math.max(label.length, ...columnData.map(str => str.length)),
+      maxWidth / keys.length // Prevent any single column from being too wide
+    );
+  });
+
+  // Draw table
+  const headerRow = labels.map((label, i) => {
+    const truncated = label.length > maxWidths[i] 
+      ? label.substring(0, maxWidths[i] - 3) + '...' 
+      : label;
+    return truncated.padEnd(maxWidths[i]);
+  }).join(' │ ');
+  
+  const separator = maxWidths.map(width => '─'.repeat(width)).join('─┼─');
+
+  console.log(`${this.colors.bright}┌─${separator}─┐${this.colors.reset}`);
+  console.log(`${this.colors.bright}│ ${headerRow} │${this.colors.reset}`);
+  console.log(`${this.colors.bright}├─${separator}─┤${this.colors.reset}`);
+
+  sortedData.forEach((row, rowIndex) => {
+    const dataRow = keys.map((key, colIndex) => {
+      if (key === '#') {
+        return String(rowIndex + 1).padEnd(maxWidths[colIndex]);
+      }
+      
+      const value = row[key];
+      const formatted = formatters[key] ? formatters[key](value) : String(value || '');
+      const truncated = formatted.length > maxWidths[colIndex]
+        ? formatted.substring(0, maxWidths[colIndex] - 3) + '...'
+        : formatted;
+      return truncated.padEnd(maxWidths[colIndex]);
+    }).join(' │ ');
+
+    const rowColor = rowIndex % 2 === 0 ? '' : this.colors.dim;
+    console.log(`${rowColor}│ ${dataRow} │${this.colors.reset}`);
+  });
+
+  console.log(`${this.colors.bright}└─${separator}─┘${this.colors.reset}`);
+}
+
   /**
    * Format duration in human-readable form
    */
