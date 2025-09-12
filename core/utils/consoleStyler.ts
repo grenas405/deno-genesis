@@ -136,12 +136,12 @@ export class ConsoleStyler {
 
     const banner = `
 ╔════════════════════════════════════════════════════════════════════════════════╗
-║                          🚀 DENOGENESIS FRAMEWORK                              ║
-║                     Enterprise Digital Sovereignty Platform                    ║
-║                         Democratizing Local-First Architecture                 ║
+║                          🚀 DENOGENESIS FRAMEWORK                                    ║
+║                     Enterprise Digital Sovereignty Platform                          ║
+║                         Democratizing Local-First Architecture                       ║
 ╠════════════════════════════════════════════════════════════════════════════════╣
 ║  Version:     ${config.version.padEnd(20)} │  Environment: ${config.environment.padEnd(20)} ║
-║  Build Date:  ${config.buildDate.padEnd(20)} │  Port:        ${config.port.toString().padEnd(20)} ║
+║  Build Date:  ${config.buildDate.padEnd(20)} │  Port:        ${config.port.toString().padEnd(20)} ║    
 ║  Author:      ${config.author.padEnd(20)} │  Location:    Oklahoma City, OK    ║
 ║  Repository:  ${config.repository.padEnd(20)} │  AI Status:   ${aiStatus.padEnd(20)} ║
 ╠════════════════════════════════════════════════════════════════════════════════╣
