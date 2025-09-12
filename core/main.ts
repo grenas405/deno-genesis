@@ -150,8 +150,8 @@ function generateAppConfig(): any {
     buildDate: BUILD_DATE,
     environment: DENO_ENV,
     port: PORT,
-    author: "Pedro M. Dominguez - Dominguez Tech Solutions LLC",
-    repository: "https://github.com/domtech/denogenesis",
+    author: "Pedro M. Dominguez",
+    repository: "https://github.com/grenas405/denogenesis",
     description: "Enterprise-grade Deno framework following Unix Philosophy",
     features: [
       "Unix Philosophy Compliant",
