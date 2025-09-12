@@ -61,6 +61,7 @@ const DEFAULT_CONFIG: DeploymentConfig = {
     'utils',
     'main.ts',
     'VERSION',
+    'mod.ts',
     'meta.ts'
   ],
   backupDirectory: './deployment/backups',
@@ -261,7 +262,7 @@ class SymlinkDeploymentManager {
     for (let attempt = 1; attempt <= this.config.maxRetries; attempt++) {
       try {
         const result = await this.updateSymlinkAtomic(siteDirectory, target, absoluteCoreDir);
-        
+
         if (result.success) {
           if (attempt > 1) {
             result.action = 'retried';
@@ -280,7 +281,7 @@ class SymlinkDeploymentManager {
         return result;
       } catch (error) {
         lastError = error as Error;
-        
+
         if (attempt < this.config.maxRetries) {
           this.logger.retry(`Retrying ${target} due to error`, attempt, this.config.maxRetries);
           await this.delay(this.config.retryDelayMs * attempt);
@@ -330,7 +331,7 @@ class SymlinkDeploymentManager {
 
       // Check current state of link path
       state.originalExists = await this.safeExists(linkPath);
-      
+
       if (state.originalExists) {
         const stat = await this.safeLstat(linkPath);
         state.wasSymlink = stat?.isSymlink ?? false;
@@ -373,7 +374,7 @@ class SymlinkDeploymentManager {
     } catch (error) {
       // Cleanup on failure
       await this.cleanupFailedOperation(tempLinkPath, state);
-      
+
       return {
         path: linkPath,
         success: false,
@@ -420,7 +421,7 @@ class SymlinkDeploymentManager {
     try {
       return await Deno.readLink(path);
     } catch (error) {
-      if (error instanceof Deno.errors.NotFound || 
+      if (error instanceof Deno.errors.NotFound ||
           error instanceof Deno.errors.InvalidData) {
         return null;
       }
@@ -451,7 +452,7 @@ class SymlinkDeploymentManager {
   private async createSafeBackup(originalPath: string): Promise<string> {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const baseName = basename(originalPath);
-    
+
     // Try different backup names if collision occurs
     for (let counter = 0; counter < 100; counter++) {
       const suffix = counter === 0 ? '' : `-${counter}`;
@@ -642,7 +643,7 @@ class SymlinkDeploymentManager {
       results
         .filter(r => r.action === 'failed')
         .forEach(r => console.log(`  - ${r.path}: ${r.error}`));
-      
+
       console.log('\n💡 Troubleshooting tips:');
       console.log('  - Ensure no processes are using the target files');
       console.log('  - Check file permissions and ownership');
@@ -754,7 +755,7 @@ ENHANCED FEATURES:
 SYMLINK TARGETS:
   The script creates symbolic links for these core framework directories:
   - utils       (Shared utility functions)
-  - middleware  (HTTP middleware components)  
+  - middleware  (HTTP middleware components)
   - config      (Framework configuration)
   - types       (TypeScript type definitions)
   - database    (Database utilities and schemas)
@@ -792,13 +793,13 @@ class DeploymentValidator {
       const testFile = join(config.backupDirectory, '.permission-test');
       await ensureDir(dirname(testFile));
       await Deno.writeTextFile(testFile, 'test');
-      
+
       // Test both read and write permissions
       const content = await Deno.readTextFile(testFile);
       if (content !== 'test') {
         throw new Error('File system read/write verification failed');
       }
-      
+
       await Deno.remove(testFile);
     } catch (error) {
       throw new Error(`Insufficient file system permissions for deployment: ${error.message}`);
@@ -807,7 +808,7 @@ class DeploymentValidator {
     // Validate core directory structure
     logger.verbose('Validating core directory structure...', config.verbose);
     let missingTargets = 0;
-    
+
     for (const target of config.symlinkTargets) {
       const targetPath = join(config.coreDirectory, target);
       if (!await exists(targetPath)) {
@@ -848,10 +849,10 @@ class DeploymentValidator {
       // Check available disk space
       const tempFile = join(config.backupDirectory, '.space-test');
       const testData = 'x'.repeat(1024); // 1KB test
-      
+
       await Deno.writeTextFile(tempFile, testData);
       await Deno.remove(tempFile);
-      
+
       logger.verbose('File system health check passed', config.verbose);
     } catch (error) {
       throw new Error(`File system health check failed: ${error.message}`);
