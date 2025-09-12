@@ -18,8 +18,14 @@ What happens when 10 years of computer science education gets compressed into 10
 ```bash
 $ git clone https://github.com/grenas405/deno-genesis.git
 $ cd deno-genesis
-$ ./core/utils/setup-mariadb.sh
-$ deno run --allow-all sites/okdevs/main.ts
+$ ./core/utils/setup-mariadb.ts
+$ ./core/utils/setup-env.ts
+
+$ ./core/utils/setup-nginx.ts
+$ ./core/utils/create-site.ts 
+
+$ cd sites/{site created from cli utility}
+$ deno --allow-all main.ts
 # The future starts now.
 ```
 
