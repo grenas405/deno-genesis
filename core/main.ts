@@ -221,13 +221,13 @@ async function initializeDatabase(): Promise<boolean> {
 
   try {
     spinner.start();
-    
+
     // Simulate connection time for demonstration
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     const dbStatus = getDatabaseStatus();
     const duration = performance.now() - startTime;
-    
+
     if (dbStatus) {
       appMetrics.dbConnections = 1;
       spinner.stop("Database connection established successfully");
@@ -240,9 +240,9 @@ async function initializeDatabase(): Promise<boolean> {
     }
   } catch (error) {
     spinner.stop();
-    ConsoleStyler.logError("Database initialization error", { 
+    ConsoleStyler.logError("Database initialization error", {
       error: error.message,
-      duration: performance.now() - startTime 
+      duration: performance.now() - startTime
     });
     return false;
   }
@@ -262,11 +262,11 @@ async function validateFramework(): Promise<boolean> {
 
   try {
     spinner.start();
-    
+
     const isValid = await validateFrameworkIntegrity();
     const frameworkVersion = getFrameworkVersion();
     const duration = performance.now() - startTime;
-    
+
     if (isValid) {
       spinner.stop("Framework integrity validated successfully");
       ConsoleStyler.logSuccess(`Framework v${frameworkVersion} integrity check passed`, {
@@ -281,9 +281,9 @@ async function validateFramework(): Promise<boolean> {
     }
   } catch (error) {
     spinner.stop();
-    ConsoleStyler.logError("Framework validation error", { 
+    ConsoleStyler.logError("Framework validation error", {
       error: error.message,
-      duration: performance.now() - startTime 
+      duration: performance.now() - startTime
     });
     return false;
   }
@@ -295,9 +295,9 @@ async function validateFramework(): Promise<boolean> {
 function createRequestLogger() {
   return async (ctx: any, next: any) => {
     const startTime = performance.now();
-    
+
     appMetrics.totalRequests++;
-    
+
     try {
       await next();
     } catch (error) {
@@ -312,7 +312,7 @@ function createRequestLogger() {
  */
 function displayPerformanceMetrics() {
   const uptime = Date.now() - appMetrics.startTime;
-  const successRate = appMetrics.totalRequests > 0 
+  const successRate = appMetrics.totalRequests > 0
     ? ((appMetrics.totalRequests - appMetrics.totalErrors) / appMetrics.totalRequests * 100).toFixed(2)
     : "100.00";
 
@@ -351,23 +351,23 @@ function displayPerformanceMetrics() {
 function setupGracefulShutdown(app: Application) {
   const shutdownHandler = async (signal: string) => {
     ConsoleStyler.logWarning(`Received ${signal}, initiating graceful shutdown...`);
-    
+
     const spinner = ConsoleStyler.createSpinner("Shutting down application...");
     spinner.start();
-    
+
     try {
       // Display final metrics
       displayPerformanceMetrics();
-      
+
       // Close database connections
       if (bootstrapConfig.enableDatabaseConnection) {
         await closeDatabaseConnection();
         ConsoleStyler.logDatabase("Connection closed");
       }
-      
+
       spinner.stop("Application shutdown completed successfully");
       ConsoleStyler.logSuccess("Goodbye! 👋");
-      
+
       Deno.exit(0);
     } catch (error) {
       spinner.stop();
@@ -379,9 +379,9 @@ function setupGracefulShutdown(app: Application) {
   // Register signal handlers
   registerSignalHandlers(shutdownHandler);
   registerErrorHandlers((error) => {
-    ConsoleStyler.logCritical("Unhandled application error", { 
+    ConsoleStyler.logCritical("Unhandled application error", {
       error: error.message,
-      stack: error.stack 
+      stack: error.stack
     });
   });
 }
@@ -398,14 +398,14 @@ async function main(): Promise<void> {
     // ========================================================================
     // Phase 1: Environment and Configuration
     // ========================================================================
-    
+
     // Display startup banner
     const appConfig = generateAppConfig();
     ConsoleStyler.printBanner(appConfig);
-    
+
     // Display environment information
     ConsoleStyler.logEnvironment(DENO_ENV, appConfig.features);
-    
+
     // Load and validate environment configuration
     await loadEnv({ export: true });
     ConsoleStyler.logSuccess("Environment configuration loaded", {
@@ -413,41 +413,41 @@ async function main(): Promise<void> {
       host: SERVER_HOST,
       environment: DENO_ENV
     });
-    
+
     // ========================================================================
     // Phase 2: Framework Validation and Dependencies
     // ========================================================================
-    
+
     // Validate framework integrity
     const frameworkValid = await validateFramework();
     if (!frameworkValid) {
       ConsoleStyler.logCritical("Framework validation failed - aborting startup");
       Deno.exit(1);
     }
-    
+
     // Display dependency status
     const dependencies = collectDependencyInfo();
     ConsoleStyler.logDependencies(dependencies);
-    
+
     // ========================================================================
     // Phase 3: Database Initialization
     // ========================================================================
-    
+
     const dbInitialized = await initializeDatabase();
     if (!dbInitialized && bootstrapConfig.enableDatabaseConnection) {
       ConsoleStyler.logWarning("Database initialization failed - continuing without database");
     }
-    
+
     // ========================================================================
     // Phase 4: Application and Middleware Setup
     // ========================================================================
-    
+
     ConsoleStyler.logSection("🚀 Application Initialization", "blue");
-    
+
     // Create Oak application
     const app = new Application();
     ConsoleStyler.logSuccess("Oak application instance created");
-    
+
     // Create and configure middleware stack
     const middlewareConfig: MiddlewareConfig = {
       environment: DENO_ENV,
@@ -481,35 +481,35 @@ async function main(): Promise<void> {
         includeEnvironment: DENO_ENV === 'development',
       },
     };
-    
+
     // CORRECT: Destructure the returned object to get the middlewares array
     const { middlewares, monitor } = createMiddlewareStack(middlewareConfig);
-    
-    ConsoleStyler.logSuccess("Middleware stack configured", { 
+
+    ConsoleStyler.logSuccess("Middleware stack configured", {
       middlewareCount: middlewares.length,
       cors: middlewareConfig.cors.allowedOrigins.length > 0,
-      security: middlewareConfig.security.enableHSTS 
+      security: middlewareConfig.security.enableHSTS
     });
-    
+
     // Add simple request counter (metrics only - let middleware handle logging)
     app.use(createRequestLogger());
-    
+
     // Apply essential middleware stack
     middlewares.forEach((middleware) => {
       app.use(middleware);
     });
-    
+
     ConsoleStyler.logSuccess(`Essential middleware applied (${middlewares.length} components + request counter)`);
-    
+
     // Add router
     app.use(router.routes());
     app.use(router.allowedMethods());
     ConsoleStyler.logSuccess("Router configured and mounted");
-    
+
     // ========================================================================
     // Phase 5: Static File Serving Configuration
     // ========================================================================
-    
+
     // Configure static file serving
     app.use(async (ctx) => {
       try {
@@ -522,42 +522,45 @@ async function main(): Promise<void> {
         return;
       }
     });
-    
+
     const supportedExtensions = getSupportedExtensions();
     ConsoleStyler.logSuccess("Static file serving configured", {
       supportedExtensions: supportedExtensions.length,
       mimeTypes: Object.keys(DEFAULT_MIME_TYPES).length
     });
-    
+
     // ========================================================================
     // Phase 6: Graceful Shutdown Setup
     // ========================================================================
-    
+
     setupGracefulShutdown(app);
     ConsoleStyler.logSuccess("Graceful shutdown handlers registered");
-    
+
     // ========================================================================
     // Phase 7: Server Startup
     // ========================================================================
-    
+
     ConsoleStyler.logSection("🌐 Server Startup", "green");
-    
+
     const serverOptions = {
       port: bootstrapConfig.port,
       hostname: bootstrapConfig.host,
     };
-    
+
     // Display startup summary
     ConsoleStyler.logBox([
       `Server starting on ${bootstrapConfig.host}:${bootstrapConfig.port}`,
       `Environment: ${DENO_ENV}`,
       `Framework: DenoGenesis v${VERSION}`
     ], "Server Configuration", "green");
-    
+
+
+    ConsoleStyler.asciiArt('DENOGENESIS');
+    ConsoleStyler.asciiArt('READY');
     // Start the server
     ConsoleStyler.logSuccess(`🚀 Server listening on http://${bootstrapConfig.host}:${bootstrapConfig.port}`);
     ConsoleStyler.logInfo("Press Ctrl+C to gracefully shutdown the server");
-    
+
     // Start metrics display interval in development
     if (DENO_ENV === 'development') {
       setInterval(() => {
@@ -566,26 +569,26 @@ async function main(): Promise<void> {
         }
       }, 30000); // Display metrics every 30 seconds
     }
-    
+
     await app.listen(serverOptions);
-    
+
   } catch (error) {
     ConsoleStyler.logCritical("Fatal error during application startup", {
       error: error.message,
       stack: error.stack
     });
-    
+
     // Ensure cleanup on fatal error
     try {
       if (bootstrapConfig.enableDatabaseConnection) {
         await closeDatabaseConnection();
       }
     } catch (cleanupError) {
-      ConsoleStyler.logError("Error during cleanup", { 
-        error: cleanupError.message 
+      ConsoleStyler.logError("Error during cleanup", {
+        error: cleanupError.message
       });
     }
-    
+
     Deno.exit(1);
   }
 }

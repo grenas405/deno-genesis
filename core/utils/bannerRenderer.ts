@@ -103,11 +103,11 @@ export class BannerRenderer {
     const tagline = 'Democratizing Local-First Architecture';
 
     return [
-      ${primary}${topLine}${reset},
-      ${primary}║${this.centerText(title, accent)}║${reset},
-      ${primary}║${this.centerText(subtitle, secondary)}║${reset},
-      ${primary}║${this.centerText(tagline, secondary)}║${reset},
-      ${primary}${bottomLine}${reset}
+      `${primary}${topLine}${reset}`,
+      `${primary}║${this.centerText(title, accent)}║${reset}`,
+      `${primary}║${this.centerText(subtitle, secondary)}║${reset}`,
+      `${primary}║${this.centerText(tagline, secondary)}║${reset}`,
+      `${primary}${bottomLine}${reset}`
     ].join('\n');
   }
 
@@ -128,7 +128,7 @@ export class BannerRenderer {
     const lines = infoGrid.map(row => {
       const left = this.formatInfoPair(row.label, row.value, 38);
       const right = this.formatInfoPair(row.label2, row.value2, 38);
-      return ${primary}║${reset} ${left} ${muted}│${reset} ${right} ${primary}║${reset};
+      return `${primary}║${reset} ${left} ${muted}│${reset} ${right} ${primary}║${reset}`;
     });
 
     return lines.join('\n');
@@ -148,9 +148,9 @@ export class BannerRenderer {
     ];
 
     const lines = [
-      ${primary}${separator}${reset},
+      `${primary}${separator}${reset}`,
       ...missionItems.map(item =>
-        ${primary}║${reset} ${item.icon} ${accent}${item.label}:${reset} ${secondary}${this.wrapText(item.text, 70)}${reset} ${primary}║${reset}
+        `${primary}║${reset} ${item.icon} ${accent}${item.label}:${reset} ${secondary}${this.wrapText(item.text, 70)}${reset} ${primary}║${reset}`
       )
     ];
 
@@ -165,12 +165,12 @@ export class BannerRenderer {
     const features = this.getFeaturesList(config.features);
     const bottomLine = '╚' + '═'.repeat(this.dimensions.width - 2) + '╝';
 
-    const featureLine = ${primary}║${reset} ✨ ${accent}Features:${reset} ${secondary}${features}${reset};
+    const featureLine = `${primary}║${reset} ✨ ${accent}Features:${reset} ${secondary}${features}${reset}`;
     const padding = this.dimensions.width - this.getDisplayLength(featureLine) + 4; // Adjust for ANSI codes
 
     return [
-      ${featureLine}${' '.repeat(Math.max(0, padding))}${primary}║${reset},
-      ${primary}${bottomLine}${reset}
+      `${featureLine}${' '.repeat(Math.max(0, padding))}${primary}║${reset}`,
+      `${primary}${bottomLine}${reset}`
     ].join('\n');
   }
 
@@ -179,7 +179,7 @@ export class BannerRenderer {
    */
   renderAiModels(models: readonly string[]): string {
     const { accent, secondary, reset } = this.theme;
-    return 🧠 ${accent}AI Models:${reset} ${secondary}${models.join(', ')}${reset};
+    return `🧠 ${accent}AI Models:${reset} ${secondary}${models.join(', ')}${reset}`;
   }
 
   // ================================================================================
@@ -190,12 +190,12 @@ export class BannerRenderer {
     const { width } = this.dimensions;
     const padding = Math.max(0, Math.floor((width - 2 - text.length) / 2));
     const rightPadding = width - 2 - text.length - padding;
-    return ${' '.repeat(padding)}${color}${text}${this.theme.reset}${' '.repeat(rightPadding)};
+    return `${' '.repeat(padding)}${color}${text}${this.theme.reset}${' '.repeat(rightPadding)}`;
   }
 
   private formatInfoPair(label: string, value: string, maxWidth: number): string {
     const { accent, secondary, reset } = this.theme;
-    const formatted = ${accent}${label}:${reset} ${secondary}${value}${reset};
+    const formatted = `${accent}${label}:${reset} ${secondary}${value}${reset}`;
     const padding = maxWidth - this.getDisplayLength(formatted);
     return formatted + ' '.repeat(Math.max(0, padding));
   }
@@ -291,13 +291,13 @@ export class EnhancedBannerRenderer {
       console.log(''); // Add spacing
 
       if (metrics.startupTime) {
-        console.log(⚡ Startup: ${metrics.startupTime.toFixed(2)}ms);
+        console.log(`⚡ Startup: ${metrics.startupTime.toFixed(2)}ms`);
       }
       if (metrics.memoryUsage) {
-        console.log(💾 Memory: ${(metrics.memoryUsage / 1024 / 1024).toFixed(2)}MB);
+        console.log(`💾 Memory: ${(metrics.memoryUsage / 1024 / 1024).toFixed(2)}MB`);
       }
       if (metrics.loadedModules) {
-        console.log(📦 Modules: ${metrics.loadedModules});
+        console.log(`📦 Modules: ${metrics.loadedModules}`);
       }
     }
   }

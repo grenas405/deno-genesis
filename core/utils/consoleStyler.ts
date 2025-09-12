@@ -152,11 +152,11 @@ export class ConsoleStyler {
   static printEnvironmentBanner(config: DenoGenesisConfig): void {
     const themeMap: Record<string, string> = {
       'production': 'default',
-      'staging': 'default', 
+      'staging': 'default',
       'development': 'minimal',
       'test': 'minimal'
     };
-    
+
     const theme = themeMap[config.environment] || 'default';
     EnhancedBannerRenderer.printBanner(config, theme);
   }
@@ -181,9 +181,9 @@ export class ConsoleStyler {
    */
   static printAdaptiveBanner(config: DenoGenesisConfig): void {
     // Check if we're in a CI environment or limited terminal
-    const isLimitedEnvironment = Deno.env.get('CI') === 'true' || 
+    const isLimitedEnvironment = Deno.env.get('CI') === 'true' ||
                                 Deno.env.get('TERM') === 'dumb';
-    
+
     if (isLimitedEnvironment) {
       // Use minimal output for CI/CD environments
       this.printSimpleBanner(config);
@@ -214,11 +214,11 @@ export class ConsoleStyler {
   private static printSimpleBanner(config: DenoGenesisConfig): void {
     console.log(`🚀 DenoGenesis v${config.version} - ${config.environment}`);
     console.log(`   Author: ${config.author} | Port: ${config.port}`);
-    
+
     if (config.ai?.enabled) {
       console.log(`   AI: Enabled ${config.ai.models ? `(${config.ai.models.join(', ')})` : ''}`);
     }
-    
+
     console.log(''); // Add spacing
   }
 
@@ -959,6 +959,14 @@ export class ConsoleStyler {
 ╚═════╝ ╚══════╝╚═╝  ╚═══╝ ╚═════╝  ╚═════╝ ╚══════╝╚═╝  ╚═══╝╚══════╝╚══════╝╚═╝╚══════╝${this.colors.reset}`,
 
       'READY': `${this.colors.success}
+██████╗ ███████╗ █████╗ ██████╗ ██╗   ██╗
+██╔══██╗██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝
+██████╔╝█████╗  ███████║██║  ██║ ╚████╔╝
+██╔══██╗██╔══╝  ██╔══██║██║  ██║  ╚██╔╝
+██║  ██║███████╗██║  ██║██████╔╝   ██║
+╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝    ╚═╝   ${this.colors.reset}`,
+
+      'LIVE': `${this.colors.success}
 ██████╗ ███████╗ █████╗ ██████╗ ██╗   ██╗
 ██╔══██╗██╔════╝██╔══██╗██╔══██╗╚██╗ ██╔╝
 ██████╔╝█████╗  ███████║██║  ██║ ╚████╔╝
