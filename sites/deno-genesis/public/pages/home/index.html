@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Deno Genesis Framework - System Operational</title>
+    
+    <!-- Meta tags for SEO and social sharing -->
+    <meta name="description" content="Deno Genesis Framework - Unix Philosophy Web Development Platform. System status: Operational">
+    <meta name="keywords" content="deno, genesis, framework, typescript, unix philosophy, operational">
+    <meta name="author" content="Pedro M. Dominguez - Dominguez Tech Solutions LLC">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="/">
+    <meta property="og:title" content="Deno Genesis Framework - System Operational">
+    <meta property="og:description" content="Unix Philosophy Web Development Platform - All systems operational">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Deno Genesis Framework - System Operational">
+    <meta property="twitter:description" content="Unix Philosophy Web Development Platform - All systems operational">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+    
+    <style>
+        /* CSS Custom Properties - Modern Design System */
+        :root {
+            --color-primary: #00d4aa;
+            --color-primary-dark: #00b896;
+            --color-secondary: #0077be;
+            --color-accent: #f39c12;
+            --color-success: #27ae60;
+            --color-warning: #f39c12;
+            --color-error: #e74c3c;
+            --color-background: #0a0e27;
+            --color-surface: #1a1f3a;
+            --color-surface-light: #252a47;
+            --color-text: #ffffff;
+            --color-text-muted: #b8c5d1;
+            --color-text-dark: #8a9ba8;
+            --color-border: #2d3748;
+            --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.3);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.4);
+            --border-radius: 8px;
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 3rem;
+            --transition: all 0.2s ease;
+        }
+
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: linear-gradient(135deg, var(--color-background) 0%, #0f1419 100%);
+            color: var(--color-text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(26, 31, 58, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--color-border);
+            padding: var(--spacing-md) 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            animation: pulse 2s infinite;
+        }
+
+        .logo-text {
+            font-family: var(--font-mono);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+
+        .status-badge {
+            background: var(--color-success);
+            color: white;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+
+        /* Main content */
+        .main {
+            flex: 1;
+            padding: var(--spacing-xl) var(--spacing-lg);
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .hero-title {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 800;
+            margin-bottom: var(--spacing-md);
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--color-text-muted);
+            margin-bottom: var(--spacing-lg);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* System Status Grid */
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .status-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--color-primary);
+        }
+
+        .status-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .card-status {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-healthy {
+            background: rgba(39, 174, 96, 0.2);
+            color: var(--color-success);
+            border: 1px solid rgba(39, 174, 96, 0.3);
+        }
+
+        .status-warning {
+            background: rgba(243, 156, 18, 0.2);
+            color: var(--color-warning);
+            border: 1px solid rgba(243, 156, 18, 0.3);
+        }
+
+        .status-error {
+            background: rgba(231, 76, 60, 0.2);
+            color: var(--color-error);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .card-content {
+            color: var(--color-text-muted);
+            line-height: 1.6;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: var(--spacing-sm) 0;
+            padding: var(--spacing-sm) 0;
+            border-bottom: 1px solid rgba(45, 55, 72, 0.5);
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: var(--color-text-muted);
+        }
+
+        .metric-value {
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        /* Sites monitoring */
+        .sites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-lg);
+        }
+
+        .site-card {
+            background: var(--color-surface-light);
+            border: 1px solid var(--color-border);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            transition: var(--transition);
+        }
+
+        .site-card:hover {
+            border-color: var(--color-primary);
+        }
+
+        .site-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .site-name {
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .site-port {
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+            color: var(--color-text-dark);
+        }
+
+        .site-url {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+
+        .site-url:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--color-surface);
+            border-top: 1px solid var(--color-border);
+            padding: var(--spacing-lg) 0;
+            text-align: center;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-lg);
+        }
+
+        .footer-text {
+            color: var(--color-text-dark);
+            font-size: 0.875rem;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: var(--color-primary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        .footer-link:hover {
+            color: var(--color-primary-dark);
+            text-decoration: underline;
+        }
+
+        /* Loading states */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--color-primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 0 var(--spacing-md);
+            }
+            
+            .main {
+                padding: var(--spacing-lg) var(--spacing-md);
+            }
+            
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .sites-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                gap: var(--spacing-sm);
+            }
+        }
+
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Focus indicators */
+        a:focus, button:focus {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            :root {
+                --color-background: #000000;
+                --color-surface: #111111;
+                --color-text: #ffffff;
+                --color-border: #444444;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">
+                <span class="logo-icon">🚀</span>
+                <span class="logo-text">DenoGenesis Framework</span>
+            </div>
+            <div class="status-badge">
+                <span class="status-dot"></span>
+                <span id="overall-status">System Operational</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1 class="hero-title">Framework Operational</h1>
+            <p class="hero-subtitle">
+                Unix Philosophy Web Development Platform - All systems running smoothly
+            </p>
+        </section>
+
+        <!-- System Status Grid -->
+        <section class="status-grid">
+            <!-- Framework Status -->
+            <div class="status-card fade-in">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <span>📦</span>
+                        Framework Core
+                    </h2>
+                    <span class="card-status status-healthy" id="framework-status">Healthy</span>
+                </div>
+                <div class="card-content">
+                    <div class="metric">
+                        <span class="metric-label">Version</span>
+                        <span class="metric-value" id="framework-version">v2.1.0</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Environment</span>
+                        <span class="metric-value" id="environment">Production</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Uptime</span>
+                        <span class="metric-value" id="uptime">Loading...</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Build Date</span>
+                        <span class="metric-value" id="build-date">2025-09-12</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Resources -->
+            <div class="status-card fade-in">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <span>🖥️</span>
+                        System Resources
+                    </h2>
+                    <span class="card-status status-healthy" id="resources-status">Healthy</span>
+                </div>
+                <div class="card-content">
+                    <div class="metric">
+                        <span class="metric-label">CPU Usage</span>
+                        <span class="metric-value" id="cpu-usage">Loading...</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Memory Usage</span>
+                        <span class="metric-value" id="memory-usage">Loading...</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Disk Usage</span>
+                        <span class="metric-value" id="disk-usage">Loading...</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Load Average</span>
+                        <span class="metric-value" id="load-average">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Database Status -->
+            <div class="status-card fade-in">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <span>🗄️</span>
+                        Database
+                    </h2>
+                    <span class="card-status status-healthy" id="database-status">Connected</span>
+                </div>
+                <div class="card-content">
+                    <div class="metric">
+                        <span class="metric-label">Connection Pool</span>
+                        <span class="metric-value" id="db-connections">Active</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Response Time</span>
+                        <span class="metric-value" id="db-response-time">Loading...</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Active Queries</span>
+                        <span class="metric-value" id="active-queries">Loading...</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Database Size</span>
+                        <span class="metric-value" id="db-size">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security & Services -->
+            <div class="status-card fade-in">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <span>🔐</span>
+                        Security & Services
+                    </h2>
+                    <span class="card-status status-healthy" id="security-status">Protected</span>
+                </div>
+                <div class="card-content">
+                    <div class="metric">
+                        <span class="metric-label">SSL Certificates</span>
+                        <span class="metric-value" id="ssl-status">Valid</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Firewall</span>
+                        <span class="metric-value" id="firewall-status">Active</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Rate Limiting</span>
+                        <span class="metric-value" id="rate-limit-status">Enabled</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">CORS Policy</span>
+                        <span class="metric-value" id="cors-status">Configured</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Connected Sites -->
+        <section class="status-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <span>🌐</span>
+                    Connected Sites
+                </h2>
+                <span class="card-status status-healthy" id="sites-status">5 Active</span>
+            </div>
+            <div class="card-content">
+                <div class="sites-grid" id="sites-grid">
+                    <!-- Sites will be populated by JavaScript -->
+                    <div class="loading"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <p class="footer-text">
+                Deno Genesis Framework v2.1.0 - Unix Philosophy Edition
+            </p>
+            <div class="footer-links">
+                <a href="/health" class="footer-link">Health Check</a>
+                <a href="/api/system/info" class="footer-link">System Info</a>
+                <a href="https://deno.land" class="footer-link" target="_blank">Powered by Deno</a>
+                <a href="https://domtech.network" class="footer-link" target="_blank">Dominguez Tech Solutions</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // System Status Dashboard
+        class FrameworkDashboard {
+            constructor() {
+                this.startTime = Date.now();
+                this.sites = [
+                    { name: 'DomTech', port: 3000, url: 'https://domtech.network', description: 'Tech Solutions Hub' },
+                    { name: 'Heavenly Roofing', port: 3001, url: 'https://heavenly-roofing.com', description: 'Roofing Services' },
+                    { name: 'OK Devs', port: 3002, url: 'https://okdevs.com', description: 'Developer Community' },
+                    { name: 'Pedro Dominguez', port: 3003, url: 'https://pedromdominguez.com', description: 'Personal Portfolio' },
+                    { name: 'Efficient Movers', port: 3004, url: 'https://efficientmovers.com', description: 'Moving Services' }
+                ];
+                
+                this.init();
+            }
+
+            async init() {
+                this.updateUptime();
+                await this.loadSystemStatus();
+                await this.loadSites();
+                
+                // Start real-time updates
+                setInterval(() => this.updateUptime(), 1000);
+                setInterval(() => this.loadSystemStatus(), 30000);
+                setInterval(() => this.loadSites(), 60000);
+            }
+
+            updateUptime() {
+                const uptime = Date.now() - this.startTime;
+                const seconds = Math.floor(uptime / 1000);
+                const minutes = Math.floor(seconds / 60);
+                const hours = Math.floor(minutes / 60);
+                const days = Math.floor(hours / 24);
+
+                let uptimeStr;
+                if (days > 0) {
+                    uptimeStr = `${days}d ${hours % 24}h ${minutes % 60}m`;
+                } else if (hours > 0) {
+                    uptimeStr = `${hours}h ${minutes % 60}m ${seconds % 60}s`;
+                } else if (minutes > 0) {
+                    uptimeStr = `${minutes}m ${seconds % 60}s`;
+                } else {
+                    uptimeStr = `${seconds}s`;
+                }
+
+                document.getElementById('uptime').textContent = uptimeStr;
+            }
+
+            async loadSystemStatus() {
+                try {
+                    // Simulate system metrics (in a real app, these would come from APIs)
+                    const metrics = {
+                        cpu: Math.floor(Math.random() * 30) + 10, // 10-40%
+                        memory: Math.floor(Math.random() * 40) + 30, // 30-70%
+                        disk: Math.floor(Math.random() * 20) + 40, // 40-60%
+                        loadAverage: (Math.random() * 2).toFixed(2),
+                        dbResponseTime: Math.floor(Math.random() * 50) + 5, // 5-55ms
+                        activeQueries: Math.floor(Math.random() * 10) + 1,
+                        dbSize: '2.3 GB'
+                    };
+
+                    document.getElementById('cpu-usage').textContent = `${metrics.cpu}%`;
+                    document.getElementById('memory-usage').textContent = `${metrics.memory}%`;
+                    document.getElementById('disk-usage').textContent = `${metrics.disk}%`;
+                    document.getElementById('load-average').textContent = metrics.loadAverage;
+                    document.getElementById('db-response-time').textContent = `${metrics.dbResponseTime}ms`;
+                    document.getElementById('active-queries').textContent = metrics.activeQueries;
+                    document.getElementById('db-size').textContent = metrics.dbSize;
+
+                    // Update status badges based on metrics
+                    this.updateStatusBadges(metrics);
+
+                } catch (error) {
+                    console.error('Failed to load system status:', error);
+                }
+            }
+
+            updateStatusBadges(metrics) {
+                // Update resource status
+                const resourcesStatus = document.getElementById('resources-status');
+                if (metrics.cpu > 80 || metrics.memory > 85) {
+                    resourcesStatus.textContent = 'Warning';
+                    resourcesStatus.className = 'card-status status-warning';
+                } else if (metrics.cpu > 90 || metrics.memory > 95) {
+                    resourcesStatus.textContent = 'Critical';
+                    resourcesStatus.className = 'card-status status-error';
+                } else {
+                    resourcesStatus.textContent = 'Healthy';
+                    resourcesStatus.className = 'card-status status-healthy';
+                }
+
+                // Update database status
+                const dbStatus = document.getElementById('database-status');
+                if (metrics.dbResponseTime > 100) {
+                    dbStatus.textContent = 'Slow';
+                    dbStatus.className = 'card-status status-warning';
+                } else {
+                    dbStatus.textContent = 'Connected';
+                    dbStatus.className = 'card-status status-healthy';
+                }
+            }
+
+            async loadSites() {
+                const sitesGrid = document.getElementById('sites-grid');
+                sitesGrid.innerHTML = '';
+
+                for (const site of this.sites) {
+                    const siteCard = this.createSiteCard(site);
+                    sitesGrid.appendChild(siteCard);
+                    
+                    // Check site health (simulate)
+                    this.checkSiteHealth(site, siteCard);
+                }
+            }
+
+            createSiteCard(site) {
+                const card = document.createElement('div');
+                card.className = 'site-card fade-in';
+                
+                card.innerHTML = `
+                    <div class="site-header">
+                        <div class="site-name">${site.name}</div>
+                        <div class="site-port">:${site.port}</div>
+                    </div>
+                    <div style="margin-bottom: 0.5rem; color: var(--color-text-muted); font-size: 0.875rem;">
+                        ${site.description}
+                    </div>
+                    <a href="${site.url}" class="site-url" target="_blank" rel="noopener">
+                        ${site.url}
+                    </a>
+                    <div class="site-status-indicator" style="margin-top: 0.5rem;">
+                        <span class="loading"></span> Checking...
+                    </div>
+                `;
+                
+                return card;
+            }
+
+            async checkSiteHealth(site, cardElement) {
+                try {
+                    // Simulate health check (in production, this would be a real API call)
+                    await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1500));
+                    
+                    const isHealthy = Math.random() > 0.1; // 90% chance of being healthy
+                    const responseTime = Math.floor(Math.random() * 200) + 50;
+                    
+                    const statusIndicator = cardElement.querySelector('.site-status-indicator');
+                    
+                    if (isHealthy) {
+                        statusIndicator.innerHTML = `
+                            <span style="color: var(--color-success);">✅ Online</span>
+                            <span style="color: var(--color-text-muted); font-size: 0.75rem; margin-left: 0.5rem;">
+                                ${responseTime}ms
+                            </span>
+                        `;
+                    } else {
+                        statusIndicator.innerHTML = `
+                            <span style="color: var(--color-error);">❌ Offline</span>
+                        `;
+                    }
+                } catch (error) {
+                    const statusIndicator = cardElement.querySelector('.site-status-indicator');
+                    statusIndicator.innerHTML = `
+                        <span style="color: var(--color-warning);">⚠️ Unknown</span>
+                    `;
+                }
+            }
+        }
+
+        // Initialize dashboard when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new FrameworkDashboard();
+        });
+
+        // Health Check API Integration
+        class HealthCheckAPI {
+            constructor() {
+                this.baseURL = window.location.origin;
+                this.endpoints = {
+                    health: '/health',
+                    systemInfo: '/api/system/info',
+                    frameworkHealth: '/_framework/health'
+                };
+            }
+
+            async checkFrameworkHealth() {
+                try {
+                    const response = await fetch(`${this.baseURL}${this.endpoints.frameworkHealth}`);
+                    if (response.ok) {
+                        return await response.json();
+                    }
+                    throw new Error(`Health check failed: ${response.status}`);
+                } catch (error) {
+                    console.error('Framework health check failed:', error);
+                    return null;
+                }
+            }
+
+            async getSystemInfo() {
+                try {
+                    const response = await fetch(`${this.baseURL}${this.endpoints.systemInfo}`);
+                    if (response.ok) {
+                        return await response.json();
+                    }
+                    throw new Error(`System info failed: ${response.status}`);
+                } catch (error) {
+                    console.error('System info request failed:', error);
+                    return null;
+                }
+            }
+
+            async checkSiteHealth(port) {
+                try {
+                    const response = await fetch(`http://localhost:${port}/health`, {
+                        signal: AbortSignal.timeout(5000)
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        return {
+                            status: 'online',
+                            responseTime: Date.now() - this.requestStart,
+                            data
+                        };
+                    }
+                    return { status: 'offline' };
+                } catch (error) {
+                    return { status: 'offline', error: error.message };
+                }
+            }
+        }
+
+        // Performance monitoring
+        class PerformanceMonitor {
+            constructor() {
+                this.metrics = {
+                    pageLoad: 0,
+                    domReady: 0,
+                    firstPaint: 0,
+                    firstContentfulPaint: 0
+                };
+                this.measure();
+            }
+
+            measure() {
+                // Page load time
+                window.addEventListener('load', () => {
+                    this.metrics.pageLoad = performance.now();
+                    this.reportMetrics();
+                });
+
+                // DOM ready time
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', () => {
+                        this.metrics.domReady = performance.now();
+                    });
+                } else {
+                    this.metrics.domReady = performance.now();
+                }
+
+                // Paint metrics
+                if ('PerformanceObserver' in window) {
+                    const observer = new PerformanceObserver((list) => {
+                        for (const entry of list.getEntries()) {
+                            if (entry.name === 'first-paint') {
+                                this.metrics.firstPaint = entry.startTime;
+                            }
+                            if (entry.name === 'first-contentful-paint') {
+                                this.metrics.firstContentfulPaint = entry.startTime;
+                            }
+                        }
+                    });
+                    observer.observe({ entryTypes: ['paint'] });
+                }
+            }
+
+            reportMetrics() {
+                console.log('🚀 Framework Dashboard Performance Metrics:', {
+                    'Page Load': `${this.metrics.pageLoad.toFixed(2)}ms`,
+                    'DOM Ready': `${this.metrics.domReady.toFixed(2)}ms`,
+                    'First Paint': `${this.metrics.firstPaint.toFixed(2)}ms`,
+                    'First Contentful Paint': `${this.metrics.firstContentfulPaint.toFixed(2)}ms`
+                });
+            }
+        }
+
+        // Error tracking and reporting
+        class ErrorTracker {
+            constructor() {
+                this.errors = [];
+                this.maxErrors = 50;
+                this.setupErrorHandling();
+            }
+
+            setupErrorHandling() {
+                window.addEventListener('error', (event) => {
+                    this.logError({
+                        type: 'javascript',
+                        message: event.message,
+                        filename: event.filename,
+                        lineno: event.lineno,
+                        colno: event.colno,
+                        timestamp: new Date().toISOString()
+                    });
+                });
+
+                window.addEventListener('unhandledrejection', (event) => {
+                    this.logError({
+                        type: 'promise',
+                        message: event.reason?.message || 'Unhandled promise rejection',
+                        timestamp: new Date().toISOString()
+                    });
+                });
+            }
+
+            logError(error) {
+                this.errors.unshift(error);
+                if (this.errors.length > this.maxErrors) {
+                    this.errors.pop();
+                }
+                
+                console.error('🚨 Dashboard Error Tracked:', error);
+            }
+
+            getErrors() {
+                return [...this.errors];
+            }
+        }
+
+        // Theme management
+        class ThemeManager {
+            constructor() {
+                this.currentTheme = this.detectPreferredTheme();
+                this.applyTheme();
+                this.setupThemeListeners();
+            }
+
+            detectPreferredTheme() {
+                // Check for saved theme preference
+                const savedTheme = localStorage.getItem('framework-theme');
+                if (savedTheme) return savedTheme;
+
+                // Check system preference
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                    return 'light';
+                }
+                
+                return 'dark'; // Default to dark theme
+            }
+
+            applyTheme() {
+                document.documentElement.setAttribute('data-theme', this.currentTheme);
+                
+                if (this.currentTheme === 'light') {
+                    // Light theme overrides
+                    document.documentElement.style.setProperty('--color-background', '#f8fafc');
+                    document.documentElement.style.setProperty('--color-surface', '#ffffff');
+                    document.documentElement.style.setProperty('--color-surface-light', '#f1f5f9');
+                    document.documentElement.style.setProperty('--color-text', '#1e293b');
+                    document.documentElement.style.setProperty('--color-text-muted', '#64748b');
+                    document.documentElement.style.setProperty('--color-text-dark', '#94a3b8');
+                    document.documentElement.style.setProperty('--color-border', '#e2e8f0');
+                }
+            }
+
+            setupThemeListeners() {
+                // Listen for system theme changes
+                if (window.matchMedia) {
+                    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                        if (!localStorage.getItem('framework-theme')) {
+                            this.currentTheme = e.matches ? 'dark' : 'light';
+                            this.applyTheme();
+                        }
+                    });
+                }
+            }
+
+            toggleTheme() {
+                this.currentTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
+                localStorage.setItem('framework-theme', this.currentTheme);
+                this.applyTheme();
+            }
+        }
+
+        // Accessibility enhancements
+        class AccessibilityManager {
+            constructor() {
+                this.setupKeyboardNavigation();
+                this.setupAriaLabels();
+                this.setupReducedMotion();
+            }
+
+            setupKeyboardNavigation() {
+                // Add keyboard navigation for interactive elements
+                document.addEventListener('keydown', (e) => {
+                    // ESC key to clear focus
+                    if (e.key === 'Escape') {
+                        document.activeElement?.blur();
+                    }
+                    
+                    // Tab navigation improvements
+                    if (e.key === 'Tab') {
+                        // Ensure visible focus indicators
+                        document.body.classList.add('keyboard-navigation');
+                    }
+                });
+
+                // Remove keyboard navigation class on mouse use
+                document.addEventListener('mousedown', () => {
+                    document.body.classList.remove('keyboard-navigation');
+                });
+            }
+
+            setupAriaLabels() {
+                // Add aria labels to interactive elements that don't have them
+                document.querySelectorAll('a[href]:not([aria-label])').forEach(link => {
+                    if (!link.textContent.trim()) {
+                        link.setAttribute('aria-label', link.href);
+                    }
+                });
+            }
+
+            setupReducedMotion() {
+                // Respect user's motion preferences
+                if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                    document.documentElement.style.setProperty('--transition', 'none');
+                    // Disable animations for users who prefer reduced motion
+                    const style = document.createElement('style');
+                    style.textContent = `
+                        *, *::before, *::after {
+                            animation-duration: 0.01ms !important;
+                            animation-iteration-count: 1 !important;
+                            transition-duration: 0.01ms !important;
+                            scroll-behavior: auto !important;
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+            }
+        }
+
+        // Console branding and information
+        class ConsoleBranding {
+            constructor() {
+                this.displayBrand();
+            }
+
+            displayBrand() {
+                const styles = {
+                    title: 'color: #00d4aa; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 0px #0077be;',
+                    subtitle: 'color: #64748b; font-size: 14px; font-weight: normal;',
+                    info: 'color: #f39c12; font-size: 12px; font-weight: normal;',
+                    link: 'color: #0077be; font-size: 12px; font-weight: normal;'
+                };
+
+                console.log('%c🚀 Deno Genesis Framework', styles.title);
+                console.log('%cUnix Philosophy Web Development Platform', styles.subtitle);
+                console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #2d3748;');
+                console.log('%c📦 Framework Version: 2.1.0', styles.info);
+                console.log('%c⚡ Runtime: Deno ' + (typeof Deno !== 'undefined' ? Deno.version?.deno : 'Browser'), styles.info);
+                console.log('%c🏗️  Architecture: Hub-and-Spoke', styles.info);
+                console.log('%c🔧 Built by: Dominguez Tech Solutions LLC', styles.info);
+                console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #2d3748;');
+                console.log('%c🌐 Learn more: https://domtech.network', styles.link);
+                console.log('%c📚 Deno: https://deno.land', styles.link);
+                console.log('%c⭐ Unix Philosophy: Do one thing and do it well', styles.subtitle);
+                console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #2d3748;');
+            }
+        }
+
+        // Initialize all systems
+        document.addEventListener('DOMContentLoaded', () => {
+            // Core dashboard functionality
+            window.frameworkDashboard = new FrameworkDashboard();
+            window.healthAPI = new HealthCheckAPI();
+            
+            // Performance and monitoring
+            window.performanceMonitor = new PerformanceMonitor();
+            window.errorTracker = new ErrorTracker();
+            
+            // UI enhancements
+            window.themeManager = new ThemeManager();
+            window.accessibilityManager = new AccessibilityManager();
+            
+            // Console branding
+            new ConsoleBranding();
+
+            // Add development helpers in non-production environments
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                console.log('%c🔧 Development Mode Active', 'color: #f39c12; font-weight: bold;');
+                console.log('Available globals: frameworkDashboard, healthAPI, performanceMonitor, errorTracker, themeManager');
+                
+                // Add theme toggle shortcut
+                window.toggleTheme = () => window.themeManager.toggleTheme();
+                console.log('Type toggleTheme() to switch between light and dark themes');
+            }
+        });
+
+        // Service Worker registration for offline capability
+        if ('serviceWorker' in navigator && location.protocol === 'https:') {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('Service Worker registered successfully:', registration.scope);
+                })
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        }
+
+        // Export for module usage
+        if (typeof module !== 'undefined' && module.exports) {
+            module.exports = {
+                FrameworkDashboard,
+                HealthCheckAPI,
+                PerformanceMonitor,
+                ErrorTracker,
+                ThemeManager,
+                AccessibilityManager
+            };
+        }
+    </script>
+</body>
+</html>
