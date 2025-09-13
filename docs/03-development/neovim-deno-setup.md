@@ -1,11 +1,24 @@
 # Neovim Deno TypeScript IDE Setup Guide
 
+An automated script is available to streamline the installation of all prerequisites and the Neovim configuration.
+
 ## Prerequisites
 
 1. **Neovim 0.8+** (preferably 0.9+)
 2. **Deno** installed and available in PATH
 3. **Git** for plugin management
 4. A plugin manager (we'll use `lazy.nvim`)
+
+## Automated Setup
+
+To quickly get everything set up, you can use our automation script.
+
+1. **Download the script:**
+   [neovim_deno_setup.ts](deployment/scripts/setup-nvim.ts)
+
+2. **Run the script:**
+   ```bash
+   $ deno --allow-all ./deployment/scripts/setup-nvim.ts
 
 ## Directory Structure
 
