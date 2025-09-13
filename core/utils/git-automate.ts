@@ -120,24 +120,52 @@ class GitAutomator {
           output: output.trim()
         };
       } else {
+        this.logger.debug(`✗ ${description} failed with exit code: ${result.code}`);
+        this.logger.debug(`stdout: ${output}`);
+        this.logger.debug(`stderr: ${error}`);
+        
         return {
           success: false,
           command: `git ${command.join(' ')}`,
-          error: error.trim() || 'Unknown git error'
+          error: error.trim() || output.trim() || `Command failed with exit code ${result.code}`
         };
       }
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Command execution failed';
+      this.logger.debug(`Exception during git command: ${errorMessage}`);
+      
       return {
         success: false,
         command: `git ${command.join(' ')}`,
-        error: err instanceof Error ? err.message : 'Command execution failed'
+        error: errorMessage
       };
     }
   }
 
   /**
-   * Check if we're in a git repository
+   * Check git configuration (user.name and user.email)
    */
+  private async validateGitConfig(): Promise<boolean> {
+    this.logger.debug('Validating git configuration...');
+    
+    const nameResult = await this.executeGitCommand(['config', 'user.name'], 'Check user.name');
+    const emailResult = await this.executeGitCommand(['config', 'user.email'], 'Check user.email');
+    
+    if (!nameResult.success || !nameResult.output) {
+      this.logger.error('Git user.name is not configured');
+      this.logger.warning('Please run: git config --global user.name "Your Name"');
+      return false;
+    }
+    
+    if (!emailResult.success || !emailResult.output) {
+      this.logger.error('Git user.email is not configured');
+      this.logger.warning('Please run: git config --global user.email "your.email@example.com"');
+      return false;
+    }
+    
+    this.logger.debug(`✓ Git configured for user: ${nameResult.output} <${emailResult.output}>`);
+    return true;
+  }
   private async validateGitRepository(): Promise<boolean> {
     const gitDir = resolve(this.config.projectRoot, '.git');
     const isGitRepo = await exists(gitDir);
@@ -189,7 +217,36 @@ class GitAutomator {
    */
   async createCommit(message: string): Promise<GitOperationResult> {
     this.logger.info(`Creating commit: "${message}"`);
-    return await this.executeGitCommand(['commit', '-m', message], 'Create commit');
+    
+    // First check if there are staged changes to commit
+    const stagedResult = await this.executeGitCommand(['diff', '--cached', '--quiet'], 'Check staged changes');
+    
+    if (stagedResult.success) {
+      this.logger.warning('No staged changes found - nothing to commit');
+      return { 
+        success: true, 
+        command: 'git commit', 
+        output: 'No changes to commit' 
+      };
+    }
+
+    const result = await this.executeGitCommand(['commit', '-m', message], 'Create commit');
+    
+    // Provide more detailed error information
+    if (!result.success && result.error) {
+      this.logger.error(`Commit failed with detailed error: ${result.error}`);
+      
+      // Common git commit issues and suggestions
+      if (result.error.includes('Please tell me who you are')) {
+        this.logger.warning('Git user configuration missing. Run:');
+        this.logger.warning('  git config --global user.name "Your Name"');
+        this.logger.warning('  git config --global user.email "your.email@example.com"');
+      } else if (result.error.includes('nothing to commit')) {
+        this.logger.warning('No changes staged for commit');
+      }
+    }
+    
+    return result;
   }
 
   /**
@@ -219,15 +276,20 @@ class GitAutomator {
       return false;
     }
 
+    // Validate git configuration
+    if (!(await this.validateGitConfig())) {
+      return false;
+    }
+
     // Get current branch for push operation
     const currentBranch = await this.getCurrentBranch();
     this.config = { ...this.config, remoteBranch: currentBranch };
 
     const operations = [
-      { name: 'Status Check', action: () => this.checkStatus() },
-      { name: 'Stage Changes', action: () => this.stageAllChanges() },
-      { name: 'Create Commit', action: () => this.createCommit(commitMessage || this.config.defaultCommitMessage) },
-      { name: 'Push to Remote', action: () => this.pushToRemote() }
+      { name: 'Status Check', action: () => this.checkStatus(), critical: false },
+      { name: 'Stage Changes', action: () => this.stageAllChanges(), critical: true },
+      { name: 'Create Commit', action: () => this.createCommit(commitMessage || this.config.defaultCommitMessage), critical: true },
+      { name: 'Push to Remote', action: () => this.pushToRemote(), critical: true }
     ];
 
     let allSuccessful = true;
@@ -244,12 +306,9 @@ class GitAutomator {
         }
       } else {
         this.logger.error(`${operation.name} failed: ${result.error}`);
-        allSuccessful = false;
         
-        // For some operations, we might want to continue despite failure
-        if (operation.name === 'Status Check') {
-          continue;
-        } else {
+        if (operation.critical) {
+          allSuccessful = false;
           break; // Stop on critical failures
         }
       }
