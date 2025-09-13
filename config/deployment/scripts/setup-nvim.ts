@@ -818,57 +818,57 @@ function generateNvimConfig(config: NvimSetupConfig): FileOperation[] {
 
   // Main init.lua
   operations.push({
-    path: `${config.configPath}/init.lua`,
+    path:${config.configPath}/init.lua,`
     content: generateInitLua(config)
   });
 
   // Core configuration files
   operations.push({
-    path: `${config.configPath}/lua/config/options.lua`,
+    path: ${config.configPath}/lua/config/options.lua`,
     content: generateOptionsLua()
   });
 
   operations.push({
-    path: `${config.configPath}/lua/config/lazy.lua`,
+    path: ${config.configPath}/lua/config/lazy.lua`,
     content: generateLazyLua()
   });
 
   operations.push({
-    path: `${config.configPath}/lua/config/keymaps.lua`,
+    path: ${config.configPath}/lua/config/keymaps.lua`,
     content: generateKeymapsLua()
   });
 
   // Plugin configuration files
   if (config.features.lsp) {
     operations.push({
-      path: `${config.configPath}/lua/plugins/lsp.lua`,
+      path: ${config.configPath}/lua/plugins/lsp.lua`,
       content: generateLspLua(config.setupDeno)
     });
   }
 
   if (config.features.completion) {
     operations.push({
-      path: `${config.configPath}/lua/plugins/completion.lua`,
+      path: ${config.configPath}/lua/plugins/completion.lua`,
       content: generateCompletionLua()
     });
   }
 
   if (config.features.treesitter) {
     operations.push({
-      path: `${config.configPath}/lua/plugins/treesitter.lua`,
+      path: ${config.configPath}/lua/plugins/treesitter.lua`,
       content: generateTreesitterLua()
     });
   }
 
   if (config.features.telescope) {
     operations.push({
-      path: `${config.configPath}/lua/plugins/telescope.lua`,
+      path: ${config.configPath}/lua/plugins/telescope.lua`,
       content: generateTelescopeLua()
     });
   }
 
   operations.push({
-    path: `${config.configPath}/lua/plugins/ui.lua`,
+    path: ${config.configPath}/lua/plugins/ui.lua`,
     content: generateUiLua(config.theme, config.features)
   });
 
@@ -1497,7 +1497,7 @@ return {
             },
           },
         },
-        
+
         -- TypeScript LSP (for non-Deno projects)
         tsserver = {
           root_dir = require('lspconfig.util').root_pattern('package.json'),
@@ -1523,13 +1523,13 @@ return {
         'stylua',  -- Lua formatter
         'prettier', -- General formatter
       })
-      
+
       -- Add Deno if configured
       if vim.tbl_contains(ensure_installed, 'denols') then
         vim.list_extend(ensure_installed, { 'deno' })
       end
 
-      require('mason-tool-installer').setup { 
+      require('mason-tool-installer').setup {
         ensure_installed = ensure_installed,
         auto_update = false,
         run_on_start = true,
