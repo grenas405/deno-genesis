@@ -2,13 +2,13 @@
 
 /**
  * DenoGenesis Git Automation Script
- *
+ * 
  * Automates the git workflow for the deno-genesis project:
  * - Stages all changes
  * - Creates commits with standardized messages
  * - Pushes to remote repository
  * - Handles error scenarios gracefully
- *
+ * 
  * @author DenoGenesis Framework Team
  * @version 1.0.0
  * @requires Deno 1.40+
@@ -95,7 +95,7 @@ class GitAutomator {
    * Execute a git command with proper error handling
    */
   private async executeGitCommand(
-    command: string[],
+    command: string[], 
     description: string
   ): Promise<GitOperationResult> {
     this.logger.debug(`Executing: git ${command.join(' ')}`);
@@ -120,28 +120,56 @@ class GitAutomator {
           output: output.trim()
         };
       } else {
+        this.logger.debug(`✗ ${description} failed with exit code: ${result.code}`);
+        this.logger.debug(`stdout: ${output}`);
+        this.logger.debug(`stderr: ${error}`);
+        
         return {
           success: false,
           command: `git ${command.join(' ')}`,
-          error: error.trim() || 'Unknown git error'
+          error: error.trim() || output.trim() || `Command failed with exit code ${result.code}`
         };
       }
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Command execution failed';
+      this.logger.debug(`Exception during git command: ${errorMessage}`);
+      
       return {
         success: false,
         command: `git ${command.join(' ')}`,
-        error: err instanceof Error ? err.message : 'Command execution failed'
+        error: errorMessage
       };
     }
   }
 
   /**
-   * Check if we're in a git repository
+   * Check git configuration (user.name and user.email)
    */
+  private async validateGitConfig(): Promise<boolean> {
+    this.logger.debug('Validating git configuration...');
+    
+    const nameResult = await this.executeGitCommand(['config', 'user.name'], 'Check user.name');
+    const emailResult = await this.executeGitCommand(['config', 'user.email'], 'Check user.email');
+    
+    if (!nameResult.success || !nameResult.output) {
+      this.logger.error('Git user.name is not configured');
+      this.logger.warning('Please run: git config --global user.name "Your Name"');
+      return false;
+    }
+    
+    if (!emailResult.success || !emailResult.output) {
+      this.logger.error('Git user.email is not configured');
+      this.logger.warning('Please run: git config --global user.email "your.email@example.com"');
+      return false;
+    }
+    
+    this.logger.debug(`✓ Git configured for user: ${nameResult.output} <${emailResult.output}>`);
+    return true;
+  }
   private async validateGitRepository(): Promise<boolean> {
     const gitDir = resolve(this.config.projectRoot, '.git');
     const isGitRepo = await exists(gitDir);
-
+    
     if (!isGitRepo) {
       this.logger.error('Not a git repository! Please run this script from within a git project.');
       return false;
@@ -156,12 +184,12 @@ class GitAutomator {
    */
   async checkStatus(): Promise<GitOperationResult> {
     this.logger.info('Checking git status...');
-
+    
     const result = await this.executeGitCommand(['status', '--porcelain'], 'Status check');
-
+    
     if (result.success) {
       const changes = result.output?.split('\n').filter(line => line.trim()) || [];
-
+      
       if (changes.length === 0) {
         this.logger.warning('No changes detected in repository');
         return { success: true, command: 'git status' };
@@ -189,7 +217,36 @@ class GitAutomator {
    */
   async createCommit(message: string): Promise<GitOperationResult> {
     this.logger.info(`Creating commit: "${message}"`);
-    return await this.executeGitCommand(['commit', '-m', message], 'Create commit');
+    
+    // First check if there are staged changes to commit
+    const stagedResult = await this.executeGitCommand(['diff', '--cached', '--quiet'], 'Check staged changes');
+    
+    if (stagedResult.success) {
+      this.logger.warning('No staged changes found - nothing to commit');
+      return { 
+        success: true, 
+        command: 'git commit', 
+        output: 'No changes to commit' 
+      };
+    }
+
+    const result = await this.executeGitCommand(['commit', '-m', message], 'Create commit');
+    
+    // Provide more detailed error information
+    if (!result.success && result.error) {
+      this.logger.error(`Commit failed with detailed error: ${result.error}`);
+      
+      // Common git commit issues and suggestions
+      if (result.error.includes('Please tell me who you are')) {
+        this.logger.warning('Git user configuration missing. Run:');
+        this.logger.warning('  git config --global user.name "Your Name"');
+        this.logger.warning('  git config --global user.email "your.email@example.com"');
+      } else if (result.error.includes('nothing to commit')) {
+        this.logger.warning('No changes staged for commit');
+      }
+    }
+    
+    return result;
   }
 
   /**
@@ -239,9 +296,9 @@ class GitAutomator {
 
     for (const operation of operations) {
       this.logger.debug(`\n--- ${operation.name} ---`);
-
+      
       const result = await operation.action();
-
+      
       if (result.success) {
         this.logger.success(`${operation.name} completed successfully`);
         if (result.output) {
@@ -249,7 +306,7 @@ class GitAutomator {
         }
       } else {
         this.logger.error(`${operation.name} failed: ${result.error}`);
-
+        
         if (operation.critical) {
           allSuccessful = false;
           break; // Stop on critical failures
@@ -367,7 +424,7 @@ async function main(): Promise<void> {
   const config: GitConfig = { ...defaultConfig, ...userConfig };
 
   // Custom commit message from remaining args (if not provided via -m)
-  const remainingArgs = args.filter(arg => !arg.startsWith('-') &&
+  const remainingArgs = args.filter(arg => !arg.startsWith('-') && 
     !['--root', '--message', '--branch', '--verbose', '--help'].includes(args[args.indexOf(arg) - 1])
   );
 
