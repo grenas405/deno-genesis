@@ -1,0 +1,38 @@
+{
+  "tasks": {
+    "dev": "deno run --allow-net --allow-read --watch main.ts",
+    "start": "deno run --allow-net --allow-read main.ts",
+    "test": "deno test --allow-all",
+    "fmt": "deno fmt",
+    "lint": "deno lint"
+  },
+  "imports": {
+    "@std/": "https://deno.land/std@0.208.0/",
+    "@oak/": "https://deno.land/x/oak@v12.6.1/"
+  },
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["deno.window"],
+    "strict": true
+  },
+  "fmt": {
+    "files": {
+      "include": ["src/"],
+      "exclude": ["build/"]
+    },
+    "options": {
+      "useTabs": false,
+      "lineWidth": 80,
+      "indentWidth": 2
+    }
+  },
+  "lint": {
+    "files": {
+      "include": ["src/"],
+      "exclude": ["build/"]
+    },
+    "rules": {
+      "tags": ["recommended"]
+    }
+  }
+}
