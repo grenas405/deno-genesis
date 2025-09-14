@@ -1,338 +1,241 @@
-#!/usr/bin/env bash
-
-# =============================================================================
-# DenoGenesis Neovim Setup Script
-# =============================================================================
-# Unix Philosophy Implementation:
-# 1. Do One Thing Well: Configure Neovim for Deno TypeScript development ONLY
-# 2. Make Everything a Filter: Accept input configs, transform to nvim setup
-# 3. Avoid Captive User Interfaces: Return structured data about setup process
-# 4. Store Data in Flat Text Files: All configs are readable text files
-# 5. Leverage Software Leverage: Compose with existing nvim plugin ecosystem
+#!/bin/bash
+# setup-nvim.sh - Modern Neovim Configuration for Deno Genesis TypeScript Development
 #
-# This script sets up a complete Neovim IDE environment optimized for
-# Deno Genesis development with TypeScript, LSP, completion, and all
-# necessary tooling following Unix Philosophy principles.
+# DenoGenesis Framework Compatible Neovim Setup
+# Optimized for Deno's TypeScript environment with URL imports and centralized architecture
 #
-# @version 1.0.0
-# @author AI-Augmented Development
-# @license AGPL-3.0
-# @compatible Unix-like systems (Linux, macOS, WSL)
+# Author: DenoGenesis Framework Team
+# Version: 2.0.0
+# Compatible with: Neovim 0.9+, Deno 1.40+
+# Follows: Unix Philosophy + DenoGenesis Architecture Principles
 
 set -euo pipefail
 
 # =============================================================================
-# CONFIGURATION VARIABLES
+# CONFIGURATION & CONSTANTS
 # =============================================================================
 
-# Default configuration
-DEFAULT_CONFIG_PATH="${HOME}/.config/nvim"
-DEFAULT_BACKUP=true
-DEFAULT_SETUP_DENO=true
-DEFAULT_THEME="tokyonight"
-DEFAULT_MINIMAL=false
+readonly SCRIPT_VERSION="2.0.0"
+readonly REQUIRED_NVIM_VERSION="0.9"
+readonly REQUIRED_DENO_VERSION="1.40"
 
-# Initialize variables
-CONFIG_PATH="$DEFAULT_CONFIG_PATH"
-BACKUP_EXISTING="$DEFAULT_BACKUP"
-SETUP_DENO="$DEFAULT_SETUP_DENO"
-THEME="$DEFAULT_THEME"
-MINIMAL="$DEFAULT_MINIMAL"
-
-# Arrays for tracking
-declare -a FILES_CREATED=()
-declare -a WARNINGS=()
-declare -a ERRORS=()
-
-# Colors for output
+# Color codes for output
 readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'
 readonly YELLOW='\033[1;33m'
 readonly BLUE='\033[0;34m'
 readonly PURPLE='\033[0;35m'
 readonly CYAN='\033[0;36m'
+readonly WHITE='\033[1;37m'
 readonly NC='\033[0m' # No Color
 
 # =============================================================================
-# UTILITY FUNCTIONS
+# LOGGING & OUTPUT FUNCTIONS
 # =============================================================================
 
-log_info() {
-    echo -e "${BLUE}ℹ️  $1${NC}"
-}
+log() { echo -e "${GREEN}[INFO]${NC} $*"; }
+warn() { echo -e "${YELLOW}[WARN]${NC} $*"; }
+error() { echo -e "${RED}[ERROR]${NC} $*"; }
+debug() { echo -e "${BLUE}[DEBUG]${NC} $*"; }
+success() { echo -e "${GREEN}[SUCCESS]${NC} $*"; }
+header() { echo -e "${PURPLE}[SETUP]${NC} ${WHITE}$*${NC}"; }
 
-log_success() {
-    echo -e "${GREEN}✅ $1${NC}"
-}
-
-log_warning() {
-    echo -e "${YELLOW}⚠️  $1${NC}"
-    WARNINGS+=("$1")
-}
-
-log_error() {
-    echo -e "${RED}❌ $1${NC}" >&2
-    ERRORS+=("$1")
-}
-
-show_help() {
-    cat << EOF
-${CYAN}DenoGenesis Neovim Setup Script${NC}
-
-${PURPLE}USAGE:${NC}
-    setup-nvim.sh [OPTIONS]
-
-${PURPLE}OPTIONS:${NC}
-    --config-path <PATH>    Custom config path (default: ~/.config/nvim)
-    --no-backup            Don't backup existing configuration
-    --no-deno              Don't setup Deno LSP and features
-    --theme <THEME>        Color theme: tokyonight, catppuccin, gruvbox
-    --minimal              Install only essential features
-    --help, -h             Show this help message
-
-${PURPLE}EXAMPLES:${NC}
-    setup-nvim.sh                           # Full setup with defaults
-    setup-nvim.sh --minimal --no-deno       # Minimal setup without Deno
-    setup-nvim.sh --theme gruvbox           # Setup with Gruvbox theme
-    setup-nvim.sh --config-path ~/.nvim     # Custom config location
-
-${PURPLE}FEATURES:${NC}
-This script follows Unix Philosophy principles:
-- Does one thing well: sets up Neovim for Deno Genesis development
-- Returns structured data about the setup process
-- Stores configuration as readable text files
-- Leverages existing plugin ecosystem for maximum compatibility
-
-${PURPLE}PREREQUISITES:${NC}
-- Neovim 0.8+ (preferably 0.9+)
-- Git (for plugin management)
-- Deno (if --deno flag is used)
-
+show_banner() {
+    cat << 'EOF'
+╔══════════════════════════════════════════════════════════════╗
+║                    DenoGenesis Framework                     ║
+║                 Modern Neovim Configuration                  ║
+║                                                              ║
+║    🚀 TypeScript-First Development Environment               ║
+║    🦕 Deno LSP Integration & Conflict Resolution             ║
+║    ⚡ Performance Optimized with lazy.nvim                  ║
+║    🎯 Zero Version Drift Architecture                        ║
+╚══════════════════════════════════════════════════════════════╝
 EOF
+    echo
 }
 
 # =============================================================================
-# PREREQUISITE CHECKING
+# SYSTEM DETECTION & PREREQUISITES
 # =============================================================================
 
-check_prerequisites() {
-    log_info "Checking prerequisites..."
-    
-    # Check if Neovim is installed
-    if ! command -v nvim &> /dev/null; then
-        log_error "Neovim is not installed or not in PATH"
+detect_os() {
+    case "$(uname -s)" in
+        Darwin) echo "macos" ;;
+        Linux) echo "linux" ;;
+        CYGWIN*|MINGW*|MSYS*) echo "windows" ;;
+        *) echo "unknown" ;;
+    esac
+}
+
+check_command() {
+    if ! command -v "$1" &> /dev/null; then
         return 1
     fi
-    
-    # Check Neovim version
-    local nvim_version
-    nvim_version=$(nvim --version | head -n1 | grep -oE 'v[0-9]+\.[0-9]+' | cut -d'v' -f2)
-    local major_version
-    major_version=$(echo "$nvim_version" | cut -d'.' -f1)
-    local minor_version
-    minor_version=$(echo "$nvim_version" | cut -d'.' -f2)
-    
-    if [[ "$major_version" -eq 0 && "$minor_version" -lt 8 ]]; then
-        log_warning "Neovim version $nvim_version might be too old. Recommend 0.8+"
-    fi
-    
-    # Check if Git is installed
-    if ! command -v git &> /dev/null; then
-        log_error "Git is not installed or not in PATH (required for plugin management)"
-        return 1
-    fi
-    
-    # Check if Deno is installed (if Deno setup is requested)
-    if [[ "$SETUP_DENO" == "true" ]] && ! command -v deno &> /dev/null; then
-        log_warning "Deno is not installed or not in PATH. Deno LSP features will be limited."
-    fi
-    
-    log_success "Prerequisites check completed"
     return 0
 }
 
+version_ge() {
+    printf '%s\n%s\n' "$2" "$1" | sort -V -C
+}
+
+check_prerequisites() {
+    header "Checking Prerequisites"
+    
+    local os_type
+    os_type=$(detect_os)
+    log "Operating System: $os_type"
+    
+    # Check Neovim
+    if ! check_command nvim; then
+        error "Neovim not found. Please install Neovim >= $REQUIRED_NVIM_VERSION"
+        case "$os_type" in
+            "macos") error "Install with: brew install neovim" ;;
+            "linux") error "Install with: sudo apt install neovim (Ubuntu/Debian) or equivalent" ;;
+        esac
+        exit 1
+    fi
+    
+    local nvim_version
+    nvim_version=$(nvim --version | head -n1 | grep -oE '[0-9]+\.[0-9]+' | head -n1)
+    if ! version_ge "$nvim_version" "$REQUIRED_NVIM_VERSION"; then
+        error "Neovim version $nvim_version is too old. Requires >= $REQUIRED_NVIM_VERSION"
+        exit 1
+    fi
+    success "Neovim $nvim_version detected"
+    
+    # Check Deno
+    if ! check_command deno; then
+        error "Deno not found. Please install Deno first:"
+        error "curl -fsSL https://deno.land/install.sh | sh"
+        exit 1
+    fi
+    
+    local deno_version
+    deno_version=$(deno --version | head -n1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+    if ! version_ge "$deno_version" "$REQUIRED_DENO_VERSION"; then
+        error "Deno version $deno_version is too old. Requires >= $REQUIRED_DENO_VERSION"
+        exit 1
+    fi
+    success "Deno $deno_version detected"
+    
+    # Check essential dependencies
+    local deps=("git" "curl" "unzip")
+    for dep in "${deps[@]}"; do
+        if ! check_command "$dep"; then
+            error "Missing dependency: $dep"
+            exit 1
+        fi
+    done
+    
+    # Check build tools for native extensions
+    if ! check_command gcc && ! check_command clang; then
+        warn "No C compiler found. Some plugins may not compile."
+        case "$os_type" in
+            "macos") warn "Install Xcode Command Line Tools: xcode-select --install" ;;
+            "linux") warn "Install build-essential: sudo apt install build-essential" ;;
+        esac
+    fi
+    
+    # Check optional performance tools
+    if ! check_command rg; then
+        warn "ripgrep not found. Install for better search performance:"
+        case "$os_type" in
+            "macos") warn "  brew install ripgrep" ;;
+            "linux") warn "  sudo apt install ripgrep" ;;
+        esac
+    fi
+    
+    if ! check_command fd; then
+        warn "fd not found. Install for better file finding:"
+        case "$os_type" in
+            "macos") warn "  brew install fd" ;;
+            "linux") warn "  sudo apt install fd-find" ;;
+        esac
+    fi
+    
+    success "Prerequisites check passed"
+}
+
 # =============================================================================
-# BACKUP AND DIRECTORY SETUP
+# BACKUP & CLEANUP FUNCTIONS
 # =============================================================================
 
 backup_existing_config() {
-    if [[ -d "$CONFIG_PATH" ]]; then
-        local backup_path="${CONFIG_PATH}.backup.$(date +%s)"
-        log_info "Backing up existing configuration to $backup_path"
-        mv "$CONFIG_PATH" "$backup_path"
-        log_warning "Existing configuration backed up to: $backup_path"
-        echo "$backup_path" # Return backup path
+    header "Backing Up Existing Configuration"
+    
+    local config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
+    local data_dir="${XDG_DATA_HOME:-$HOME/.local/share}/nvim"
+    local state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/nvim"
+    local cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/nvim"
+    
+    local timestamp
+    timestamp=$(date +%Y%m%d_%H%M%S)
+    
+    # Backup config directory
+    if [[ -d "$config_dir" ]]; then
+        local backup_dir="${config_dir}.backup.${timestamp}"
+        log "Backing up existing config to $backup_dir"
+        mv "$config_dir" "$backup_dir"
+        success "Configuration backed up to $backup_dir"
     fi
-}
-
-create_directory_structure() {
-    log_info "Creating directory structure..."
     
-    local directories=(
-        "$CONFIG_PATH"
-        "$CONFIG_PATH/lua"
-        "$CONFIG_PATH/lua/config"
-        "$CONFIG_PATH/lua/plugins"
-        "$CONFIG_PATH/undo"
-    )
-    
-    for dir in "${directories[@]}"; do
-        mkdir -p "$dir"
+    # Clean data directories for fresh start
+    for dir in "$data_dir" "$state_dir" "$cache_dir"; do
+        if [[ -d "$dir" ]]; then
+            log "Cleaning $dir for fresh installation"
+            rm -rf "$dir"
+        fi
     done
     
-    log_success "Directory structure created"
+    success "Backup and cleanup completed"
 }
 
 # =============================================================================
-# CONFIGURATION FILE GENERATORS
+# NEOVIM CONFIGURATION GENERATION
 # =============================================================================
+
+create_directory_structure() {
+    header "Creating Neovim Directory Structure"
+    
+    local config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
+    
+    # Create directory structure following lazy.nvim standards
+    mkdir -p "$config_dir/lua/config"
+    mkdir -p "$config_dir/lua/plugins"
+    mkdir -p "$config_dir/lua/util"
+    
+    success "Directory structure created"
+}
 
 generate_init_lua() {
-    cat << 'EOF'
--- =============================================================================
--- DenoGenesis Neovim Configuration - init.lua
--- =============================================================================
--- Unix Philosophy: Simple, composable, does one thing well
--- Generated by setup-nvim.sh following Deno Genesis principles
-
--- Initialize core configuration
-require("config.options")
-require("config.lazy")
-require("config.keymaps")
-
--- Enable Deno for TypeScript files globally
-vim.g.deno_enable = true
-
--- Auto-detect Deno projects and configure accordingly
-local augroup = vim.api.nvim_create_augroup("DenoConfig", { clear = true })
-vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
-  group = augroup,
-  pattern = {"*.ts", "*.tsx", "*.js", "*.jsx"},
-  callback = function()
-    -- Check for Deno project indicators
-    local deno_config = vim.fn.findfile("deno.json", ".;")
-    local deno_config_c = vim.fn.findfile("deno.jsonc", ".;")
-    local import_map = vim.fn.findfile("import_map.json", ".;")
+    local config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
     
-    if deno_config ~= "" or deno_config_c ~= "" or import_map ~= "" then
-      vim.b.deno_enable = true
-      vim.bo.filetype = "typescript"
-      
-      -- Set Deno-specific options
-      vim.bo.expandtab = true
-      vim.bo.tabstop = 2
-      vim.bo.shiftwidth = 2
-      vim.bo.softtabstop = 2
-    end
-  end,
-})
+    cat > "$config_dir/init.lua" << 'EOF'
+-- init.lua - DenoGenesis Framework Neovim Configuration
+-- Optimized for Deno TypeScript development with zero version drift
+-- Compatible with centralized DenoGenesis architecture
 
--- Create custom commands for Deno
-vim.api.nvim_create_user_command('DenoRun', function()
-  vim.cmd('!deno run %')
-end, { desc = 'Run current Deno file' })
+vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
 
-vim.api.nvim_create_user_command('DenoTest', function()
-  vim.cmd('!deno test')
-end, { desc = 'Run Deno tests' })
+-- Disable built-in plugins for faster startup
+vim.g.loaded_gzip = 1
+vim.g.loaded_zip = 1
+vim.g.loaded_zipPlugin = 1
+vim.g.loaded_tar = 1
+vim.g.loaded_tarPlugin = 1
+vim.g.loaded_getscript = 1
+vim.g.loaded_getscriptPlugin = 1
+vim.g.loaded_vimball = 1
+vim.g.loaded_vimballPlugin = 1
+vim.g.loaded_2html_plugin = 1
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+vim.g.loaded_netrwSettings = 1
+vim.g.loaded_netrwFileHandlers = 1
 
-vim.api.nvim_create_user_command('DenoFmt', function()
-  vim.cmd('!deno fmt %')
-  vim.cmd('edit!')
-end, { desc = 'Format current file with Deno' })
-
-vim.api.nvim_create_user_command('DenoLint', function()
-  vim.cmd('!deno lint %')
-end, { desc = 'Lint current file with Deno' })
-EOF
-}
-
-generate_options_lua() {
-    cat << 'EOF'
--- =============================================================================
--- Neovim Options Configuration
--- =============================================================================
-
-local opt = vim.opt
-
--- Line numbers
-opt.number = true
-opt.relativenumber = true
-
--- Tabs and indentation (Deno Genesis standard: 2 spaces)
-opt.tabstop = 2
-opt.softtabstop = 2
-opt.shiftwidth = 2
-opt.expandtab = true
-opt.autoindent = true
-opt.smartindent = true
-
--- Line wrapping
-opt.wrap = false
-
--- Search settings
-opt.ignorecase = true
-opt.smartcase = true
-opt.hlsearch = true
-opt.incsearch = true
-
--- Cursor line
-opt.cursorline = true
-
--- Appearance
-opt.termguicolors = true
-opt.background = "dark"
-opt.signcolumn = "yes"
-opt.colorcolumn = "100"
-
--- Backspace
-opt.backspace = "indent,eol,start"
-
--- Clipboard (system clipboard integration)
-opt.clipboard:append("unnamedplus")
-
--- Split windows
-opt.splitright = true
-opt.splitbelow = true
-
--- Undo settings
-opt.undofile = true
-opt.undodir = vim.fn.expand("~/.config/nvim/undo")
-
--- Update time (for better UX and LSP responsiveness)
-opt.updatetime = 300
-opt.timeoutlen = 300
-
--- File encoding
-opt.fileencoding = "utf-8"
-
--- Scrolling
-opt.scrolloff = 8
-opt.sidescrolloff = 8
-
--- Better completion
-opt.completeopt = "menuone,noselect"
-
--- Hide command line when not used
-opt.cmdheight = 1
-
--- Better performance
-opt.lazyredraw = false
-opt.ttyfast = true
-
--- Folding (using treesitter when available)
-opt.foldmethod = "expr"
-opt.foldexpr = "nvim_treesitter#foldexpr()"
-opt.foldenable = false -- Start with all folds open
-EOF
-}
-
-generate_lazy_lua() {
-    cat << 'EOF'
--- =============================================================================
--- Lazy.nvim Plugin Manager Configuration
--- =============================================================================
-
+-- Bootstrap lazy.nvim plugin manager
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system({
@@ -340,48 +243,44 @@ if not vim.loop.fs_stat(lazypath) then
     "clone",
     "--filter=blob:none",
     "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable", -- latest stable release
+    "--branch=stable",
     lazypath,
   })
 end
 vim.opt.rtp:prepend(lazypath)
 
--- Setup lazy.nvim
-require("lazy").setup({
-  -- Import plugin configurations
-  { import = "plugins" },
-}, {
-  -- Lazy.nvim configuration
+-- Load core configuration
+require("config.options")
+require("config.keymaps")
+require("config.autocmds")
+
+-- Initialize plugin system
+require("lazy").setup("plugins", {
   defaults = {
-    lazy = false, -- should plugins be lazy-loaded?
-    version = nil, -- try installing the latest stable version for plugins that support semver
+    lazy = true, -- Enable lazy loading by default
+    version = false, -- Always use latest stable version
   },
   install = {
-    -- install missing plugins on startup
-    missing = true,
-    -- try to load one of these colorschemes when starting an installation during startup
-    colorscheme = { "tokyonight", "habamax" },
+    colorscheme = { "tokyonight-night" },
+    missing = true, -- Install missing plugins
   },
   checker = {
-    -- automatically check for plugin updates
-    enabled = true,
-    concurrency = nil, -- nil means use the number of available cores
-    notify = false, -- get a notification when new updates are found
-    frequency = 3600, -- check for updates every hour
+    enabled = true, -- Check for plugin updates
+    notify = false, -- Don't notify about updates
+    frequency = 3600, -- Check every hour
   },
   change_detection = {
-    -- automatically check for config file changes and reload the ui
-    enabled = true,
-    notify = false, -- get a notification when changes are found
+    enabled = true, -- Auto-reload config changes
+    notify = false, -- Don't show notifications
   },
   performance = {
+    cache = {
+      enabled = true,
+    },
+    reset_packpath = true,
     rtp = {
-      -- disable some rtp plugins
       disabled_plugins = {
         "gzip",
-        "matchit",
-        "matchparen",
-        "netrwPlugin",
         "tarPlugin",
         "tohtml",
         "tutor",
@@ -389,170 +288,807 @@ require("lazy").setup({
       },
     },
   },
+  ui = {
+    border = "rounded",
+    backdrop = 60,
+  },
 })
 EOF
+
+    log "Created init.lua"
+}
+
+generate_options_lua() {
+    local config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
+    
+    cat > "$config_dir/lua/config/options.lua" << 'EOF'
+-- options.lua - Core Neovim settings optimized for Deno development
+-- Follows DenoGenesis UI guidelines and performance best practices
+
+local opt = vim.opt
+
+-- =============================================================================
+-- UI & DISPLAY SETTINGS
+-- =============================================================================
+
+-- Line numbers and visual guides
+opt.number = true
+opt.relativenumber = true
+opt.signcolumn = "yes:2"  -- Always show sign column with 2 characters
+opt.cursorline = true
+opt.cursorcolumn = false  -- Disable for performance
+opt.colorcolumn = "80,120"  -- Guide lines for code width
+
+-- Scrolling behavior
+opt.scrolloff = 8         -- Keep 8 lines above/below cursor
+opt.sidescrolloff = 8     -- Keep 8 columns left/right of cursor
+opt.smoothscroll = true   -- Smooth scrolling (Neovim 0.10+)
+
+-- Window splitting
+opt.splitbelow = true     -- Horizontal splits below current
+opt.splitright = true     -- Vertical splits to the right
+opt.splitkeep = "screen"  -- Keep text on screen when splitting
+
+-- Text wrapping
+opt.wrap = false          -- Disable line wrapping for code
+opt.linebreak = true      -- Break at word boundaries if wrap enabled
+opt.breakindent = true    -- Preserve indentation in wrapped lines
+
+-- =============================================================================
+-- EDITING & INPUT SETTINGS
+-- =============================================================================
+
+-- Indentation (TypeScript/Deno standard: 2 spaces)
+opt.expandtab = true      -- Use spaces instead of tabs
+opt.shiftwidth = 2        -- Number of spaces for auto-indent
+opt.tabstop = 2           -- Number of spaces for tab character
+opt.softtabstop = 2       -- Number of spaces for tab in insert mode
+opt.smartindent = true    -- Smart auto-indenting
+opt.autoindent = true     -- Copy indent from current line
+
+-- Text editing behavior
+opt.backspace = "indent,eol,start"  -- Intuitive backspace behavior
+opt.whichwrap:append("<,>,[,],h,l")  -- Allow movement keys to wrap
+
+-- Case sensitivity and searching
+opt.ignorecase = true     -- Ignore case in search patterns
+opt.smartcase = true      -- Override ignorecase if uppercase used
+opt.hlsearch = true       -- Highlight search results
+opt.incsearch = true      -- Incremental search
+
+-- Command and completion
+opt.completeopt = "menu,menuone,noselect,preview"
+opt.shortmess:append("c") -- Don't show completion messages
+opt.pumheight = 15        -- Maximum items in popup menu
+opt.pumblend = 10         -- Transparency for popup menu
+opt.winblend = 0          -- Window transparency
+
+-- =============================================================================
+-- PERFORMANCE & BEHAVIOR SETTINGS
+-- =============================================================================
+
+-- File handling
+opt.backup = false        -- Don't create backup files
+opt.writebackup = false   -- Don't backup before overwriting
+opt.swapfile = false      -- Don't use swap files
+opt.undofile = true       -- Persistent undo history
+opt.undolevels = 10000    -- Maximum number of undo levels
+
+-- Update and timeout settings
+opt.updatetime = 200      -- CursorHold event trigger time (ms)
+opt.timeoutlen = 300      -- Time to wait for key sequence (ms)
+opt.ttimeoutlen = 10      -- Key code timeout
+
+-- Mouse and clipboard
+opt.mouse = "a"                    -- Enable mouse in all modes
+opt.clipboard = "unnamedplus"      -- Use system clipboard
+opt.virtualedit = "block"          -- Allow cursor past end of line in visual block
+
+-- =============================================================================
+-- FILE TYPE & FORMAT SETTINGS
+-- =============================================================================
+
+-- File encoding
+opt.encoding = "utf-8"
+opt.fileencoding = "utf-8"
+
+-- Line endings
+opt.fileformats = "unix,dos,mac"
+
+-- Wildcard matching
+opt.wildmode = "longest:full,full"
+opt.wildignore:append({
+  "*.o,*.obj,*.bin,*.dll,*.exe",
+  "*/.git/*,*/.svn/*,*/.DS_Store",
+  "*/node_modules/*,*/target/*,*/.build/*"
+})
+
+-- Folding (using TreeSitter)
+opt.foldmethod = "expr"
+opt.foldexpr = "nvim_treesitter#foldexpr()"
+opt.foldlevel = 99        -- Don't fold by default
+opt.foldlevelstart = 99   -- Don't fold when opening files
+
+-- =============================================================================
+-- TERMINAL & EXTERNAL TOOLS
+-- =============================================================================
+
+-- Terminal behavior
+opt.termguicolors = true  -- True color support
+opt.shell = vim.env.SHELL or "/bin/bash"
+
+-- External formatting tools
+opt.formatprg = "deno fmt -"  -- Use deno fmt as default formatter
+
+-- =============================================================================
+-- DENO-SPECIFIC SETTINGS
+-- =============================================================================
+
+-- Set up Deno-specific file detection
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+  pattern = { "*.ts", "*.tsx", "*.js", "*.jsx" },
+  callback = function()
+    local root = vim.fs.root(0, { "deno.json", "deno.jsonc", "deno.lock" })
+    if root then
+      -- Mark buffer as Deno project
+      vim.b.deno_project = true
+      -- Set TypeScript compiler options for Deno
+      vim.bo.compiler = "deno"
+    end
+  end,
+})
+
+-- Disable format on save for certain file types (let LSP handle it)
+vim.g.autoformat_enabled = true
+vim.g.autoformat_disable_filetypes = { "markdown" }
+
+-- Performance optimizations for large files
+opt.synmaxcol = 300       -- Don't syntax highlight long lines
+opt.lazyredraw = false    -- Don't redraw during macros (can cause issues with modern terminals)
+opt.regexpengine = 0      -- Use automatic regexp engine selection
+
+-- Session management
+opt.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+EOF
+
+    log "Created config/options.lua"
 }
 
 generate_keymaps_lua() {
-    cat << 'EOF'
--- =============================================================================
--- Keymaps Configuration
--- =============================================================================
-
--- Set leader key to space
-vim.g.mapleader = " "
-vim.g.maplocalleader = " "
+    local config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
+    
+    cat > "$config_dir/lua/config/keymaps.lua" << 'EOF'
+-- keymaps.lua - Key mappings optimized for TypeScript development
+-- Follows modern Neovim conventions and Deno Genesis workflow
 
 local keymap = vim.keymap.set
+local opts = { noremap = true, silent = true }
+local expr_opts = { noremap = true, expr = true, silent = true }
 
--- General keymaps
-keymap("i", "jk", "<ESC>", { desc = "Exit insert mode with jk" })
-keymap("n", "<leader>nh", ":nohl<CR>", { desc = "Clear search highlights" })
+-- =============================================================================
+-- LEADER KEY CONFIGURATION
+-- =============================================================================
 
--- Window management
-keymap("n", "<leader>sv", "<C-w>v", { desc = "Split window vertically" })
-keymap("n", "<leader>sh", "<C-w>s", { desc = "Split window horizontally" })
-keymap("n", "<leader>se", "<C-w>=", { desc = "Make split windows equal size" })
-keymap("n", "<leader>sx", "<cmd>close<CR>", { desc = "Close current split" })
+-- Space as leader key is set in init.lua
+-- Local leader for buffer-specific mappings
+vim.g.maplocalleader = "\\"
 
--- Tab management
-keymap("n", "<leader>to", "<cmd>tabnew<CR>", { desc = "Open new tab" })
-keymap("n", "<leader>tx", "<cmd>tabclose<CR>", { desc = "Close current tab" })
-keymap("n", "<leader>tn", "<cmd>tabn<CR>", { desc = "Go to next tab" })
-keymap("n", "<leader>tp", "<cmd>tabp<CR>", { desc = "Go to previous tab" })
+-- =============================================================================
+-- BASIC NAVIGATION & MOVEMENT
+-- =============================================================================
 
--- Buffer management
-keymap("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Delete buffer" })
-keymap("n", "<leader>bn", "<cmd>bnext<CR>", { desc = "Next buffer" })
-keymap("n", "<leader>bp", "<cmd>bprev<CR>", { desc = "Previous buffer" })
+-- Better window navigation
+keymap("n", "<C-h>", "<C-w>h", opts)
+keymap("n", "<C-j>", "<C-w>j", opts)
+keymap("n", "<C-k>", "<C-w>k", opts)
+keymap("n", "<C-l>", "<C-w>l", opts)
 
--- Better navigation
-keymap("n", "<C-d>", "<C-d>zz", { desc = "Scroll down and center" })
-keymap("n", "<C-u>", "<C-u>zz", { desc = "Scroll up and center" })
-keymap("n", "n", "nzz", { desc = "Next search result and center" })
-keymap("n", "N", "Nzz", { desc = "Previous search result and center" })
+-- Terminal window navigation
+keymap("t", "<C-h>", "<C-\\><C-N><C-w>h", opts)
+keymap("t", "<C-j>", "<C-\\><C-N><C-w>j", opts)
+keymap("t", "<C-k>", "<C-\\><C-N><C-w>k", opts)
+keymap("t", "<C-l>", "<C-\\><C-N><C-w>l", opts)
 
--- Move lines
-keymap("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
-keymap("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
+-- Window resizing with arrows
+keymap("n", "<C-Up>", "<cmd>resize -2<CR>", opts)
+keymap("n", "<C-Down>", "<cmd>resize +2<CR>", opts)
+keymap("n", "<C-Left>", "<cmd>vertical resize -2<CR>", opts)
+keymap("n", "<C-Right>", "<cmd>vertical resize +2<CR>", opts)
 
--- Better indenting
-keymap("v", "<", "<gv", { desc = "Indent left and reselect" })
-keymap("v", ">", ">gv", { desc = "Indent right and reselect" })
+-- Better page navigation
+keymap("n", "<C-d>", "<C-d>zz", opts) -- Center after half page down
+keymap("n", "<C-u>", "<C-u>zz", opts) -- Center after half page up
+keymap("n", "n", "nzzzv", opts)       -- Center after next search
+keymap("n", "N", "Nzzzv", opts)       -- Center after previous search
 
--- Deno Genesis specific keymaps
-keymap("n", "<leader>dr", "<cmd>DenoRun<CR>", { desc = "Run Deno file" })
-keymap("n", "<leader>dt", "<cmd>DenoTest<CR>", { desc = "Run Deno tests" })
-keymap("n", "<leader>df", "<cmd>DenoFmt<CR>", { desc = "Format with Deno" })
-keymap("n", "<leader>dl", "<cmd>DenoLint<CR>", { desc = "Lint with Deno" })
+-- =============================================================================
+-- BUFFER MANAGEMENT
+-- =============================================================================
 
--- LSP keymaps (will be overridden by LSP plugin if available)
-keymap("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
-keymap("n", "gr", vim.lsp.buf.references, { desc = "Show references" })
-keymap("n", "gi", vim.lsp.buf.implementation, { desc = "Go to implementation" })
-keymap("n", "K", vim.lsp.buf.hover, { desc = "Show hover documentation" })
-keymap("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code actions" })
-keymap("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename symbol" })
-keymap("n", "<leader>f", vim.lsp.buf.format, { desc = "Format code" })
+-- Buffer navigation
+keymap("n", "<S-h>", "<cmd>bprevious<CR>", opts)
+keymap("n", "<S-l>", "<cmd>bnext<CR>", opts)
+keymap("n", "<leader>bb", "<cmd>e #<CR>", { desc = "Switch to Other Buffer" })
+keymap("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Delete Buffer" })
+keymap("n", "<leader>bD", "<cmd>%bd|e#<CR>", { desc = "Delete All But Current" })
 
--- Diagnostic keymaps
-keymap("n", "<leader>d", vim.diagnostic.open_float, { desc = "Show diagnostic" })
-keymap("n", "[d", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })
-keymap("n", "]d", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
+-- Quick save and quit
+keymap("n", "<leader>w", "<cmd>w<CR>", { desc = "Save" })
+keymap("n", "<leader>wa", "<cmd>wa<CR>", { desc = "Save All" })
+keymap("n", "<leader>q", "<cmd>q<CR>", { desc = "Quit" })
+keymap("n", "<leader>qa", "<cmd>qa<CR>", { desc = "Quit All" })
+keymap("n", "<leader>wq", "<cmd>wq<CR>", { desc = "Save and Quit" })
+
+-- =============================================================================
+-- EDITING OPERATIONS
+-- =============================================================================
+
+-- Better indenting (maintain selection)
+keymap("v", "<", "<gv", opts)
+keymap("v", ">", ">gv", opts)
+
+-- Move lines up and down
+keymap("n", "<A-j>", "<cmd>m .+1<CR>==", { desc = "Move line down" })
+keymap("n", "<A-k>", "<cmd>m .-2<CR>==", { desc = "Move line up" })
+keymap("i", "<A-j>", "<esc><cmd>m .+1<CR>==gi", { desc = "Move line down" })
+keymap("i", "<A-k>", "<esc><cmd>m .-2<CR>==gi", { desc = "Move line up" })
+keymap("v", "<A-j>", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
+keymap("v", "<A-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
+
+-- Better paste behavior
+keymap("v", "p", '"_dP', opts) -- Paste without yanking replaced text
+keymap("x", "<leader>p", '"_dP', { desc = "Paste without yanking" })
+
+-- Delete without yanking
+keymap("n", "<leader>d", '"_d', { desc = "Delete without yanking" })
+keymap("v", "<leader>d", '"_d', { desc = "Delete without yanking" })
+
+-- Yank to system clipboard
+keymap("n", "<leader>y", '"+y', { desc = "Yank to clipboard" })
+keymap("v", "<leader>y", '"+y', { desc = "Yank to clipboard" })
+keymap("n", "<leader>Y", '"+Y', { desc = "Yank line to clipboard" })
+
+-- =============================================================================
+-- SEARCH AND REPLACE
+-- =============================================================================
+
+-- Clear search highlighting
+keymap("n", "<leader>h", "<cmd>nohlsearch<CR>", { desc = "Clear highlights" })
+keymap("n", "<Esc>", "<cmd>nohlsearch<CR>", opts)
+
+-- Search and replace word under cursor
+keymap("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], 
+  { desc = "Replace word under cursor" })
+
+-- Visual mode search
+keymap("v", "//", 'y/\\V<C-R>=escape(@",\'/\\\')<CR><CR>', { desc = "Search selection" })
+
+-- =============================================================================
+-- DENO GENESIS SPECIFIC MAPPINGS
+-- =============================================================================
+
+-- Deno commands (will be enhanced by LSP plugin)
+keymap("n", "<leader>dr", "<cmd>!deno run %<CR>", { desc = "Deno run current file" })
+keymap("n", "<leader>dt", "<cmd>!deno task<CR>", { desc = "Show Deno tasks" })
+keymap("n", "<leader>df", "<cmd>!deno fmt %<CR>", { desc = "Format with Deno" })
+keymap("n", "<leader>dl", "<cmd>!deno lint %<CR>", { desc = "Lint with Deno" })
+keymap("n", "<leader>dc", "<cmd>!deno check %<CR>", { desc = "Check with Deno" })
+
+-- File operations for Deno Genesis projects
+keymap("n", "<leader>fc", "<cmd>e deno.json<CR>", { desc = "Open Deno config" })
+keymap("n", "<leader>fi", "<cmd>e import_map.json<CR>", { desc = "Open import map" })
+
+-- =============================================================================
+-- TOGGLE FUNCTIONS
+-- =============================================================================
+
+-- Toggle common options
+keymap("n", "<leader>tn", "<cmd>set number!<CR>", { desc = "Toggle line numbers" })
+keymap("n", "<leader>tr", "<cmd>set relativenumber!<CR>", { desc = "Toggle relative numbers" })
+keymap("n", "<leader>tw", "<cmd>set wrap!<CR>", { desc = "Toggle word wrap" })
+keymap("n", "<leader>ts", "<cmd>set spell!<CR>", { desc = "Toggle spelling" })
+
+-- =============================================================================
+-- COMMAND LINE IMPROVEMENTS
+-- =============================================================================
+
+-- Command line navigation
+keymap("c", "<C-a>", "<Home>", opts)
+keymap("c", "<C-e>", "<End>", opts)
+keymap("c", "<C-h>", "<Left>", opts)
+keymap("c", "<C-l>", "<Right>", opts)
+keymap("c", "<C-j>", "<Down>", opts)
+keymap("c", "<C-k>", "<Up>", opts)
+
+-- =============================================================================
+-- MISCELLANEOUS UTILITIES
+-- =============================================================================
+
+-- Reload configuration
+keymap("n", "<leader><leader>r", "<cmd>source $MYVIMRC<CR>", { desc = "Reload config" })
+
+-- Make file executable
+keymap("n", "<leader>x", "<cmd>!chmod +x %<CR>", { desc = "Make file executable" })
+
+-- Split line (opposite of J)
+keymap("n", "S", "i<CR><Esc>", { desc = "Split line" })
+
+-- Center screen on insert mode exit
+keymap("i", "<Esc>", "<Esc>zz", opts)
+
+-- =============================================================================
+-- DIAGNOSTICS AND LSP PLACEHOLDERS
+-- =============================================================================
+-- These will be enhanced by LSP configuration
+
+-- Diagnostic navigation
+keymap("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic" })
+keymap("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next diagnostic" })
+keymap("n", "<leader>e", vim.diagnostic.open_float, { desc = "Show diagnostic" })
+keymap("n", "<leader>dl", vim.diagnostic.setloclist, { desc = "Diagnostic loclist" })
+
+-- Quickfix list navigation
+keymap("n", "<C-k>", "<cmd>cnext<CR>zz", opts)
+keymap("n", "<C-j>", "<cmd>cprev<CR>zz", opts)
+keymap("n", "<leader>k", "<cmd>lnext<CR>zz", opts)
+keymap("n", "<leader>j", "<cmd>lprev<CR>zz", opts)
 EOF
+
+    log "Created config/keymaps.lua"
 }
 
-generate_lsp_lua() {
-    local setup_deno="$1"
-    cat << EOF
+generate_autocmds_lua() {
+    local config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
+    
+    cat > "$config_dir/lua/config/autocmds.lua" << 'EOF'
+-- autocmds.lua - Auto commands for Deno Genesis development
+-- Optimized for TypeScript workflow and performance
+
+local autocmd = vim.api.nvim_create_autocmd
+local augroup = vim.api.nvim_create_augroup
+
 -- =============================================================================
--- LSP Configuration
+-- GENERAL EDITOR IMPROVEMENTS
 -- =============================================================================
+
+-- Highlight on yank
+augroup("YankHighlight", { clear = true })
+autocmd("TextYankPost", {
+  group = "YankHighlight",
+  pattern = "*",
+  callback = function()
+    vim.highlight.on_yank({ higroup = "IncSearch", timeout = 200 })
+  end,
+})
+
+-- Remove trailing whitespace on save
+augroup("TrimWhitespace", { clear = true })
+autocmd("BufWritePre", {
+  group = "TrimWhitespace",
+  pattern = "*",
+  command = [[%s/\s\+$//e]],
+})
+
+-- Auto-create directories when saving files
+augroup("CreateDirs", { clear = true })
+autocmd("BufWritePre", {
+  group = "CreateDirs",
+  pattern = "*",
+  callback = function(event)
+    if event.match:match("^%w%w+:[\\/][\\/]") then
+      return
+    end
+    local file = vim.uv.fs_realpath(event.match) or event.match
+    vim.fn.mkdir(vim.fn.fnamemodify(file, ":p:h"), "p")
+  end,
+})
+
+-- =============================================================================
+-- FILE TYPE SPECIFIC CONFIGURATIONS
+-- =============================================================================
+
+-- TypeScript/JavaScript optimizations for Deno
+augroup("DenoTypeScript", { clear = true })
+autocmd({ "BufRead", "BufNewFile" }, {
+  group = "DenoTypeScript",
+  pattern = { "*.ts", "*.tsx", "*.js", "*.jsx" },
+  callback = function(ev)
+    local root = vim.fs.root(ev.buf, { "deno.json", "deno.jsonc", "deno.lock" })
+    if root then
+      -- Mark as Deno project
+      vim.b[ev.buf].deno_project = true
+      
+      -- Set compiler
+      vim.bo[ev.buf].compiler = "deno"
+      
+      -- Deno-specific settings
+      vim.bo[ev.buf].expandtab = true
+      vim.bo[ev.buf].shiftwidth = 2
+      vim.bo[ev.buf].tabstop = 2
+      vim.bo[ev.buf].softtabstop = 2
+      
+      -- Enable automatic formatting with Deno
+      vim.b[ev.buf].autoformat = true
+    end
+  end,
+})
+
+-- JSON files (including Deno config files)
+augroup("JsonFiles", { clear = true })
+autocmd({ "BufRead", "BufNewFile" }, {
+  group = "JsonFiles",
+  pattern = { "*.json", "*.jsonc" },
+  callback = function()
+    vim.bo.expandtab = true
+    vim.bo.shiftwidth = 2
+    vim.bo.tabstop = 2
+    vim.bo.softtabstop = 2
+    -- Enable comments in JSON files for Deno config
+    vim.bo.commentstring = "// %s"
+  end,
+})
+
+-- Markdown files
+augroup("MarkdownFiles", { clear = true })
+autocmd({ "BufRead", "BufNewFile" }, {
+  group = "MarkdownFiles",
+  pattern = { "*.md", "*.markdown" },
+  callback = function()
+    vim.bo.expandtab = true
+    vim.bo.shiftwidth = 2
+    vim.bo.tabstop = 2
+    vim.bo.softtabstop = 2
+    vim.wo.wrap = true
+    vim.wo.linebreak = true
+    vim.wo.spell = true
+  end,
+})
+
+-- =============================================================================
+-- WINDOW AND BUFFER MANAGEMENT
+-- =============================================================================
+
+-- Remember cursor position
+augroup("RestoreCursor", { clear = true })
+autocmd("BufReadPost", {
+  group = "RestoreCursor",
+  pattern = "*",
+  callback = function()
+    local exclude = { "gitcommit" }
+    local buf = vim.api.nvim_get_current_buf()
+    if vim.tbl_contains(exclude, vim.bo[buf].filetype) then
+      return
+    end
+    local row, col = unpack(vim.api.nvim_buf_get_mark(buf, '"'))
+    if row > 0 and row <= vim.api.nvim_buf_line_count(buf) then
+      vim.api.nvim_win_set_cursor(0, { row, col })
+    end
+  end,
+})
+
+-- Auto-resize windows on terminal resize
+augroup("ResizeWindows", { clear = true })
+autocmd("VimResized", {
+  group = "ResizeWindows",
+  pattern = "*",
+  command = "tabdo wincmd =",
+})
+
+-- Close certain windows with 'q'
+augroup("CloseWithQ", { clear = true })
+autocmd("FileType", {
+  group = "CloseWithQ",
+  pattern = {
+    "PlenaryTestPopup",
+    "help",
+    "lspinfo",
+    "man",
+    "notify",
+    "qf",
+    "spectre_panel",
+    "startuptime",
+    "tsplayground",
+    "neotest-output",
+    "checkhealth",
+    "neotest-summary",
+    "neotest-output-panel",
+  },
+  callback = function(event)
+    vim.bo[event.buf].buflisted = false
+    vim.keymap.set("n", "q", "<cmd>close<cr>", { buffer = event.buf, silent = true })
+  end,
+})
+
+-- =============================================================================
+-- PERFORMANCE OPTIMIZATIONS
+-- =============================================================================
+
+-- Disable syntax highlighting for large files
+augroup("LargeFiles", { clear = true })
+autocmd("BufReadPre", {
+  group = "LargeFiles",
+  pattern = "*",
+  callback = function(ev)
+    local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(ev.buf))
+    if ok and stats and stats.size > (1024 * 1024) then -- 1MB
+      vim.b[ev.buf].large_buf = true
+      vim.cmd("syntax off")
+      vim.opt_local.foldmethod = "manual"
+      vim.opt_local.spell = false
+    end
+  end,
+})
+
+-- =============================================================================
+-- DENO GENESIS SPECIFIC AUTOMATIONS
+-- =============================================================================
+
+-- Auto-detect Deno projects and set up environment
+augroup("DenoProject", { clear = true })
+autocmd({ "BufEnter", "BufWinEnter" }, {
+  group = "DenoProject",
+  pattern = { "*.ts", "*.tsx", "*.js", "*.jsx" },
+  callback = function()
+    local root = vim.fs.root(0, { "deno.json", "deno.jsonc", "deno.lock" })
+    if root then
+      -- Set project root
+      vim.g.deno_project_root = root
+      
+      -- Update working directory if not already set
+      if vim.fn.getcwd() ~= root then
+        vim.cmd("cd " .. root)
+      end
+    end
+  end,
+})
+
+-- Auto-format Deno files on save (if enabled)
+augroup("DenoFormat", { clear = true })
+autocmd("BufWritePre", {
+  group = "DenoFormat",
+  pattern = { "*.ts", "*.tsx", "*.js", "*.jsx", "*.json", "*.jsonc", "*.md" },
+  callback = function(ev)
+    if vim.b[ev.buf].deno_project and vim.b[ev.buf].autoformat ~= false then
+      -- Use LSP formatting if available, otherwise fallback to deno fmt
+      local clients = vim.lsp.get_active_clients({ bufnr = ev.buf })
+      local deno_client = nil
+      for _, client in ipairs(clients) do
+        if client.name == "denols" then
+          deno_client = client
+          break
+        end
+      end
+      
+      if deno_client then
+        vim.lsp.buf.format({ async = false })
+      else
+        -- Fallback to command line deno fmt
+        vim.cmd("silent !deno fmt " .. vim.fn.expand("%"))
+      end
+    end
+  end,
+})
+
+-- =============================================================================
+-- TERMINAL ENHANCEMENTS
+-- =============================================================================
+
+-- Terminal settings
+augroup("TerminalSettings", { clear = true })
+autocmd("TermOpen", {
+  group = "TerminalSettings",
+  pattern = "*",
+  callback = function()
+    vim.opt_local.number = false
+    vim.opt_local.relativenumber = false
+    vim.opt_local.scrolloff = 0
+    vim.opt_local.sidescrolloff = 0
+  end,
+})
+
+-- Auto-enter insert mode in terminal
+autocmd("BufEnter", {
+  group = "TerminalSettings",
+  pattern = "term://*",
+  command = "startinsert",
+})
+
+-- =============================================================================
+-- GIT INTEGRATION
+-- =============================================================================
+
+-- Git commit message settings
+augroup("GitCommit", { clear = true })
+autocmd("FileType", {
+  group = "GitCommit",
+  pattern = "gitcommit",
+  callback = function()
+    vim.opt_local.wrap = true
+    vim.opt_local.spell = true
+    vim.opt_local.textwidth = 72
+  end,
+})
+
+-- =============================================================================
+-- DIAGNOSTIC AND LSP IMPROVEMENTS
+-- =============================================================================
+
+-- Show diagnostics in hover window
+augroup("LspDiagnostics", { clear = true })
+autocmd("CursorHold", {
+  group = "LspDiagnostics",
+  pattern = "*",
+  callback = function()
+    local opts = {
+      focusable = false,
+      close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
+      border = "rounded",
+      source = "always",
+      prefix = " ",
+    }
+    vim.diagnostic.open_float(nil, opts)
+  end,
+})
+
+-- =============================================================================
+-- CUSTOM COMMANDS
+-- =============================================================================
+
+-- Command to toggle Deno autoformat
+vim.api.nvim_create_user_command("DenoToggleFormat", function()
+  vim.b.autoformat = not vim.b.autoformat
+  local status = vim.b.autoformat and "enabled" or "disabled"
+  vim.notify("Deno autoformat " .. status, vim.log.levels.INFO)
+end, {})
+
+-- Command to run Deno tasks
+vim.api.nvim_create_user_command("DenoTask", function(opts)
+  local task = opts.args
+  if task == "" then
+    vim.cmd("!deno task")
+  else
+    vim.cmd("!deno task " .. task)
+  end
+end, {
+  nargs = "?",
+  complete = function()
+    -- Try to read tasks from deno.json
+    local config_file = vim.fs.root(0, { "deno.json", "deno.jsonc" })
+    if config_file then
+      local config_path = config_file .. "/deno.json"
+      local ok, content = pcall(vim.fn.readfile, config_path)
+      if ok then
+        local config = vim.fn.json_decode(table.concat(content, "\n"))
+        if config.tasks then
+          return vim.tbl_keys(config.tasks)
+        end
+      end
+    end
+    return {}
+  end,
+})
+
+-- Command to check Deno project health
+vim.api.nvim_create_user_command("DenoHealthCheck", function()
+  local checks = {}
+  
+  -- Check for Deno installation
+  local deno_version = vim.fn.system("deno --version 2>/dev/null")
+  if vim.v.shell_error == 0 then
+    table.insert(checks, "✅ Deno installed: " .. string.match(deno_version, "deno ([%d%.]+)"))
+  else
+    table.insert(checks, "❌ Deno not found")
+  end
+  
+  -- Check for Deno config
+  local root = vim.fs.root(0, { "deno.json", "deno.jsonc", "deno.lock" })
+  if root then
+    table.insert(checks, "✅ Deno project detected at: " .. root)
+  else
+    table.insert(checks, "ℹ️  No Deno project detected in current directory tree")
+  end
+  
+  -- Check LSP status
+  local clients = vim.lsp.get_active_clients({ bufnr = 0 })
+  local deno_lsp_active = false
+  for _, client in ipairs(clients) do
+    if client.name == "denols" then
+      deno_lsp_active = true
+      break
+    end
+  end
+  
+  if deno_lsp_active then
+    table.insert(checks, "✅ Deno LSP active")
+  else
+    table.insert(checks, "⚠️  Deno LSP not active")
+  end
+  
+  -- Display results
+  vim.notify(table.concat(checks, "\n"), vim.log.levels.INFO, { title = "Deno Health Check" })
+end, {})
+EOF
+
+    log "Created config/autocmds.lua"
+}
+
+# =============================================================================
+# PLUGIN CONFIGURATION GENERATION
+# =============================================================================
+
+generate_lsp_config() {
+    local config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
+    
+    cat > "$config_dir/lua/plugins/lsp.lua" << 'EOF'
+-- lsp.lua - LSP Configuration optimized for Deno Genesis development
+-- Handles Deno/TypeScript LSP conflicts and provides comprehensive language support
 
 return {
-  -- LSP Configuration & Plugins
+  -- LSP Configuration
   {
-    'neovim/nvim-lspconfig',
+    "neovim/nvim-lspconfig",
+    event = { "BufReadPre", "BufNewFile" },
     dependencies = {
-      'williamboman/mason.nvim',
-      'williamboman/mason-lspconfig.nvim',
-      'j-hui/fidget.nvim', -- LSP status updates
+      "mason.nvim",
+      "williamboman/mason-lspconfig.nvim",
+      "hrsh7th/cmp-nvim-lsp",
     },
-    config = function()
-      -- Setup Mason
-      require('mason').setup({
-        ui = {
-          icons = {
-            package_installed = "✓",
-            package_pending = "➜",
-            package_uninstalled = "✗"
-          }
-        }
-      })
-
-      -- Setup Mason-LSPconfig
-      require('mason-lspconfig').setup({
-        ensure_installed = {
-$(if [[ "$setup_deno" == "true" ]]; then
-  echo '          "denols",'
-fi)
-          "tsserver",
-          "html",
-          "cssls",
-          "jsonls",
-          "lua_ls",
-        },
-        automatic_installation = true,
-      })
-
-      -- LSP settings
-      local lspconfig = require('lspconfig')
-      
-      -- Diagnostic configuration
-      vim.diagnostic.config({
-        virtual_text = {
-          prefix = '●',
-        },
-        signs = true,
+    opts = {
+      -- Global LSP settings
+      diagnostics = {
         underline = true,
         update_in_insert = false,
-        severity_sort = true,
-        float = {
-          focusable = false,
-          style = "minimal",
-          border = "rounded",
-          source = "always",
-          header = "",
-          prefix = "",
+        virtual_text = {
+          spacing = 4,
+          source = "if_many",
+          prefix = "●",
         },
-      })
-
-      -- Enhanced capabilities with completion
-      local capabilities = vim.lsp.protocol.make_client_capabilities()
-      capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
-
-      -- Custom on_attach function
-      local on_attach = function(client, bufnr)
-        -- Enhanced keymaps for LSP
-        local opts = { buffer = bufnr, silent = true }
-        vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-        vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
-        vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-        vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-        vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
-        vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
-        vim.keymap.set('n', '<leader>f', function()
-          vim.lsp.buf.format({ async = true })
-        end, opts)
+        severity_sort = true,
+      },
+      -- Inlay hints
+      inlay_hints = {
+        enabled = true,
+      },
+      -- Document formatting
+      format = {
+        formatting_options = nil,
+        timeout_ms = nil,
+      },
+    },
+    config = function(_, opts)
+      local lspconfig = require("lspconfig")
+      local cmp_nvim_lsp = require("cmp_nvim_lsp")
+      
+      -- Enhanced capabilities with nvim-cmp
+      local capabilities = vim.tbl_deep_extend(
+        "force",
+        {},
+        vim.lsp.protocol.make_client_capabilities(),
+        cmp_nvim_lsp.default_capabilities()
+      )
+      
+      -- =================================================================
+      -- DENO/TYPESCRIPT LSP CONFLICT RESOLUTION
+      -- =================================================================
+      
+      -- Helper function to prevent conflicts between Deno and TypeScript LSP
+      local function root_pattern_exclude(opt)
+        local lsputil = require('lspconfig.util')
+        return function(fname)
+          local excluded_root = lsputil.root_pattern(opt.exclude)(fname)
+          local included_root = lsputil.root_pattern(opt.root)(fname)
+          if excluded_root then
+            return nil
+          else
+            return included_root
+          end
+        end
       end
-
-$(if [[ "$setup_deno" == "true" ]]; then
-cat << 'DENO_LSP_EOF'
-      -- Deno LSP setup (priority over tsserver for Deno projects)
+      
+      -- Deno LSP Configuration
       lspconfig.denols.setup({
-        on_attach = on_attach,
+        root_dir = lspconfig.util.root_pattern("deno.json", "deno.jsonc", "deno.lock"),
         capabilities = capabilities,
-        root_dir = lspconfig.util.root_pattern("deno.json", "deno.jsonc"),
         init_options = {
           lint = true,
           unstable = true,
@@ -561,6 +1097,10 @@ cat << 'DENO_LSP_EOF'
               hosts = {
                 ["https://deno.land"] = true,
                 ["https://cdn.nest.land"] = true,
+                ["https://crux.land"] = true,
+                ["https://esm.sh"] = true,
+                ["https://cdn.skypack.dev"] = true,
+                ["https://unpkg.com"] = true,
               },
             },
           },
@@ -568,1041 +1108,1247 @@ cat << 'DENO_LSP_EOF'
         settings = {
           deno = {
             enable = true,
-            lint = true,
-            unstable = true,
+            codeLens = {
+              implementations = true,
+              references = true,
+              referencesAllFunctions = false,
+              test = true,
+            },
             suggest = {
+              autoImports = true,
+              completeFunctionCalls = false,
+              names = true,
+              paths = true,
               imports = {
+                autoDiscover = true,
                 hosts = {
                   ["https://deno.land"] = true,
                   ["https://cdn.nest.land"] = true,
+                  ["https://crux.land"] = true,
                 },
               },
             },
+            inlayHints = {
+              parameterNames = { enabled = "all" },
+              parameterTypes = { enabled = true },
+              variableTypes = { enabled = true },
+              propertyDeclarationTypes = { enabled = true },
+              functionLikeReturnTypes = { enabled = true },
+              enumMemberValues = { enabled = true },
+            },
+          }
+        },
+        on_attach = function(client, bufnr)
+          -- Deno-specific keymaps
+          local opts = { buffer = bufnr, silent = true }
+          vim.keymap.set('n', '<leader>dr', function()
+            vim.lsp.codelens.refresh()
+            vim.lsp.codelens.run()
+          end, vim.tbl_extend('force', opts, { desc = "Run Deno CodeLens" }))
+          
+          vim.keymap.set('n', '<leader>dt', '<cmd>!deno task<cr>', 
+            vim.tbl_extend('force', opts, { desc = "Show Deno tasks" }))
+          
+          vim.keymap.set('n', '<leader>dc', '<cmd>!deno check %<cr>', 
+            vim.tbl_extend('force', opts, { desc = "Deno type check" }))
+          
+          vim.keymap.set('n', '<leader>di', '<cmd>!deno info %<cr>', 
+            vim.tbl_extend('force', opts, { desc = "Deno info" }))
+          
+          -- Enable inlay hints if available
+          if client.server_capabilities.inlayHintProvider then
+            vim.lsp.inlay_hint.enable(bufnr, true)
+          end
+          
+          -- Auto-formatting setup
+          if client.supports_method("textDocument/formatting") then
+            vim.api.nvim_create_autocmd("BufWritePre", {
+              buffer = bufnr,
+              callback = function()
+                if vim.b.autoformat ~= false then
+                  vim.lsp.buf.format({ async = false, bufnr = bufnr })
+                end
+              end,
+            })
+          end
+        end,
+      })
+      
+      -- TypeScript LSP (only for non-Deno projects)
+      lspconfig.ts_ls.setup({
+        root_dir = root_pattern_exclude({
+          root = { "package.json", "tsconfig.json", "jsconfig.json" },
+          exclude = { "deno.json", "deno.jsonc" }
+        }),
+        capabilities = capabilities,
+        single_file_support = false,
+        settings = {
+          typescript = {
+            inlayHints = {
+              includeInlayParameterNameHints = "all",
+              includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+              includeInlayFunctionParameterTypeHints = true,
+              includeInlayVariableTypeHints = true,
+              includeInlayPropertyDeclarationTypeHints = true,
+              includeInlayFunctionLikeReturnTypeHints = true,
+              includeInlayEnumMemberValueHints = true,
+            },
+          },
+          javascript = {
+            inlayHints = {
+              includeInlayParameterNameHints = "all",
+              includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+              includeInlayFunctionParameterTypeHints = true,
+              includeInlayVariableTypeHints = true,
+              includeInlayPropertyDeclarationTypeHints = true,
+              includeInlayFunctionLikeReturnTypeHints = true,
+              includeInlayEnumMemberValueHints = true,
+            },
           },
         },
+        on_attach = function(client, bufnr)
+          -- TypeScript-specific keymaps
+          local opts = { buffer = bufnr, silent = true }
+          vim.keymap.set('n', '<leader>to', '<cmd>TypescriptOrganizeImports<cr>', 
+            vim.tbl_extend('force', opts, { desc = "Organize imports" }))
+          vim.keymap.set('n', '<leader>tr', '<cmd>TypescriptRenameFile<cr>', 
+            vim.tbl_extend('force', opts, { desc = "Rename file" }))
+          
+          if client.server_capabilities.inlayHintProvider then
+            vim.lsp.inlay_hint.enable(bufnr, true)
+          end
+        end,
       })
-DENO_LSP_EOF
-fi)
-
-      -- TypeScript/JavaScript LSP (for non-Deno projects)
-      lspconfig.tsserver.setup({
-        on_attach = on_attach,
-        capabilities = capabilities,
-        root_dir = lspconfig.util.root_pattern("package.json", "tsconfig.json"),
-$(if [[ "$setup_deno" == "true" ]]; then
-cat << 'TS_SETUP_EOF'
-        single_file_support = false, -- Disable for single files when Deno is available
-TS_SETUP_EOF
-fi)
-      })
-
-      -- HTML LSP
-      lspconfig.html.setup({
-        on_attach = on_attach,
-        capabilities = capabilities,
-      })
-
-      -- CSS LSP
-      lspconfig.cssls.setup({
-        on_attach = on_attach,
-        capabilities = capabilities,
-      })
-
-      -- JSON LSP
+      
+      -- =================================================================
+      -- ADDITIONAL LANGUAGE SERVERS
+      -- =================================================================
+      
+      -- JSON LSP (for configuration files)
       lspconfig.jsonls.setup({
-        on_attach = on_attach,
         capabilities = capabilities,
         settings = {
           json = {
             schemas = {
               {
+                description = "Deno configuration file",
                 fileMatch = { "deno.json", "deno.jsonc" },
                 url = "https://raw.githubusercontent.com/denoland/deno/main/cli/schemas/config-file.v1.json",
               },
               {
+                description = "TypeScript configuration file",
+                fileMatch = { "tsconfig.json", "tsconfig.*.json" },
+                url = "https://json.schemastore.org/tsconfig.json",
+              },
+              {
+                description = "Package.json",
                 fileMatch = { "package.json" },
                 url = "https://json.schemastore.org/package.json",
               },
-              {
-                fileMatch = { "tsconfig*.json" },
-                url = "https://json.schemastore.org/tsconfig.json",
-              },
             },
           },
         },
       })
-
+      
       -- Lua LSP (for Neovim configuration)
       lspconfig.lua_ls.setup({
-        on_attach = on_attach,
         capabilities = capabilities,
         settings = {
           Lua = {
-            runtime = {
-              version = 'LuaJIT',
-            },
-            diagnostics = {
-              globals = { 'vim' },
-            },
+            runtime = { version = "LuaJIT" },
             workspace = {
-              library = vim.api.nvim_get_runtime_file("", true),
               checkThirdParty = false,
+              library = {
+                vim.env.VIMRUNTIME,
+                "${3rd}/luv/library",
+              },
             },
-            telemetry = {
-              enable = false,
-            },
+            completion = { callSnippet = "Replace" },
+            diagnostics = { globals = { "vim" } },
+            hint = { enable = true },
           },
         },
       })
-
-      -- Setup fidget for LSP status
-      require('fidget').setup({})
+      
+      -- Markdown LSP
+      lspconfig.marksman.setup({
+        capabilities = capabilities,
+      })
+      
+      -- =================================================================
+      -- GLOBAL LSP KEYMAPS AND HANDLERS
+      -- =================================================================
+      
+      -- Global LSP keymaps (applied to all LSP buffers)
+      vim.api.nvim_create_autocmd("LspAttach", {
+        group = vim.api.nvim_create_augroup("UserLspConfig", {}),
+        callback = function(ev)
+          local opts = { buffer = ev.buf, silent = true }
+          
+          -- Navigation
+          vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, 
+            vim.tbl_extend('force', opts, { desc = "Go to declaration" }))
+          vim.keymap.set('n', 'gd', vim.lsp.buf.definition, 
+            vim.tbl_extend('force', opts, { desc = "Go to definition" }))
+          vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, 
+            vim.tbl_extend('force', opts, { desc = "Go to implementation" }))
+          vim.keymap.set('n', 'gr', vim.lsp.buf.references, 
+            vim.tbl_extend('force', opts, { desc = "Show references" }))
+          vim.keymap.set('n', 'gt', vim.lsp.buf.type_definition, 
+            vim.tbl_extend('force', opts, { desc = "Go to type definition" }))
+          
+          -- Documentation and hover
+          vim.keymap.set('n', 'K', vim.lsp.buf.hover, 
+            vim.tbl_extend('force', opts, { desc = "Show hover documentation" }))
+          vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, 
+            vim.tbl_extend('force', opts, { desc = "Show signature help" }))
+          vim.keymap.set('i', '<C-k>', vim.lsp.buf.signature_help, 
+            vim.tbl_extend('force', opts, { desc = "Show signature help" }))
+          
+          -- Code actions
+          vim.keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, 
+            vim.tbl_extend('force', opts, { desc = "Code action" }))
+          vim.keymap.set('n', '<leader>cr', vim.lsp.buf.rename, 
+            vim.tbl_extend('force', opts, { desc = "Rename symbol" }))
+          
+          -- Formatting
+          vim.keymap.set('n', '<leader>cf', function()
+            vim.lsp.buf.format({ async = true })
+          end, vim.tbl_extend('force', opts, { desc = "Format code" }))
+          
+          -- Workspace management
+          vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, 
+            vim.tbl_extend('force', opts, { desc = "Add workspace folder" }))
+          vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, 
+            vim.tbl_extend('force', opts, { desc = "Remove workspace folder" }))
+          vim.keymap.set('n', '<leader>wl', function()
+            print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+          end, vim.tbl_extend('force', opts, { desc = "List workspace folders" }))
+          
+          -- Toggle inlay hints
+          vim.keymap.set('n', '<leader>ih', function()
+            vim.lsp.inlay_hint.enable(ev.buf, not vim.lsp.inlay_hint.is_enabled(ev.buf))
+          end, vim.tbl_extend('force', opts, { desc = "Toggle inlay hints" }))
+        end,
+      })
+      
+      -- Configure diagnostic display
+      vim.diagnostic.config(opts.diagnostics)
     end,
+  },
+
+  -- Mason LSP installer
+  {
+    "williamboman/mason.nvim",
+    cmd = "Mason",
+    keys = { { "<leader>cm", "<cmd>Mason<cr>", desc = "Mason" } },
+    build = ":MasonUpdate",
+    opts = {
+      ensure_installed = {
+        "deno",
+        "typescript-language-server",
+        "json-lsp",
+        "lua-language-server",
+        "marksman",
+      },
+    },
+    config = function(_, opts)
+      require("mason").setup(opts)
+      local mr = require("mason-registry")
+      mr:on("package:install:success", function()
+        vim.defer_fn(function()
+          require("lazy.core.handler.event").trigger({
+            event = "FileType",
+            buf = vim.api.nvim_get_current_buf(),
+          })
+        end, 100)
+      end)
+      local function ensure_installed()
+        for _, tool in ipairs(opts.ensure_installed) do
+          local p = mr.get_package(tool)
+          if not p:is_installed() then
+            p:install()
+          end
+        end
+      end
+      if mr.refresh then
+        mr.refresh(ensure_installed)
+      else
+        ensure_installed()
+      end
+    end,
+  },
+
+  -- Mason LSP config bridge
+  {
+    "williamboman/mason-lspconfig.nvim",
+    dependencies = { "mason.nvim" },
+    opts = {
+      automatic_installation = true,
+    },
   },
 }
 EOF
+
+    log "Created plugins/lsp.lua"
 }
 
-generate_completion_lua() {
-    cat << 'EOF'
--- =============================================================================
--- Completion Configuration
--- =============================================================================
+generate_completion_config() {
+    local config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
+    
+    cat > "$config_dir/lua/plugins/completion.lua" << 'EOF'
+-- completion.lua - Advanced completion setup optimized for TypeScript development
+-- Enhanced nvim-cmp configuration with Deno-aware completions
 
 return {
-  -- Autocompletion
+  -- Main completion engine
   {
-    'hrsh7th/nvim-cmp',
-    event = 'InsertEnter',
+    "hrsh7th/nvim-cmp",
+    version = false, -- Use latest version
+    event = "InsertEnter",
     dependencies = {
-      'hrsh7th/cmp-buffer', -- source for text in buffer
-      'hrsh7th/cmp-path', -- source for file system paths
-      'hrsh7th/cmp-nvim-lsp', -- source for LSP
-      'hrsh7th/cmp-nvim-lua', -- source for Neovim Lua API
-      'L3MON4D3/LuaSnip', -- snippet engine
-      'saadparwaiz1/cmp_luasnip', -- source for luasnip
-      'rafamadriz/friendly-snippets', -- useful snippets
-      'onsails/lspkind.nvim', -- vs-code like pictograms
+      "hrsh7th/cmp-nvim-lsp",     -- LSP completion
+      "hrsh7th/cmp-buffer",       -- Buffer completion
+      "hrsh7th/cmp-path",         -- Path completion
+      "hrsh7th/cmp-cmdline",      -- Command line completion
+      "saadparwaiz1/cmp_luasnip", -- Snippet completion
+      "L3MON4D3/LuaSnip",         -- Snippet engine
+      "rafamadriz/friendly-snippets", -- Snippet collection
+      "onsails/lspkind.nvim",     -- Icons for completion
     },
     config = function()
       local cmp = require('cmp')
       local luasnip = require('luasnip')
       local lspkind = require('lspkind')
-
-      -- Load friendly-snippets
+      
+      -- Load VSCode-style snippets
       require('luasnip.loaders.from_vscode').lazy_load()
-
+      
+      -- Custom snippet additions for Deno
+      luasnip.add_snippets("typescript", {
+        luasnip.snippet("dimport", {
+          luasnip.text_node('import { '),
+          luasnip.insert_node(1, "exports"),
+          luasnip.text_node(' } from "'),
+          luasnip.insert_node(2, "https://deno.land/std@0.208.0/"),
+          luasnip.text_node('";'),
+        }),
+        luasnip.snippet("deno_serve", {
+          luasnip.text_node('import { serve } from "'),
+          luasnip.insert_node(1, "https://deno.land/std@0.208.0/http/server.ts"),
+          luasnip.text_node('";'),
+          luasnip.text_node({"", "", "serve((req: Request) => {", "  "}),
+          luasnip.insert_node(2, "return new Response('Hello World!');"),
+          luasnip.text_node({"", "}, { port: "}),
+          luasnip.insert_node(3, "8000"),
+          luasnip.text_node(" });"),
+        }),
+      })
+      
       cmp.setup({
         snippet = {
           expand = function(args)
             luasnip.lsp_expand(args.body)
           end,
         },
+        
+        -- Window appearance
         window = {
-          completion = cmp.config.window.bordered(),
-          documentation = cmp.config.window.bordered(),
+          completion = cmp.config.window.bordered({
+            winhighlight = "Normal:CmpPmenu,FloatBorder:CmpPmenuBorder,CursorLine:PmenuSel,Search:generate_file_explorer_config() {
+    local config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
+    
+    cat > "$config_dir/lua/plugins/neo-tree.lua" << 'EOF'
+-- neo-tree.lua - File explorer optimized for Deno Genesis project structure
+-- Provides comprehensive file management with Git integration
+
+return {
+  "nvim-neo-tree/neo-tree.nvim",
+  branch = "v3.x",
+  cmd = "Neotree",
+  keys = {
+    { "<leader>e", "<cmd>Neotree toggle<cr>", desc = "Explorer NeoTree (root dir)" },
+    { "<leader>E", "<cmd>Neotree toggle float<cr>", desc = "Explorer NeoTree (float)" },
+    { "<leader>ge", "<cmd>Neotree git_status<cr>", desc = "Git explorer" },
+    { "<leader>be", "<cmd>Neotree buffers<cr>", desc = "Buffer explorer" },
+  },
+  deactivate = function()
+    vim.cmd([[Neotree close]])
+  end,
+  init = function()
+    if vim.fn.argc(-1) == 1 then
+      local stat = vim.loop.fs_stat(vim.fn.argv(0))
+      if stat and stat.type == "directory" then
+        require("neo-tree")
+      end
+    end
+  end,
+  dependencies = {
+    "nvim-lua/plenary.nvim",
+    "nvim-tree/nvim-web-devicons",
+    "MunifTanjim/nui.nvim",
+  },
+  opts = {
+    sources = { "filesystem", "buffers", "git_status", "document_symbols" },
+    open_files_do_not_replace_types = { "terminal", "Trouble", "trouble", "qf", "Outline" },
+    filesystem = {
+      bind_to_cwd = false,
+      follow_current_file = { enabled = true },
+      use_libuv_file_watcher = true,
+      filtered_items = {
+        visible = false,
+        hide_dotfiles = false,
+        hide_gitignored = true,
+        hide_hidden = true,
+        hide_by_name = {
+          ".DS_Store",
+          "thumbs.db",
+          "node_modules",
+          "__pycache__",
+          ".git",
         },
+        hide_by_pattern = {
+          "*.tmp",
+          "*.pyc",
+        },
+        always_show = {
+          ".gitignored",
+          ".env",
+        },
+        never_show = {
+          ".DS_Store",
+          "thumbs.db",
+        },
+      },
+      -- Deno Genesis specific file handling
+      commands = {
+        copy_selector = function(state)
+          local node = state.tree:get_node()
+          local filepath = node:get_id()
+          local filename = node.name
+          local modify = vim.fn.fnamemodify
+          
+          local vals = {
+            ["BASENAME"] = modify(filename, ":r"),
+            ["EXTENSION"] = modify(filename, ":e"),
+            ["FILENAME"] = filename,
+            ["PATH (CWD)"] = modify(filepath, ":."),
+            ["PATH (HOME)"] = modify(filepath, ":~"),
+            ["PATH"] = filepath,
+            ["URI"] = vim.uri_from_fname(filepath),
+          }
+          
+          local options = vim.tbl_filter(function(val)
+            return vals[val] ~= ""
+          end, vim.tbl_keys(vals))
+          
+          if vim.tbl_isempty(options) then
+            vim.notify("No values to copy", vim.log.levels.WARN)
+            return
+          end
+          
+          table.sort(options)
+          vim.ui.select(options, {
+            prompt = "Choose to copy to clipboard:",
+            format_item = function(item)
+              return ("%s: %s"):format(item, vals[item])
+            end,
+          }, function(choice)
+            local result = vals[choice]
+            if result then
+              vim.notify(("Copied: `%s`"):format(result))
+              vim.fn.setreg("+", result)
+            end
+          end)
+        end,
+        
+        -- Quick Deno file creation
+        create_deno_service = function(state)
+          local node = state.tree:get_node()
+          local path = node:get_id()
+          if node.type ~= "directory" then
+            path = vim.fn.fnamemodify(path, ":p:h")
+          end
+          
+          vim.ui.input({ prompt = "Service name: " }, function(name)
+            if name then
+              local service_path = path .. "/" .. name .. ".ts"
+              local content = [[import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
+
+const handler = (req: Request): Response => {
+  return new Response("Hello from ]] .. name .. [[!");
+};
+
+console.log("]] .. name .. [[ service running on http://localhost:8000");
+serve(handler, { port: 8000 });
+]]
+              vim.fn.writefile(vim.split(content, "\n"), service_path)
+              vim.cmd("edit " .. service_path)
+            end
+          end)
+        end,
+      },
+    },
+    buffers = {
+      follow_current_file = {
+        enabled = true,
+        leave_dirs_open = false,
+      },
+      group_empty_dirs = true,
+      show_unloaded = true,
+    },
+    git_status = {
+      window = {
+        position = "float",
+        mappings = {
+          ["A"]  = "git_add_all",
+          ["gu"] = "git_unstage_file",
+          ["ga"] = "git_add_file",
+          ["gr"] = "git_revert_file",
+          ["gc"] = "git_commit",
+          ["gp"] = "git_push",
+          ["gg"] = "git_commit_and_push",
+        }
+      }
+    },
+    window = {
+      mappings = {
+        ["<space>"] = "none",
+        ["Y"] = "copy_selector",
+        ["h"] = "parent_or_close",
+        ["l"] = "child_or_open",
+        ["o"] = "open",
+        ["O"] = "system_open",
+        ["q"] = "close_window",
+        ["r"] = "refresh",
+        ["R"] = "rename",
+        ["<F5>"] = "refresh",
+        ["cd"] = "set_root",
+        ["[g"] = "prev_git_modified",
+        ["]g"] = "next_git_modified",
+        
+        -- Deno Genesis specific mappings
+        ["<leader>ds"] = "create_deno_service",
+      },
+    },
+    default_component_configs = {
+      indent = {
+        with_expanders = true,
+        expander_collapsed = "",
+        expander_expanded = "",
+        expander_highlight = "NeoTreeExpander",
+      },
+      icon = {
+        folder_closed = "",
+        folder_open = "",
+        folder_empty = "ﰊ",
+        default = "*",
+        highlight = "NeoTreeFileIcon"
+      },
+      modified = {
+        symbol = "[+]",
+        highlight = "NeoTreeModified",
+      },
+      name = {
+        trailing_slash = false,
+        use_git_status_colors = true,
+        highlight = "NeoTreeFileName",
+      },
+      git_status = {
+        symbols = {
+          added     = "",
+          modified  = "",
+          deleted   = "✖",
+          renamed   = "󰁕",
+          untracked = "",
+          ignored   = "",
+          unstaged  = "󰄱",
+          staged    = "",
+          conflict  = "",
+        }
+      },
+      file_size = {
+        enabled = true,
+        required_width = 64,
+      },
+      type = {
+        enabled = true,
+        required_width = 122,
+      },
+      last_modified = {
+        enabled = true,
+        required_width = 88,
+      },
+      created = {
+        enabled = true,
+        required_width = 110,
+      },
+      symlink_target = {
+        enabled = false,
+      },
+    },
+  },
+  config = function(_, opts)
+    local function on_move(data)
+      require("util").lsp.on_rename(data.source, data.destination)
+    end
+
+    local events = require",
+          }),
+          documentation = cmp.config.window.bordered({
+            winhighlight = "Normal:CmpDoc,FloatBorder:CmpDocBorder",
+          }),
+        },
+        
+        -- Key mappings
         mapping = cmp.mapping.preset.insert({
+          -- Scroll documentation
           ['<C-b>'] = cmp.mapping.scroll_docs(-4),
           ['<C-f>'] = cmp.mapping.scroll_docs(4),
+          
+          -- Manual completion trigger
           ['<C-Space>'] = cmp.mapping.complete(),
           ['<C-e>'] = cmp.mapping.abort(),
-          ['<CR>'] = cmp.mapping.confirm({ select = false }),
+          
+          -- Confirm selection
+          ['<CR>'] = cmp.mapping.confirm({ 
+            behavior = cmp.ConfirmBehavior.Replace,
+            select = false -- Only confirm explicitly selected items
+          }),
+          
+          -- Super Tab functionality
           ['<Tab>'] = cmp.mapping(function(fallback)
             if cmp.visible() then
-              cmp.select_next_item()
-            elseif luasnip.expand_or_jumpable() then
-              luasnip.expand_or_jump()
+              cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+            elseif luasnip.locally_jumpable(1) then
+              luasnip.jump(1)
             else
               fallback()
             end
           end, { 'i', 's' }),
+          
           ['<S-Tab>'] = cmp.mapping(function(fallback)
             if cmp.visible() then
-              cmp.select_prev_item()
-            elseif luasnip.jumpable(-1) then
+              cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select })
+            elseif luasnip.locally_jumpable(-1) then
               luasnip.jump(-1)
             else
               fallback()
             end
           end, { 'i', 's' }),
         }),
+        
+        -- Completion sources with priorities
         sources = cmp.config.sources({
-          { name = 'nvim_lsp', priority = 1000 },
-          { name = 'nvim_lua', priority = 900 },
-          { name = 'luasnip', priority = 800 },
-          { name = 'path', priority = 700 },
+          { 
+            name = 'nvim_lsp', 
+            priority = 1000,
+            -- Enhanced filtering for Deno imports
+            entry_filter = function(entry, ctx)
+              -- Prioritize Deno std library imports
+              if entry.completion_item.detail and 
+                 entry.completion_item.detail:match("https://deno.land/std") then
+                return true
+              end
+              return true
+            end
+          },
+          { name = 'luasnip', priority = 750 },
+          { name = 'path', priority = 500 },
         }, {
-          { name = 'buffer', keyword_length = 3 },
+          { 
+            name = 'buffer', 
+            priority = 250, 
+            keyword_length = 3,
+            option = {
+              get_bufnrs = function()
+                -- Only complete from visible buffers
+                local bufs = {}
+                for _, win in ipairs(vim.api.nvim_list_wins()) do
+                  bufs[vim.api.nvim_win_get_buf(win)] = true
+                end
+                return vim.tbl_keys(bufs)
+              end
+            }
+          },
         }),
+        
+        -- Formatting with icons
         formatting = {
           format = lspkind.cmp_format({
             mode = 'symbol_text',
             maxwidth = 50,
             ellipsis_char = '...',
+            show_labelDetails = true,
+            
+            -- Custom icons for Deno-specific items
+            symbol_map = {
+              Text = "󰉿",
+              Method = "󰆧",
+              Function = "󰊕",
+              Constructor = "",
+              Field = "󰜢",
+              Variable = "󰀫",
+              Class = "󰠱",
+              Interface = "",
+              Module = "",
+              Property = "󰜢",
+              Unit = "󰑭",
+              Value = "󰎠",
+              Enum = "",
+              Keyword = "󰌋",
+              Snippet = "",
+              Color = "󰏘",
+              File = "󰈙",
+              Reference = "󰈇",
+              Folder = "󰉋",
+              EnumMember = "",
+              Constant = "󰏿",
+              Struct = "󰙅",
+              Event = "",
+              Operator = "󰆕",
+              TypeParameter = "",
+              Deno = "🦕",
+            },
+            
+            menu = {
+              nvim_lsp = '[LSP]',
+              luasnip = '[Snip]',
+              buffer = '[Buf]',
+              path = '[Path]',
+              cmdline = '[Cmd]',
+            },
+            
             before = function(entry, vim_item)
-              -- Source name
-              vim_item.menu = ({
-                nvim_lsp = "[LSP]",
-                nvim_lua = "[Lua]",
-                luasnip = "[Snippet]",
-                buffer = "[Buffer]",
-                path = "[Path]",
-              })[entry.source.name]
+              -- Add Deno icon for Deno-related completions
+              if entry.source.name == 'nvim_lsp' and 
+                 entry.completion_item.detail and 
+                 entry.completion_item.detail:match("deno") then
+                vim_item.kind_hl_group = "CmpItemKindDeno"
+                vim_item.menu = "[Deno]"
+              end
               return vim_item
-            end,
+            end
           }),
         },
+        
+        -- Experimental features
         experimental = {
-          ghost_text = true,
+          ghost_text = {
+            hl_group = "CmpGhostText"
+          },
         },
+        
+        -- Performance settings
+        performance = {
+          trigger_debounce_time = 500,
+          throttle = 550,
+          fetching_timeout = 80,
+        },
+        
+        -- Sorting preferences
+        sorting = {
+          priority_weight = 2,
+          comparators = {
+            cmp.config.compare.offset,
+            cmp.config.compare.exact,
+            cmp.config.compare.score,
+            cmp.config.compare.recently_used,
+            cmp.config.compare.locality,
+            cmp.config.compare.kind,
+            cmp.config.compare.sort_text,
+            cmp.config.compare.length,
+            cmp.config.compare.order,
+          },
+        },
+      })
+      
+      -- Command line completion
+      cmp.setup.cmdline({ '/', '?' }, {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = {
+          { name = 'buffer' }
+        }
+      })
+      
+      cmp.setup.cmdline(':', {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = cmp.config.sources({
+          { name = 'path' }
+        }, {
+          { name = 'cmdline' }
+        })
       })
     end,
   },
-}
-EOF
-}
 
-generate_treesitter_lua() {
-    cat << 'EOF'
--- =============================================================================
--- Treesitter Configuration
--- =============================================================================
-
-return {
-  -- Treesitter for better syntax highlighting and code understanding
+  -- Snippet engine
   {
-    'nvim-treesitter/nvim-treesitter',
-    build = ':TSUpdate',
-    event = { 'BufReadPost', 'BufNewFile' },
+    "L3MON4D3/LuaSnip",
+    build = "make install_jsregexp",
     dependencies = {
-      'nvim-treesitter/nvim-treesitter-textobjects',
+      "rafamadriz/friendly-snippets",
+      config = function()
+        require("luasnip.loaders.from_vscode").lazy_load()
+      end,
     },
-    config = function()
-      require('nvim-treesitter.configs').setup({
-        -- Languages to install
-        ensure_installed = {
-          'typescript',
-          'tsx',
-          'javascript',
-          'json',
-          'jsonc',
-          'html',
-          'css',
-          'lua',
-          'vim',
-          'vimdoc',
-          'markdown',
-          'markdown_inline',
-          'bash',
-          'yaml',
-          'toml',
-        },
-        
-        -- Install languages synchronously (only applied to `ensure_installed`)
-        sync_install = false,
-        
-        -- Automatically install missing parsers when entering buffer
-        auto_install = true,
-        
-        highlight = {
-          enable = true,
-          -- Some languages have better built-in syntax highlighting
-          disable = {},
-          -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-          additional_vim_regex_highlighting = false,
-        },
-        
-        indent = {
-          enable = true,
-        },
-        
-        -- Incremental selection
-        incremental_selection = {
-          enable = true,
-          keymaps = {
-            init_selection = '<C-space>',
-            node_incremental = '<C-space>',
-            scope_incremental = '<C-s>',
-            node_decremental = '<C-backspace>',
-          },
-        },
-        
-        -- Text objects
-        textobjects = {
-          select = {
-            enable = true,
-            lookahead = true, -- Automatically jump forward to textobj
-            keymaps = {
-              ['aa'] = '@parameter.outer',
-              ['ia'] = '@parameter.inner',
-              ['af'] = '@function.outer',
-              ['if'] = '@function.inner',
-              ['ac'] = '@class.outer',
-              ['ic'] = '@class.inner',
-            },
-          },
-          move = {
-            enable = true,
-            set_jumps = true, -- whether to set jumps in the jumplist
-            goto_next_start = {
-              [']m'] = '@function.outer',
-              [']]'] = '@class.outer',
-            },
-            goto_next_end = {
-              [']M'] = '@function.outer',
-              [']['] = '@class.outer',
-            },
-            goto_previous_start = {
-              ['[m'] = '@function.outer',
-              ['[['] = '@class.outer',
-            },
-            goto_previous_end = {
-              ['[M'] = '@function.outer',
-              ['[]'] = '@class.outer',
-            },
-          },
-          swap = {
-            enable = true,
-            swap_next = {
-              ['<leader>a'] = '@parameter.inner',
-            },
-            swap_previous = {
-              ['<leader>A'] = '@parameter.inner',
-            },
-          },
-        },
-      })
+    opts = {
+      history = true,
+      delete_check_events = "TextChanged",
+      region_check_events = "CursorMoved",
+    },
+    config = function(_, opts)
+      require("luasnip").setup(opts)
+      
+      -- Custom keymaps for snippet navigation
+      vim.keymap.set({"i"}, "<C-K>", function() require("luasnip").expand() end, {silent = true})
+      vim.keymap.set({"i", "s"}, "<C-L>", function() require("luasnip").jump(1) end, {silent = true})
+      vim.keymap.set({"i", "s"}, "<C-J>", function() require("luasnip").jump(-1) end, {silent = true})
+      
+      vim.keymap.set({"i", "s"}, "<C-E>", function()
+        if require("luasnip").choice_active() then
+          require("luasnip").change_choice(1)
+        end
+      end, {silent = true})
     end,
   },
-}
-EOF
-}
 
-generate_telescope_lua() {
-    cat << 'EOF'
--- =============================================================================
--- Telescope Configuration
--- =============================================================================
-
-return {
-  -- Fuzzy finder
+  -- LSP kind icons
   {
-    'nvim-telescope/telescope.nvim',
-    branch = '0.1.x',
-    dependencies = {
-      'nvim-lua/plenary.nvim',
-      {
-        'nvim-telescope/telescope-fzf-native.nvim',
-        build = 'make',
-        cond = function()
-          return vim.fn.executable 'make' == 1
-        end,
+    "onsails/lspkind.nvim",
+    opts = {
+      mode = "symbol_text",
+      preset = "codicons",
+      symbol_map = {
+        Deno = "🦕",
       },
     },
-    config = function()
-      local telescope = require('telescope')
-      local actions = require('telescope.actions')
-
-      telescope.setup({
-        defaults = {
-          path_display = { 'truncate' },
-          mappings = {
-            i = {
-              ['<C-k>'] = actions.move_selection_previous,
-              ['<C-j>'] = actions.move_selection_next,
-              ['<C-q>'] = actions.send_selected_to_qflist + actions.open_qflist,
-            },
-          },
-          file_ignore_patterns = {
-            'node_modules/',
-            '.git/',
-            '.cache/',
-            '%.o',
-            '%.a',
-            '%.out',
-            '%.class',
-            '%.pdf',
-            '%.mkv',
-            '%.mp4',
-            '%.zip',
-          },
-        },
-        pickers = {
-          find_files = {
-            hidden = true,
-          },
-          live_grep = {
-            additional_args = function(opts)
-              return {"--hidden"}
-            end
-          },
-        },
-        extensions = {
-          fzf = {
-            fuzzy = true,
-            override_generic_sorter = true,
-            override_file_sorter = true,
-            case_mode = "smart_case",
-          },
-        },
-      })
-
-      -- Enable telescope fzf native, if installed
-      pcall(telescope.load_extension, 'fzf')
-
-      -- Telescope keymaps
-      local builtin = require('telescope.builtin')
-      vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Find files' })
-      vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = 'Find text' })
-      vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Find buffers' })
-      vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Find help' })
-      vim.keymap.set('n', '<leader>fr', builtin.oldfiles, { desc = 'Find recent files' })
-      vim.keymap.set('n', '<leader>fc', builtin.grep_string, { desc = 'Find word under cursor' })
-      vim.keymap.set('n', '<leader>fd', builtin.diagnostics, { desc = 'Find diagnostics' })
-      vim.keymap.set('n', '<leader>fs', builtin.lsp_document_symbols, { desc = 'Find document symbols' })
-      vim.keymap.set('n', '<leader>fw', builtin.lsp_workspace_symbols, { desc = 'Find workspace symbols' })
-    end,
   },
 }
 EOF
+
+    log "Created plugins/completion.lua"
 }
 
-generate_ui_lua() {
-    local theme="$1"
-    local minimal="$2"
+generate_ui_plugins() {
+    local config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
     
-    cat << EOF
--- =============================================================================
--- UI Configuration
--- =============================================================================
+    cat > "$config_dir/lua/plugins/ui.lua" << 'EOF'
+-- ui.lua - User interface plugins following DenoGenesis design principles
+-- Dark theme optimized for long development sessions
 
 return {
-  -- Color scheme
+  -- Color scheme - Tokyo Night for professional appearance
   {
-$(if [[ "$theme" == "tokyonight" ]]; then
-cat << 'TOKYO_EOF'
-    'folke/tokyonight.nvim',
+    "folke/tokyonight.nvim",
     lazy = false,
     priority = 1000,
-    config = function()
-      require('tokyonight').setup({
-        style = 'night',
-        transparent = false,
-        terminal_colors = true,
-        styles = {
-          comments = { italic = true },
-          keywords = { italic = true },
-          functions = {},
-          variables = {},
-        },
-        sidebars = { 'qf', 'help' },
-        day_brightness = 0.3,
-        hide_inactive_statusline = false,
-        dim_inactive = false,
-        lualine_bold = false,
-        on_colors = function(colors) end,
-        on_highlights = function(highlights, colors) end,
-      })
+    opts = {
+      style = "night", -- night, storm, day, moon
+      transparent = false,
+      terminal_colors = true,
+      styles = {
+        comments = { italic = true },
+        keywords = { italic = true },
+        functions = {},
+        variables = {},
+        sidebars = "dark",
+        floats = "dark",
+      },
+      sidebars = { "qf", "help", "terminal", "packer" },
+      day_brightness = 0.3,
+      hide_inactive_statusline = false,
+      dim_inactive = false,
+      lualine_bold = false,
+      
+      -- Custom colors for Deno Genesis branding
+      on_colors = function(colors)
+        colors.hint = colors.orange
+        colors.error = "#ff757f"
+      end,
+      
+      on_highlights = function(highlights, colors)
+        highlights.DiagnosticVirtualTextError = {
+          bg = colors.none,
+          fg = colors.error,
+        }
+        highlights.DiagnosticVirtualTextWarn = {
+          bg = colors.none,
+          fg = colors.warning,
+        }
+        highlights.DiagnosticVirtualTextInfo = {
+          bg = colors.none,
+          fg = colors.info,
+        }
+        highlights.DiagnosticVirtualTextHint = {
+          bg = colors.none,
+          fg = colors.hint,
+        }
+        -- Deno-specific highlighting
+        highlights.CmpItemKindDeno = {
+          fg = colors.green,
+          bg = colors.none,
+        }
+      end,
+    },
+    config = function(_, opts)
+      require("tokyonight").setup(opts)
       vim.cmd([[colorscheme tokyonight]])
     end,
-TOKYO_EOF
-elif [[ "$theme" == "catppuccin" ]]; then
-cat << 'CATPPUCCIN_EOF'
-    'catppuccin/nvim',
-    name = 'catppuccin',
-    lazy = false,
-    priority = 1000,
-    config = function()
-      require('catppuccin').setup({
-        flavour = 'mocha', -- latte, frappe, macchiato, mocha
-        background = {
-          light = 'latte',
-          dark = 'mocha',
-        },
-        transparent_background = false,
-        show_end_of_buffer = false,
-        term_colors = false,
-        dim_inactive = {
-          enabled = false,
-          shade = 'dark',
-          percentage = 0.15,
-        },
-        no_italic = false,
-        no_bold = false,
-        no_underline = false,
-        styles = {
-          comments = { 'italic' },
-          conditionals = { 'italic' },
-          loops = {},
-          functions = {},
-          keywords = {},
-          strings = {},
-          variables = {},
-          numbers = {},
-          booleans = {},
-          properties = {},
-          types = {},
-          operators = {},
-        },
-        integrations = {
-          cmp = true,
-          gitsigns = true,
-          nvimtree = true,
-          treesitter = true,
-          telescope = {
-            enabled = true,
-          },
-          mason = true,
-          native_lsp = {
-            enabled = true,
-            virtual_text = {
-              errors = { 'italic' },
-              hints = { 'italic' },
-              warnings = { 'italic' },
-              information = { 'italic' },
-            },
-            underlines = {
-              errors = { 'underline' },
-              hints = { 'underline' },
-              warnings = { 'underline' },
-              information = { 'underline' },
-            },
-            inlay_hints = {
-              background = true,
-            },
-          },
-        },
-      })
-      vim.cmd([[colorscheme catppuccin]])
-    end,
-CATPPUCCIN_EOF
-else  # gruvbox
-cat << 'GRUVBOX_EOF'
-    'ellisonleao/gruvbox.nvim',
-    lazy = false,
-    priority = 1000,
-    config = function()
-      require('gruvbox').setup({
-        terminal_colors = true,
-        undercurl = true,
-        underline = true,
-        bold = true,
-        italic = {
-          strings = true,
-          emphasis = true,
-          comments = true,
-          operators = false,
-          folds = true,
-        },
-        strikethrough = true,
-        invert_selection = false,
-        invert_signs = false,
-        invert_tabline = false,
-        invert_intend_guides = false,
-        inverse = true,
-        contrast = '',
-        palette_overrides = {},
-        overrides = {},
-        dim_inactive = false,
-        transparent_mode = false,
-      })
-      vim.cmd([[colorscheme gruvbox]])
-    end,
-GRUVBOX_EOF
-fi)
   },
 
-$(if [[ "$minimal" != "true" ]]; then
-cat << 'UI_PLUGINS_EOF'
   -- Status line
   {
-    'nvim-lualine/lualine.nvim',
-    dependencies = { 'nvim-tree/nvim-web-devicons' },
-    config = function()
-      require('lualine').setup({
+    "nvim-lualine/lualine.nvim",
+    event = "VeryLazy",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    init = function()
+      vim.g.lualine_laststatus = vim.o.laststatus
+      if vim.fn.argc(-1) > 0 then
+        vim.o.statusline = " "
+      else
+        vim.o.laststatus = 0
+      end
+    end,
+    opts = function()
+      local function fg(name)
+        return function()
+          local hl = vim.api.nvim_get_hl_by_name(name, true)
+          return hl and hl.foreground and { fg = string.format("#%06x", hl.foreground) }
+        end
+      end
+
+      return {
         options = {
-          icons_enabled = true,
-          theme = 'auto',
-          component_separators = { left = '', right = '' },
-          section_separators = { left = '', right = '' },
-          disabled_filetypes = {
-            statusline = {},
-            winbar = {},
-          },
-          ignore_focus = {},
-          always_divide_middle = true,
-          globalstatus = false,
-          refresh = {
-            statusline = 1000,
-            tabline = 1000,
-            winbar = 1000,
-          }
+          theme = "tokyonight",
+          globalstatus = true,
+          disabled_filetypes = { statusline = { "dashboard", "alpha", "starter" } },
+          component_separators = "",
+          section_separators = "",
         },
         sections = {
-          lualine_a = {'mode'},
-          lualine_b = {'branch', 'diff', 'diagnostics'},
-          lualine_c = {'filename'},
-          lualine_x = {'encoding', 'fileformat', 'filetype'},
-          lualine_y = {'progress'},
-          lualine_z = {'location'}
-        },
-        inactive_sections = {
-          lualine_a = {},
-          lualine_b = {},
-          lualine_c = {'filename'},
-          lualine_x = {'location'},
-          lualine_y = {},
-          lualine_z = {}
-        },
-        tabline = {},
-        winbar = {},
-        inactive_winbar = {},
-        extensions = {}
-      })
-    end,
-  },
-
-  -- File explorer
-  {
-    'nvim-tree/nvim-tree.lua',
-    dependencies = { 'nvim-tree/nvim-web-devicons' },
-    config = function()
-      -- Disable netrw
-      vim.g.loaded_netrw = 1
-      vim.g.loaded_netrwPlugin = 1
-
-      require('nvim-tree').setup({
-        sort_by = 'case_sensitive',
-        view = {
-          width = 30,
-        },
-        renderer = {
-          group_empty = true,
-          icons = {
-            glyphs = {
-              folder = {
-                arrow_closed = "⏵",
-                arrow_open = "⏷",
+          lualine_a = { 
+            { "mode", separator = { left = "" }, right_padding = 2 }
+          },
+          lualine_b = { 
+            "branch",
+            {
+              "diff",
+              symbols = { added = " ", modified = " ", removed = " " },
+            }
+          },
+          lualine_c = {
+            {
+              "diagnostics",
+              symbols = {
+                error = " ",
+                warn = " ",
+                info = " ",
+                hint = " ",
               },
+            },
+            { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
+            { 
+              "filename",
+              path = 1, -- Relative path
+              symbols = { modified = "  ", readonly = "", unnamed = "" }
+            },
+            -- Show Deno project indicator
+            {
+              function()
+                if vim.b.deno_project then
+                  return "🦕 Deno"
+                end
+                return ""
+              end,
+              color = { fg = "#00d2d3" },
+            },
+          },
+          lualine_x = {
+            -- LSP status
+            {
+              function()
+                local msg = ""
+                local buf_ft = vim.api.nvim_buf_get_option(0, "filetype")
+                local clients = vim.lsp.get_active_clients()
+                if next(clients) == nil then
+                  return msg
+                end
+                for _, client in ipairs(clients) do
+                  local filetypes = client.config.filetypes
+                  if filetypes and vim.fn.index(filetypes, buf_ft) ~= -1 then
+                    return client.name
+                  end
+                end
+                return msg
+              end,
+              icon = " LSP:",
+              color = { fg = "#ffffff", gui = "bold" },
+            },
+            {
+              "encoding",
+              fmt = string.upper,
+            },
+            {
+              "fileformat",
+              fmt = string.upper,
+              icons_enabled = false,
+            },
+          },
+          lualine_y = {
+            { "progress", separator = " ", padding = { left = 1, right = 0 } },
+            { "location", padding = { left = 0, right = 1 } },
+          },
+          lualine_z = {
+            {
+              function()
+                return " " .. os.date("%R")
+              end,
+              separator = { right = "" },
+              left_padding = 2,
             },
           },
         },
-        filters = {
-          dotfiles = false,
-          custom = { '.DS_Store' },
+        inactive_sections = {
+          lualine_a = { "filename" },
+          lualine_b = {},
+          lualine_c = {},
+          lualine_x = {},
+          lualine_y = {},
+          lualine_z = { "location" },
         },
-        git = {
-          enable = true,
-          ignore = false,
-          timeout = 400,
-        },
-        actions = {
-          open_file = {
-            quit_on_open = false,
-            resize_window = true,
-          },
-        },
-      })
-
-      -- Keymaps for nvim-tree
-      vim.keymap.set('n', '<leader>e', '<cmd>NvimTreeToggle<CR>', { desc = 'Toggle file explorer' })
-      vim.keymap.set('n', '<leader>ef', '<cmd>NvimTreeFindFileToggle<CR>', { desc = 'Toggle file explorer on current file' })
-      vim.keymap.set('n', '<leader>ec', '<cmd>NvimTreeCollapse<CR>', { desc = 'Collapse file explorer' })
-      vim.keymap.set('n', '<leader>er', '<cmd>NvimTreeRefresh<CR>', { desc = 'Refresh file explorer' })
+        tabline = {},
+        extensions = { "neo-tree", "lazy", "mason", "trouble" },
+      }
     end,
   },
 
-  -- Git integration
+  -- Buffer line / tabs
   {
-    'lewis6991/gitsigns.nvim',
-    config = function()
-      require('gitsigns').setup({
-        signs = {
-          add          = { text = '│' },
-          change       = { text = '│' },
-          delete       = { text = '_' },
-          topdelete    = { text = '‾' },
-          changedelete = { text = '~' },
-          untracked    = { text = '┆' },
+    "akinsho/bufferline.nvim",
+    event = "VeryLazy",
+    keys = {
+      { "<leader>bp", "<Cmd>BufferLineTogglePin<CR>", desc = "Toggle pin" },
+      { "<leader>bP", "<Cmd>BufferLineGroupClose ungrouped<CR>", desc = "Delete non-pinned buffers" },
+      { "<leader>bo", "<Cmd>BufferLineCloseOthers<CR>", desc = "Delete other buffers" },
+      { "<leader>br", "<Cmd>BufferLineCloseRight<CR>", desc = "Delete buffers to the right" },
+      { "<leader>bl", "<Cmd>BufferLineCloseLeft<CR>", desc = "Delete buffers to the left" },
+      { "<S-h>", "<cmd>BufferLineCyclePrev<cr>", desc = "Prev buffer" },
+      { "<S-l>", "<cmd>BufferLineCycleNext<cr>", desc = "Next buffer" },
+      { "[b", "<cmd>BufferLineCyclePrev<cr>", desc = "Prev buffer" },
+      { "]b", "<cmd>BufferLineCycleNext<cr>", desc = "Next buffer" },
+    },
+    opts = {
+      options = {
+        close_command = "bdelete! %d",
+        right_mouse_command = "bdelete! %d",
+        diagnostics = "nvim_lsp",
+        always_show_bufferline = false,
+        diagnostics_indicator = function(_, _, diag)
+          local icons = { error = " ", warn = " ", info = " " }
+          local ret = (diag.error and icons.error .. diag.error .. " " or "")
+            .. (diag.warning and icons.warn .. diag.warning or "")
+          return vim.trim(ret)
+        end,
+        offsets = {
+          {
+            filetype = "neo-tree",
+            text = "Neo-tree",
+            highlight = "Directory",
+            text_align = "left",
+          },
         },
-        signcolumn = true,
-        numhl = false,
-        linehl = false,
-        word_diff = false,
-        watch_gitdir = {
-          follow_files = true
-        },
-        attach_to_untracked = true,
-        current_line_blame = false,
-        current_line_blame_opts = {
-          virt_text = true,
-          virt_text_pos = 'eol',
-          delay = 1000,
-          ignore_whitespace = false,
-        },
-        sign_priority = 6,
-        update_debounce = 100,
-        status_formatter = nil,
-        max_file_length = 40000,
-        preview_config = {
-          border = 'single',
-          style = 'minimal',
-          relative = 'cursor',
-          row = 0,
-          col = 1
-        },
-        on_attach = function(bufnr)
-          local gs = package.loaded.gitsigns
-
-          local function map(mode, l, r, opts)
-            opts = opts or {}
-            opts.buffer = bufnr
-            vim.keymap.set(mode, l, r, opts)
-          end
-
-          -- Navigation
-          map('n', ']c', function()
-            if vim.wo.diff then return ']c' end
-            vim.schedule(function() gs.next_hunk() end)
-            return '<Ignore>'
-          end, {expr=true})
-
-          map('n', '[c', function()
-            if vim.wo.diff then return '[c' end
-            vim.schedule(function() gs.prev_hunk() end)
-            return '<Ignore>'
-          end, {expr=true})
-
-          -- Actions
-          map('n', '<leader>hs', gs.stage_hunk, { desc = 'Stage hunk' })
-          map('n', '<leader>hr', gs.reset_hunk, { desc = 'Reset hunk' })
-          map('v', '<leader>hs', function() gs.stage_hunk {vim.fn.line('.'), vim.fn.line('v')} end, { desc = 'Stage hunk' })
-          map('v', '<leader>hr', function() gs.reset_hunk {vim.fn.line('.'), vim.fn.line('v')} end, { desc = 'Reset hunk' })
-          map('n', '<leader>hS', gs.stage_buffer, { desc = 'Stage buffer' })
-          map('n', '<leader>hu', gs.undo_stage_hunk, { desc = 'Undo stage hunk' })
-          map('n', '<leader>hR', gs.reset_buffer, { desc = 'Reset buffer' })
-          map('n', '<leader>hp', gs.preview_hunk, { desc = 'Preview hunk' })
-          map('n', '<leader>hb', function() gs.blame_line{full=true} end, { desc = 'Blame line' })
-          map('n', '<leader>tb', gs.toggle_current_line_blame, { desc = 'Toggle blame' })
-          map('n', '<leader>hd', gs.diffthis, { desc = 'Diff this' })
-          map('n', '<leader>hD', function() gs.diffthis('~') end, { desc = 'Diff this ~' })
-          map('n', '<leader>td', gs.toggle_deleted, { desc = 'Toggle deleted' })
-
-          -- Text object
-          map({'o', 'x'}, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
-        end
+      },
+    },
+    config = function(_, opts)
+      require("bufferline").setup(opts)
+      -- Fix bufferline when restoring a session
+      vim.api.nvim_create_autocmd("BufAdd", {
+        callback = function()
+          vim.schedule(function()
+            pcall(nvim_bufferline)
+          end)
+        end,
       })
+    end,
+  },
+
+  -- Dashboard
+  {
+    "nvimdev/dashboard-nvim",
+    event = "VimEnter",
+    opts = function()
+      local logo = [[
+      ██████╗ ███████╗███╗   ██╗ ██████╗  ██████╗ ███████╗███╗   ██╗███████╗███████╗██╗███████╗
+      ██╔══██╗██╔════╝████╗  ██║██╔═══██╗██╔════╝ ██╔════╝████╗  ██║██╔════╝██╔════╝██║██╔════╝
+      ██║  ██║█████╗  ██╔██╗ ██║██║   ██║██║  ███╗█████╗  ██╔██╗ ██║█████╗  ███████╗██║███████╗
+      ██║  ██║██╔══╝  ██║╚██╗██║██║   ██║██║   ██║██╔══╝  ██║╚██╗██║██╔══╝  ╚════██║██║╚════██║
+      ██████╔╝███████╗██║ ╚████║╚██████╔╝╚██████╔╝███████╗██║ ╚████║███████╗███████║██║███████║
+      ╚═════╝ ╚══════╝╚═╝  ╚═══╝ ╚═════╝  ╚═════╝ ╚══════╝╚═╝  ╚═══╝╚══════╝╚══════╝╚═╝╚══════╝
+      
+                            🦕 Modern TypeScript Development Framework
+      ]]
+
+      logo = string.rep("\n", 8) .. logo .. "\n\n"
+
+      local opts = {
+        theme = "doom",
+        hide = {
+          statusline = false,
+        },
+        config = {
+          header = vim.split(logo, "\n"),
+          center = {
+            { action = "Telescope find_files", desc = " Find file", icon = " ", key = "f" },
+            { action = "ene | startinsert", desc = " New file", icon = " ", key = "n" },
+            { action = "Telescope oldfiles", desc = " Recent files", icon = " ", key = "r" },
+            { action = "Telescope live_grep", desc = " Find text", icon = " ", key = "g" },
+            { action = "e $MYVIMRC", desc = " Config", icon = " ", key = "c" },
+            { action = "Lazy", desc = " Lazy", icon = "󰒲 ", key = "l" },
+            { action = "qa", desc = " Quit", icon = " ", key = "q" },
+          },
+          footer = function()
+            local stats = require("lazy").stats()
+            local ms = (math.floor(stats.startuptime * 100 + 0.5) / 100)
+            return { "⚡ Neovim loaded " .. stats.loaded .. "/" .. stats.count .. " plugins in " .. ms .. "ms" }
+          end,
+        },
+      }
+
+      for _, button in ipairs(opts.config.center) do
+        button.desc = button.desc .. string.rep(" ", 43 - #button.desc)
+        button.key_format = "  %s"
+      end
+
+      -- Close Lazy and re-open when the dashboard is ready
+      if vim.o.filetype == "lazy" then
+        vim.cmd.close()
+        vim.api.nvim_create_autocmd("User", {
+          pattern = "DashboardLoaded",
+          callback = function()
+            require("lazy").show()
+          end,
+        })
+      end
+
+      return opts
+    end,
+  },
+
+  -- Icons
+  { "nvim-tree/nvim-web-devicons", lazy = true },
+
+  -- UI components library
+  { "MunifTanjim/nui.nvim", lazy = true },
+
+  -- Better vim.notify
+  {
+    "rcarriga/nvim-notify",
+    keys = {
+      {
+        "<leader>un",
+        function()
+          require("notify").dismiss({ silent = true, pending = true })
+        end,
+        desc = "Dismiss all Notifications",
+      },
+    },
+    opts = {
+      timeout = 3000,
+      max_height = function()
+        return math.floor(vim.o.lines * 0.75)
+      end,
+      max_width = function()
+        return math.floor(vim.o.columns * 0.75)
+      end,
+      on_open = function(win)
+        vim.api.nvim_win_set_config(win, { zindex = 100 })
+      end,
+    },
+    init = function()
+      vim.notify = require("notify")
+    end,
+  },
+
+  -- Better vim.ui
+  {
+    "stevearc/dressing.nvim",
+    lazy = true,
+    init = function()
+      ---@diagnostic disable-next-line: duplicate-set-field
+      vim.ui.select = function(...)
+        require("lazy").load({ plugins = { "dressing.nvim" } })
+        return vim.ui.select(...)
+      end
+      ---@diagnostic disable-next-line: duplicate-set-field
+      vim.ui.input = function(...)
+        require("lazy").load({ plugins = { "dressing.nvim" } })
+        return vim.ui.input(...)
+      end
     end,
   },
 
   -- Indent guides
   {
-    'lukas-reineke/indent-blankline.nvim',
-    main = 'ibl',
+    "lukas-reineke/indent-blankline.nvim",
+    event = { "BufReadPost", "BufNewFile" },
     opts = {
       indent = {
-        char = '│',
-        tab_char = '│',
+        char = "│",
+        tab_char = "│",
       },
       scope = { enabled = false },
       exclude = {
         filetypes = {
-          'help',
-          'alpha',
-          'dashboard',
-          'neo-tree',
-          'Trouble',
-          'trouble',
-          'lazy',
-          'mason',
-          'notify',
-          'toggleterm',
-          'lazyterm',
+          "help",
+          "alpha",
+          "dashboard",
+          "neo-tree",
+          "Trouble",
+          "trouble",
+          "lazy",
+          "mason",
+          "notify",
+          "toggleterm",
+          "lazyterm",
         },
       },
     },
+    main = "ibl",
   },
 
-  -- Better notifications
+  -- Active indent guide and indent text objects
   {
-    'rcarriga/nvim-notify',
-    config = function()
-      require('notify').setup({
-        background_colour = '#000000',
-        fps = 30,
-        icons = {
-          DEBUG = '',
-          ERROR = '',
-          INFO = '',
-          TRACE = '✎',
-          WARN = ''
+    "echasnovski/mini.indentscope",
+    version = false, -- wait till new 0.7.0 release to put it back on semver
+    event = { "BufReadPost", "BufNewFile" },
+    opts = {
+      symbol = "│",
+      options = { try_as_border = true },
+    },
+    init = function()
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = {
+          "help",
+          "alpha",
+          "dashboard",
+          "neo-tree",
+          "Trouble",
+          "trouble",
+          "lazy",
+          "mason",
+          "notify",
+          "toggleterm",
+          "lazyterm",
         },
-        level = 2,
-        minimum_width = 50,
-        render = 'default',
-        stages = 'fade_in_slide_out',
-        timeout = 5000,
-        top_down = true
+        callback = function()
+          vim.b.miniindentscope_disable = true
+        end,
       })
-      vim.notify = require('notify')
     end,
   },
-UI_PLUGINS_EOF
-fi)
 }
 EOF
+
+    log "Created plugins/ui.lua"
 }
-
-generate_sample_deno_config() {
-    cat << 'EOF'
-{
-  "compilerOptions": {
-    "allowJs": true,
-    "lib": ["dom", "dom.iterable", "es6"],
-    "allowSyntheticDefaultImports": true,
-    "allowUmdGlobalAccess": false,
-    "allowUnreachableCode": false,
-    "allowUnusedLabels": false,
-    "alwaysStrict": true,
-    "assumeChangesOnlyAffectDirectDependencies": false,
-    "checkJs": false,
-    "disableSizeLimit": false,
-    "generateCpuProfile": "profile.cpuprofile",
-    "jsx": "react-jsx",
-    "jsxImportSource": "react",
-    "keyofStringsOnly": false,
-    "maxNodeModuleJsDepth": 0,
-    "noFallthroughCasesInSwitch": false,
-    "noImplicitOverride": false,
-    "noImplicitReturns": false,
-    "noStrictGenericChecks": false,
-    "noUncheckedIndexedAccess": false,
-    "preserveConstEnums": false,
-    "removeComments": false,
-    "resolveJsonModule": true,
-    "skipDefaultLibCheck": false,
-    "skipLibCheck": true,
-    "strict": true,
-    "strictBindCallApply": true,
-    "strictFunctionTypes": true,
-    "strictNullChecks": true,
-    "strictPropertyInitialization": true,
-    "suppressExcessPropertyErrors": false,
-    "suppressImplicitAnyIndexErrors": false,
-    "useDefineForClassFields": true
-  },
-  "lint": {
-    "rules": {
-      "tags": ["recommended"],
-      "include": ["ban-untagged-todo"],
-      "exclude": ["no-unused-vars"]
-    }
-  },
-  "fmt": {
-    "useTabs": false,
-    "lineWidth": 100,
-    "indentWidth": 2,
-    "semiColons": true,
-    "singleQuote": false,
-    "proseWrap": "preserve"
-  }
-}
-EOF
-}
-
-# =============================================================================
-# MAIN SETUP FUNCTIONS
-# =============================================================================
-
-write_config_file() {
-    local file_path="$1"
-    local content="$2"
-    local description="$3"
-    
-    log_info "Creating $description..."
-    echo "$content" > "$file_path"
-    FILES_CREATED+=("$file_path")
-}
-
-setup_config_files() {
-    log_info "Generating configuration files..."
-    
-    # Main configuration files
-    write_config_file "$CONFIG_PATH/init.lua" "$(generate_init_lua)" "main init.lua"
-    write_config_file "$CONFIG_PATH/lua/config/options.lua" "$(generate_options_lua)" "options configuration"
-    write_config_file "$CONFIG_PATH/lua/config/lazy.lua" "$(generate_lazy_lua)" "lazy.nvim configuration"
-    write_config_file "$CONFIG_PATH/lua/config/keymaps.lua" "$(generate_keymaps_lua)" "keymaps configuration"
-    
-    # Plugin configuration files
-    write_config_file "$CONFIG_PATH/lua/plugins/lsp.lua" "$(generate_lsp_lua "$SETUP_DENO")" "LSP configuration"
-    write_config_file "$CONFIG_PATH/lua/plugins/completion.lua" "$(generate_completion_lua)" "completion configuration"
-    
-    if [[ "$MINIMAL" != "true" ]]; then
-        write_config_file "$CONFIG_PATH/lua/plugins/treesitter.lua" "$(generate_treesitter_lua)" "treesitter configuration"
-        write_config_file "$CONFIG_PATH/lua/plugins/telescope.lua" "$(generate_telescope_lua)" "telescope configuration"
-    fi
-    
-    write_config_file "$CONFIG_PATH/lua/plugins/ui.lua" "$(generate_ui_lua "$THEME" "$MINIMAL")" "UI configuration"
-    
-    log_success "Configuration files created"
-}
-
-setup_sample_deno_config() {
-    if [[ "$SETUP_DENO" == "true" ]] && [[ ! -f "deno.json" ]]; then
-        log_info "Creating sample deno.json..."
-        write_config_file "deno.json" "$(generate_sample_deno_config)" "sample Deno configuration"
-    elif [[ -f "deno.json" ]]; then
-        log_warning "deno.json already exists, skipping creation"
-    fi
-}
-
-# =============================================================================
-# ARGUMENT PARSING
-# =============================================================================
-
-parse_arguments() {
-    while [[ $# -gt 0 ]]; do
-        case $1 in
-            --config-path)
-                CONFIG_PATH="$2"
-                shift 2
-                ;;
-            --no-backup)
-                BACKUP_EXISTING=false
-                shift
-                ;;
-            --no-deno)
-                SETUP_DENO=false
-                shift
-                ;;
-            --theme)
-                case "$2" in
-                    tokyonight|catppuccin|gruvbox)
-                        THEME="$2"
-                        ;;
-                    *)
-                        log_error "Invalid theme: $2. Valid options: tokyonight, catppuccin, gruvbox"
-                        exit 1
-                        ;;
-                esac
-                shift 2
-                ;;
-            --minimal)
-                MINIMAL=true
-                shift
-                ;;
-            --help|-h)
-                show_help
-                exit 0
-                ;;
-            *)
-                log_error "Unknown option: $1"
-                show_help
-                exit 1
-                ;;
-        esac
-    done
-}
-
-# =============================================================================
-# MAIN EXECUTION
-# =============================================================================
-
-show_banner() {
-    echo -e "${CYAN}🚀 DenoGenesis Neovim Setup${NC}"
-    echo -e "${CYAN}════════════════════════════${NC}"
-    echo -e "${BLUE}📁 Config path: ${CONFIG_PATH}${NC}"
-    echo -e "${BLUE}🎨 Theme: ${THEME}${NC}"
-    echo -e "${BLUE}🦕 Deno setup: $([ "$SETUP_DENO" == "true" ] && echo "enabled" || echo "disabled")${NC}"
-    echo -e "${BLUE}💾 Backup existing: $([ "$BACKUP_EXISTING" == "true" ] && echo "enabled" || echo "disabled")${NC}"
-    echo -e "${BLUE}⚡ Minimal install: $([ "$MINIMAL" == "true" ] && echo "enabled" || echo "disabled")${NC}"
-    echo ""
-}
-
-show_completion_summary() {
-    if [[ ${#ERRORS[@]} -eq 0 ]]; then
-        log_success "Setup completed successfully!"
-        
-        if [[ ${#FILES_CREATED[@]} -gt 0 ]]; then
-            log_info "Files created: ${#FILES_CREATED[@]}"
-            for file in "${FILES_CREATED[@]}"; do
-                echo -e "${GREEN}   📄 $file${NC}"
-            done
-        fi
-        
-        if [[ ${#WARNINGS[@]} -gt 0 ]]; then
-            echo ""
-            log_warning "Warnings encountered:"
-            for warning in "${WARNINGS[@]}"; do
-                echo -e "${YELLOW}   ⚠️  $warning${NC}"
-            done
-        fi
-        
-        cat << EOF
-
-${GREEN}🎉 Setup Complete! Next steps:${NC}
-
-${PURPLE}1. Open Neovim:${NC} nvim
-${PURPLE}2. Let plugins install automatically (or run :Lazy sync)${NC}
-${PURPLE}3. Open a TypeScript file in a Deno project${NC}
-${PURPLE}4. Use <Space> to see available keymaps${NC}
-
-${PURPLE}Key shortcuts:${NC}
-${CYAN}- <Space>ff:${NC} Find files
-${CYAN}- <Space>fg:${NC} Search text
-${CYAN}- <Space>e:${NC}  Toggle file explorer
-${CYAN}- <Space>dr:${NC} Run Deno file
-${CYAN}- <Space>dt:${NC} Run Deno tests
-
-${GREEN}Happy coding with Deno Genesis! 🦕${NC}
-
-EOF
-        exit 0
-    else
-        log_error "Setup failed!"
-        echo ""
-        log_error "Errors encountered:"
-        for error in "${ERRORS[@]}"; do
-            echo -e "${RED}   ❌ $error${NC}" >&2
-        done
-        exit 1
-    fi
-}
-
-main() {
-    # Parse command line arguments
-    parse_arguments "$@"
-    
-    # Show setup banner
-    show_banner
-    
-    # Check prerequisites
-    if ! check_prerequisites; then
-        exit 1
-    fi
-    
-    # Backup existing configuration if requested and exists
-    local backup_path=""
-    if [[ "$BACKUP_EXISTING" == "true" ]]; then
-        backup_path=$(backup_existing_config)
-    fi
-    
-    # Create directory structure
-    create_directory_structure
-    
-    # Generate and write configuration files
-    setup_config_files
-    
-    # Create sample deno.json if needed
-    setup_sample_deno_config
-    
-    # Show completion summary
-    show_completion_summary
-}
-
-# Only run main if script is executed directly (not sourced)
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    main "$@"
-fi
- 
