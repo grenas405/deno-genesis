@@ -91,7 +91,7 @@ Place the artifacts I created in these locations:
 - Full setup guide: `docs/03-development/neovim-deno-setup.md`
 - Keybindings: `./docs/keybindings.md`
 - Troubleshooting: `./docs/troubleshooting.md`
-```
+
 
 ### Step 5: Cross-Reference Documentation
 Update `docs/03-development/neovim-deno-setup.md` to reference the config files:
