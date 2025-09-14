@@ -373,7 +373,7 @@ USAGE:
 
 OPTIONS:
   -r, --root <path>        Project root directory (default: current directory)
-  -m, --message <msg>      Commit message (default: "one person, one paradigm")
+  -m, --message <msg>      Commit message (default: "one person, one paradigm shift")
   -b, --branch <name>      Remote branch to push to (default: current branch)
   -v, --verbose            Enable verbose logging
   -h, --help               Show this help message
@@ -399,7 +399,7 @@ PERMISSIONS REQUIRED:
 
 This script replicates the workflow shown in your terminal:
   1. git add .
-  2. git commit -m "one person, one paradigm"
+  2. git commit -m "one person, one paradigm shift"
   3. git push origin main
 `);
   }
