@@ -18,7 +18,7 @@
 [![GitHub Release](https://img.shields.io/github/v/release/grenas405/deno-genesis?style=flat-square&logo=github&logoColor=white&color=brightgreen)](https://github.com/grenas405/deno-genesis/releases)
 [![GitHub Language Count](https://img.shields.io/github/languages/count/grenas405/deno-genesis?style=flat-square&logo=github&logoColor=white&color=yellow)](https://github.com/grenas405/deno-genesis)
 
-
+<div>
 <div class="quote-block animated-header">
 
 > *"The best way to predict the future is to invent it."* — Alan Kay
