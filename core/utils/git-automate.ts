@@ -415,7 +415,7 @@ async function main(): Promise<void> {
   // Default configuration
   const defaultConfig: GitConfig = {
     projectRoot: Deno.cwd(),
-    defaultCommitMessage: "one person, one paradigm",
+    defaultCommitMessage: "one person, one paradigm shift",
     remoteBranch: "main",
     verbose: false
   };
