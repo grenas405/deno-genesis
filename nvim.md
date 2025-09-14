@@ -110,7 +110,7 @@ cp -r config/development/neovim/* ~/.config/nvim/
 ```
 
 See the full configuration files in `/config/development/neovim/` for customization options.
-```
+
 
 ## Benefits of This Organization
 
