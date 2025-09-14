@@ -92,3 +92,12 @@ require("lazy").setup("plugins", {
     fallback = false,
   },
 })
+
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = function()
+    -- Check if Neovim was started with no arguments (e.g., nvim .)
+    if vim.fn.argc() == 0 then
+      vim.cmd("Neotree show")
+    end
+  end,
+})
