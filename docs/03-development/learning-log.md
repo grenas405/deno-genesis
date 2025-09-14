@@ -1,5 +1,41 @@
 # Learning Log Entry
 
+## September 14, 2025
+
+### LLM Custom Instructions Best Practices
+
+**Topic**: Effective custom instruction patterns for project-aware LLMs
+
+**What I learned**: When providing custom instructions to LLMs that have full project context, specificity can actually become counterproductive. The key insight is that over-specification creates brittleness and potential failure points.
+
+**Critical findings**:
+
+1. **Avoid Hard-Coded File References**: Instructing an LLM to "use docs/05-frontend/ui-guidelines.md" creates a dependency on that exact file path. If the file gets renamed to something more accurate like "frontend-design-patterns.md" during documentation reorganization, the LLM will either fail to find the file or produce incorrect output based on stale assumptions.
+
+2. **Context-Driven vs. Instruction-Driven**: LLMs with full project context can discover relevant files through semantic search and natural understanding. Instead of saying "use the UI guidelines document," it's more effective to say "follow the established UI patterns and design principles" and let the LLM find the appropriate documentation.
+
+3. **Flexibility Over Precision**: Generic instructions like "follow project conventions" or "maintain consistency with existing patterns" are more resilient than specific file references. The LLM can adapt to project evolution without instruction updates.
+
+4. **Documentation Refactoring Resilience**: As projects mature, documentation gets reorganized for better accuracy and clarity. Hard-coded references in custom instructions become technical debt that needs manual maintenance.
+
+**Implementation example**:
+```
+❌ Bad: "Always use docs/05-frontend/ui-guidelines.md for styling decisions"
+✅ Good: "Follow established frontend design patterns and UI conventions"
+
+❌ Bad: "Reference the TypeScript types in core/types.ts"  
+✅ Good: "Maintain type safety using established TypeScript patterns"
+
+❌ Bad: "Check the deployment guide in docs/07-deployment/production.md"
+✅ Good: "Follow production deployment best practices"
+```
+
+**Key insight**: LLMs with project context are semantic reasoning systems, not rigid rule followers. They excel at understanding intent and finding relevant information dynamically. Over-specification fights against this strength and creates maintenance overhead.
+
+**Business impact**: This approach reduces the need to update custom instructions when documentation evolves, leading to more reliable AI-assisted development and reduced friction during project refactoring.
+
+---
+
 ## Date
 [09-13-25]
 
