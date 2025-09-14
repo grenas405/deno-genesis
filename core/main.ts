@@ -269,7 +269,7 @@ async function validateFramework(): Promise<boolean> {
 
     if (isValid) {
       spinner.stop("Framework integrity validated successfully");
-      ConsoleStyler.logSuccess(`Framework v${frameworkVersion} integrity check passed`, {
+      ConsoleStyler.logSuccess(`Framework v${VERSION} integrity check passed`, {
         duration: `${duration.toFixed(2)}ms`,
         buildHash: BUILD_HASH
       });
