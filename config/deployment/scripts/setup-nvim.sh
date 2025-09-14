@@ -1,4 +1,4 @@
-#!/bin/bash
+g!/bin/bash
 # setup-nvim.sh - Modern Neovim Configuration for Deno Genesis TypeScript Development
 #
 # DenoGenesis Framework Compatible Neovim Setup
