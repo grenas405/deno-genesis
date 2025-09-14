@@ -129,6 +129,109 @@
   border-radius: 4px;
 }
 
+/* Table of Contents Styling */
+details {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+details[open] {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+details summary {
+  cursor: pointer;
+  font-weight: bold;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+details summary:hover {
+  background: rgba(59, 130, 246, 0.1);
+  transform: translateX(5px);
+}
+
+details summary::-webkit-details-marker {
+  display: none;
+}
+
+details summary::after {
+  content: "▼";
+  transition: transform 0.3s ease;
+  color: #3b82f6;
+}
+
+details:not([open]) summary::after {
+  transform: rotate(-90deg);
+}
+
+.toc-section {
+  margin: 0.8rem 0;
+  padding-left: 1rem;
+}
+
+.toc-section h3 {
+  color: #1e40af;
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+.toc-section ul {
+  list-style: none;
+  padding-left: 1rem;
+}
+
+.toc-section li {
+  margin: 0.3rem 0;
+  padding: 0.2rem 0;
+}
+
+.toc-section a {
+  color: #374151;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.toc-section a:hover {
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+  transform: translateX(3px);
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Section header styling */
+h2, h3 {
+  scroll-margin-top: 2rem;
+  position: relative;
+}
+
+h2::before {
+  content: "";
+  position: absolute;
+  left: -1rem;
+  top: 50%;
+  height: 1px;
+  width: 0.5rem;
+  background: linear-gradient(90deg, #3b82f6, transparent);
+  transform: translateY(-50%);
+}
+
 /* Responsive design for mobile */
 @media (max-width: 768px) {
   .badge-container {
@@ -140,6 +243,19 @@
     font-size: 0.8rem;
     padding: 1rem;
   }
+  
+  details {
+    margin: 0.5rem 0;
+    padding: 0.8rem;
+  }
+  
+  .toc-section {
+    padding-left: 0.5rem;
+  }
+  
+  .toc-section a {
+    font-size: 0.9rem;
+  }
 }
 </style>
 
@@ -148,6 +264,43 @@
 > *"The best way to predict the future is to invent it."* — Alan Kay
 
 </div>
+
+---
+
+## 📋 Table of Contents
+
+<details open>
+<summary><strong>🚀 Quick Navigation</strong> <em>(click to collapse)</em></summary>
+
+### 🎯 **Getting Started**
+- [🔧 Quick Start](#quick-start)
+- [📦 Installation](#installation)
+- [🏗️ Create Your First Site](#create-your-first-site)
+
+### 🏛️ **Architecture & Philosophy**
+- [📐 The Philosophy Stack](#the-philosophy-stack)
+- [🕸️ Hub-and-Spoke Architecture](#hub-and-spoke-architecture-version-drift-elimination)
+- [🌱 The Emergence Story](#the-emergence-story)
+- [🎯 Local-First Software Principles](#local-first-software-principles)
+
+### 🛠️ **Development**
+- [🤖 AI-Augmented Development](#ai-augmented-development)
+- [🔒 Security: Defense in Depth](#security-defense-in-depth)
+- [📚 Documentation Philosophy](#documentation-philosophy)
+- [🏗️ Architecture Deep Dive](#architecture-deep-dive)
+
+### 🚀 **Deployment & Production**
+- [⚙️ Production Deployment](#production-deployment)
+- [🔧 SystemD Service Management](#systemd-service-management)
+- [🌐 Nginx Configuration](#nginx-configuration)
+
+### 🤝 **Community & Future**
+- [🤝 Contributing](#contributing)
+- [🔮 Philosophy and Future](#philosophy-and-future)
+- [📄 License](#license)
+- [🙏 Acknowledgments](#acknowledgments)
+
+</details>
 
 ---
 
@@ -640,4 +793,4 @@ GPL v3 - Because good ideas should be shared, improved, and built upon by the co
 
 ---
 
-*Built with Deno 🦕, TypeScript 💙, and a healthy dose of controlled chaos ⚡*
+*Built with Deno 🦕, TypeScript 🔵, and a healthy dose of controlled chaos ⚡*
