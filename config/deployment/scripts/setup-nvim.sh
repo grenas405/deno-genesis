@@ -1693,7 +1693,750 @@ serve(handler, { port: 8000 });
       require("util").lsp.on_rename(data.source, data.destination)
     end
 
-    local events = require",
+    local events = require("neo-tree.events")
+    if opts.filesystem and opts.filesystem.commands then
+      opts.filesystem.commands.copy_selector = opts.filesystem.commands.copy_selector or function() end
+      opts.filesystem.commands.create_deno_service = opts.filesystem.commands.create_deno_service or function() end
+    end
+    
+    opts.event_handlers = opts.event_handlers or {}
+    vim.list_extend(opts.event_handlers, {
+      { event = events.FILE_MOVED,   handler = on_move },
+      { event = events.FILE_RENAMED, handler = on_move },
+    })
+    
+    require("neo-tree").setup(opts)
+    
+    -- Auto-open neo-tree for directories
+    vim.api.nvim_create_autocmd("BufEnter", {
+      group = vim.api.nvim_create_augroup("Neotree_start_directory", { clear = true }),
+      desc = "Start Neo-tree with directory",
+      once = true,
+      callback = function()
+        if package.loaded["neo-tree"] then
+          return
+        else
+          local stats = vim.uv.fs_stat(vim.fn.argv(0))
+          if stats and stats.type == "directory" then
+            require("neo-tree")
+          end
+        end
+      end,
+    })
+  end,
+}
+EOF
+
+    log "Created plugins/neo-tree.lua"
+}
+
+generate_telescope_config() {
+    local config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
+    
+    cat > "$config_dir/lua/plugins/telescope.lua" << 'EOF'
+-- telescope.lua - Fuzzy finder optimized for Deno Genesis development
+-- Enhanced search capabilities with performance optimizations
+
+return {
+  "nvim-telescope/telescope.nvim",
+  branch = "0.1.x",
+  cmd = "Telescope",
+  version = false,
+  keys = {
+    -- File finding
+    { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find Files" },
+    { "<leader>fr", "<cmd>Telescope oldfiles<cr>", desc = "Recent Files" },
+    { "<leader>fF", "<cmd>Telescope find_files hidden=true<cr>", desc = "Find Files (Hidden)" },
+    
+    -- Search
+    { "<leader>sg", "<cmd>Telescope live_grep<cr>", desc = "Live Grep" },
+    { "<leader>sw", "<cmd>Telescope grep_string<cr>", desc = "Grep String" },
+    { "<leader>sG", "<cmd>Telescope live_grep additional_args={'--hidden'}<cr>", desc = "Live Grep (Hidden)" },
+    
+    -- Buffers and recent
+    { "<leader>fb", "<cmd>Telescope buffers<cr>", desc = "Buffers" },
+    { "<leader>fh", "<cmd>Telescope help_tags<cr>", desc = "Help Tags" },
+    
+    -- Git
+    { "<leader>gf", "<cmd>Telescope git_files<cr>", desc = "Git Files" },
+    { "<leader>gc", "<cmd>Telescope git_commits<cr>", desc = "Git Commits" },
+    { "<leader>gs", "<cmd>Telescope git_status<cr>", desc = "Git Status" },
+    
+    -- LSP
+    { "<leader>ss", "<cmd>Telescope lsp_document_symbols<cr>", desc = "Document Symbols" },
+    { "<leader>sS", "<cmd>Telescope lsp_workspace_symbols<cr>", desc = "Workspace Symbols" },
+    { "<leader>sd", "<cmd>Telescope diagnostics<cr>", desc = "Diagnostics" },
+    
+    -- Deno specific
+    { "<leader>fd", function()
+        require("telescope.builtin").find_files({
+          find_command = { "find", ".", "-type", "f", "-name", "*.ts", "-o", "-name", "*.tsx", "-o", "-name", "*.js", "-o", "-name", "*.jsx" }
+        })
+      end, desc = "Find TypeScript Files" },
+    
+    -- Configuration
+    { "<leader>fc", "<cmd>Telescope find_files cwd=~/.config/nvim<cr>", desc = "Find Config Files" },
+  },
+  dependencies = {
+    "nvim-lua/plenary.nvim",
+    {
+      "nvim-telescope/telescope-fzf-native.nvim",
+      build = "make",
+      cond = function()
+        return vim.fn.executable "make" == 1
+      end,
+    },
+    { "nvim-tree/nvim-web-devicons", enabled = vim.g.have_nerd_font },
+  },
+  config = function()
+    local telescope = require("telescope")
+    local actions = require("telescope.actions")
+    local trouble = require("trouble.providers.telescope")
+    
+    telescope.setup({
+      defaults = {
+        prompt_prefix = " ",
+        selection_caret = " ",
+        path_display = { "truncate" },
+        sorting_strategy = "ascending",
+        layout_config = {
+          horizontal = {
+            prompt_position = "top",
+            preview_width = 0.55,
+            results_width = 0.8,
+          },
+          vertical = {
+            mirror = false,
+          },
+          width = 0.87,
+          height = 0.80,
+          preview_cutoff = 120,
+        },
+        
+        -- Performance optimizations
+        file_ignore_patterns = {
+          "node_modules/",
+          ".git/",
+          ".cache/",
+          "%.o",
+          "%.a",
+          "%.out",
+          "%.class",
+          "%.pdf",
+          "%.mkv",
+          "%.mp4",
+          "%.zip"
+        },
+        
+        -- Enhanced file finding for Deno
+        vimgrep_arguments = {
+          "rg",
+          "--color=never",
+          "--no-heading",
+          "--with-filename",
+          "--line-number",
+          "--column",
+          "--smart-case",
+          "--hidden",
+          "--glob=!.git/",
+        },
+        
+        mappings = {
+          i = {
+            ["<C-k>"] = actions.move_selection_previous,
+            ["<C-j>"] = actions.move_selection_next,
+            ["<C-n>"] = actions.cycle_history_next,
+            ["<C-p>"] = actions.cycle_history_prev,
+            ["<C-c>"] = actions.close,
+            ["<Down>"] = actions.move_selection_next,
+            ["<Up>"] = actions.move_selection_previous,
+            ["<CR>"] = actions.select_default,
+            ["<C-s>"] = actions.select_horizontal,
+            ["<C-v>"] = actions.select_vertical,
+            ["<C-t>"] = actions.select_tab,
+            ["<C-u>"] = actions.preview_scrolling_up,
+            ["<C-d>"] = actions.preview_scrolling_down,
+            ["<PageUp>"] = actions.results_scrolling_up,
+            ["<PageDown>"] = actions.results_scrolling_down,
+            ["<Tab>"] = actions.toggle_selection + actions.move_selection_worse,
+            ["<S-Tab>"] = actions.toggle_selection + actions.move_selection_better,
+            ["<C-q>"] = actions.send_to_qflist + actions.open_qflist,
+            ["<M-q>"] = actions.send_selected_to_qflist + actions.open_qflist,
+            ["<C-l>"] = actions.complete_tag,
+            ["<C-/>"] = actions.which_key,
+            ["<c-t>"] = trouble.open_with_trouble,
+          },
+          n = {
+            ["<esc>"] = actions.close,
+            ["<CR>"] = actions.select_default,
+            ["<C-s>"] = actions.select_horizontal,
+            ["<C-v>"] = actions.select_vertical,
+            ["<C-t>"] = actions.select_tab,
+            ["<Tab>"] = actions.toggle_selection + actions.move_selection_worse,
+            ["<S-Tab>"] = actions.toggle_selection + actions.move_selection_better,
+            ["<C-q>"] = actions.send_to_qflist + actions.open_qflist,
+            ["<M-q>"] = actions.send_selected_to_qflist + actions.open_qflist,
+            ["j"] = actions.move_selection_next,
+            ["k"] = actions.move_selection_previous,
+            ["H"] = actions.move_to_top,
+            ["M"] = actions.move_to_middle,
+            ["L"] = actions.move_to_bottom,
+            ["<Down>"] = actions.move_selection_next,
+            ["<Up>"] = actions.move_selection_previous,
+            ["gg"] = actions.move_to_top,
+            ["G"] = actions.move_to_bottom,
+            ["<C-u>"] = actions.preview_scrolling_up,
+            ["<C-d>"] = actions.preview_scrolling_down,
+            ["<PageUp>"] = actions.results_scrolling_up,
+            ["<PageDown>"] = actions.results_scrolling_down,
+            ["?"] = actions.which_key,
+            ["<c-t>"] = trouble.open_with_trouble,
+          },
+        },
+      },
+      
+      pickers = {
+        find_files = {
+          find_command = { "rg", "--files", "--hidden", "--glob", "!**/.git/*" },
+          mappings = {
+            n = {
+              ["cd"] = function(prompt_bufnr)
+                local selection = require("telescope.actions.state").get_selected_entry()
+                local dir = vim.fn.fnamemodify(selection.path, ":p:h")
+                require("telescope.actions").close(prompt_bufnr)
+                vim.cmd(string.format("silent cd %s", dir))
+              end
+            }
+          }
+        },
+        
+        buffers = {
+          ignore_current_buffer = true,
+          sort_lastused = true,
+          theme = "dropdown",
+          previewer = false,
+          mappings = {
+            i = { ["<c-d>"] = "delete_buffer" },
+            n = { ["<c-d>"] = "delete_buffer" },
+          }
+        },
+        
+        git_files = {
+          theme = "dropdown",
+          previewer = false,
+        },
+        
+        live_grep = {
+          additional_args = function()
+            return { "--hidden", "--glob", "!**/.git/*" }
+          end
+        },
+        
+        grep_string = {
+          additional_args = function()
+            return { "--hidden", "--glob", "!**/.git/*" }
+          end
+        },
+      },
+      
+      extensions = {
+        fzf = {
+          fuzzy = true,                    -- false will only do exact matching
+          override_generic_sorter = true,  -- override the generic sorter
+          override_file_sorter = true,     -- override the file sorter
+          case_mode = "smart_case",        -- or "ignore_case" or "respect_case"
+        }
+      }
+    })
+
+    -- Load extensions
+    telescope.load_extension("fzf")
+    
+    -- Auto-change directory based on opened file
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "TelescopePreviewerLoaded",
+      callback = function()
+        vim.wo.number = false
+        vim.wo.relativenumber = false
+      end,
+    })
+  end,
+}
+EOF
+
+    log "Created plugins/telescope.lua"
+}
+
+generate_treesitter_config() {
+    local config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
+    
+    cat > "$config_dir/lua/plugins/treesitter.lua" << 'EOF'
+-- treesitter.lua - Modern syntax highlighting and code navigation
+-- Optimized for TypeScript, JSX, and Deno development
+
+return {
+  -- Treesitter core
+  {
+    "nvim-treesitter/nvim-treesitter",
+    version = false, -- last release is way too old and doesn't work on Windows
+    build = ":TSUpdate",
+    event = { "BufReadPost", "BufNewFile" },
+    init = function(plugin)
+      require("lazy.core.loader").add_to_rtp(plugin)
+      require("nvim-treesitter.query_predicates")
+    end,
+    dependencies = {
+      {
+        "nvim-treesitter/nvim-treesitter-textobjects",
+        config = function()
+          -- When in diff mode, we want to use the default
+          -- vim text objects c & C instead of the treesitter ones.
+          local move = require("nvim-treesitter.textobjects.move") ---@type table<string,fun(...)>
+          local configs = require("nvim-treesitter.configs")
+          for name, fn in pairs(move) do
+            if name:find("goto") == 1 then
+              move[name] = function(q, ...)
+                if vim.wo.diff then
+                  local config = configs.get_module("textobjects.move")[name] ---@type table<string,string>
+                  for key, query in pairs(config or {}) do
+                    if q == query and key:find("[%]%[][cC]") then
+                      vim.cmd("normal! " .. key)
+                      return
+                    end
+                  end
+                end
+                return fn(q, ...)
+              end
+            end
+          end
+        end,
+      },
+    },
+    opts = {
+      highlight = { enable = true },
+      indent = { enable = true },
+      ensure_installed = {
+        "bash",
+        "c",
+        "diff",
+        "html",
+        "javascript",
+        "jsdoc",
+        "json",
+        "jsonc",
+        "lua",
+        "luadoc",
+        "luap",
+        "markdown",
+        "markdown_inline",
+        "python",
+        "query",
+        "regex",
+        "toml",
+        "tsx",
+        "typescript",
+        "vim",
+        "vimdoc",
+        "yaml",
+      },
+      incremental_selection = {
+        enable = true,
+        keymaps = {
+          init_selection = "<C-space>",
+          node_incremental = "<C-space>",
+          scope_incremental = false,
+          node_decremental = "<bs>",
+        },
+      },
+      textobjects = {
+        select = {
+          enable = true,
+          lookahead = true,
+          keymaps = {
+            ["aa"] = "@parameter.outer",
+            ["ia"] = "@parameter.inner",
+            ["af"] = "@function.outer",
+            ["if"] = "@function.inner",
+            ["ac"] = "@class.outer",
+            ["ic"] = "@class.inner",
+            ["ii"] = "@conditional.inner",
+            ["ai"] = "@conditional.outer",
+            ["il"] = "@loop.inner",
+            ["al"] = "@loop.outer",
+            ["at"] = "@comment.outer",
+          },
+        },
+        move = {
+          enable = true,
+          set_jumps = true,
+          goto_next_start = {
+            ["]m"] = "@function.outer",
+            ["]]"] = "@class.outer",
+            ["]o"] = "@loop.*",
+            ["]s"] = { query = "@scope", query_group = "locals", desc = "Next scope" },
+            ["]z"] = { query = "@fold", query_group = "folds", desc = "Next fold" },
+          },
+          goto_next_end = {
+            ["]M"] = "@function.outer",
+            ["]["] = "@class.outer",
+          },
+          goto_previous_start = {
+            ["[m"] = "@function.outer",
+            ["[["] = "@class.outer",
+            ["[o"] = "@loop.*",
+            ["[s"] = { query = "@scope", query_group = "locals", desc = "Previous scope" },
+            ["[z"] = { query = "@fold", query_group = "folds", desc = "Previous fold" },
+          },
+          goto_previous_end = {
+            ["[M"] = "@function.outer",
+            ["[]"] = "@class.outer",
+          },
+          goto_next = {
+            ["]d"] = "@conditional.outer",
+          },
+          goto_previous = {
+            ["[d"] = "@conditional.outer",
+          },
+        },
+        swap = {
+          enable = true,
+          swap_next = {
+            ["<leader>a"] = "@parameter.inner",
+          },
+          swap_previous = {
+            ["<leader>A"] = "@parameter.inner",
+          },
+        },
+      },
+    },
+    config = function(_, opts)
+      require("nvim-treesitter.configs").setup(opts)
+
+      -- MDX support
+      vim.filetype.add({
+        extension = {
+          mdx = "mdx",
+        },
+      })
+      vim.treesitter.language.register("markdown", "mdx")
+      
+      -- Enhanced Deno/TypeScript file detection
+      vim.filetype.add({
+        pattern = {
+          [".*%.config%.ts"] = "typescript",
+          [".*%.test%.ts"] = "typescript",
+          [".*%.spec%.ts"] = "typescript",
+          [".*deno%.json.*"] = "jsonc",
+        },
+      })
+    end,
+  },
+
+  -- Automatically add closing tags for HTML and JSX
+  {
+    "windwp/nvim-ts-autotag",
+    event = "InsertEnter",
+    dependencies = "nvim-treesitter/nvim-treesitter",
+    config = function()
+      require("nvim-ts-autotag").setup({
+        opts = {
+          enable_close = true,
+          enable_rename = true,
+          enable_close_on_slash = false
+        },
+        per_filetype = {
+          ["html"] = {
+            enable_close = false
+          }
+        }
+      })
+    end,
+  },
+
+  -- Rainbow parentheses using treesitter
+  {
+    "HiPhish/rainbow-delimiters.nvim",
+    event = "BufRead",
+    config = function()
+      local rainbow_delimiters = require("rainbow-delimiters")
+      
+      vim.g.rainbow_delimiters = {
+        strategy = {
+          [''] = rainbow_delimiters.strategy['global'],
+          vim = rainbow_delimiters.strategy['local'],
+        },
+        query = {
+          [''] = 'rainbow-delimiters',
+          lua = 'rainbow-blocks',
+        },
+        priority = {
+          [''] = 110,
+          lua = 210,
+        },
+        highlight = {
+          'RainbowDelimiterRed',
+          'RainbowDelimiterYellow',
+          'RainbowDelimiterBlue',
+          'RainbowDelimiterOrange',
+          'RainbowDelimiterGreen',
+          'RainbowDelimiterViolet',
+          'RainbowDelimiterCyan',
+        },
+      }
+    end,
+  },
+
+  -- Show context of current function/class
+  {
+    "nvim-treesitter/nvim-treesitter-context",
+    event = "BufRead",
+    opts = {
+      enable = true,
+      max_lines = 3,
+      min_window_height = 0,
+      line_numbers = true,
+      multiline_threshold = 20,
+      trim_scope = 'outer',
+      mode = 'cursor',
+      separator = nil,
+      zindex = 20,
+      on_attach = nil,
+    },
+  },
+}
+EOF
+
+    log "Created plugins/treesitter.lua"
+}
+
+# Continue generating the rest of the script
+install_plugins() {
+    header "Installing Plugins and Running Initial Setup"
+    
+    # Run Neovim headless to install plugins
+    log "Installing plugins with lazy.nvim..."
+    nvim --headless -c 'autocmd User LazyVimStarted quitall' -c 'Lazy! sync' 2>/dev/null
+    
+    # Install TreeSitter parsers
+    log "Installing TreeSitter parsers..."
+    nvim --headless -c 'TSUpdate' -c 'qall' 2>/dev/null
+    
+    # Install LSP servers
+    log "Installing LSP servers..."
+    nvim --headless -c 'MasonInstallAll' -c 'qall' 2>/dev/null || true
+    
+    success "Plugin installation completed"
+}
+
+generate_sample_deno_project() {
+    header "Generating Sample Deno Project"
+    
+    if [[ ! -f "deno.json" ]]; then
+        log "Creating sample deno.json..."
+        cat > "deno.json" << 'EOF'
+{
+  "tasks": {
+    "dev": "deno run --allow-net --allow-read --watch main.ts",
+    "start": "deno run --allow-net --allow-read main.ts",
+    "test": "deno test --allow-all",
+    "fmt": "deno fmt",
+    "lint": "deno lint",
+    "check": "deno check **/*.ts"
+  },
+  "imports": {
+    "@std/": "https://deno.land/std@0.208.0/",
+    "@oak/": "https://deno.land/x/oak@v12.6.1/"
+  },
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["deno.window"],
+    "strict": true
+  },
+  "fmt": {
+    "files": {
+      "include": ["src/", "*.ts", "*.js"],
+      "exclude": ["build/", "dist/"]
+    },
+    "options": {
+      "useTabs": false,
+      "lineWidth": 80,
+      "indentWidth": 2,
+      "singleQuote": false
+    }
+  },
+  "lint": {
+    "files": {
+      "include": ["src/", "*.ts", "*.js"],
+      "exclude": ["build/", "dist/"]
+    },
+    "rules": {
+      "tags": ["recommended"]
+    }
+  }
+}
+EOF
+        success "Created sample deno.json"
+    fi
+    
+    if [[ ! -f "main.ts" ]]; then
+        log "Creating sample main.ts..."
+        cat > "main.ts" << 'EOF'
+/**
+ * DenoGenesis Framework - Sample Application
+ * Modern TypeScript development with Deno
+ */
+
+import { serve } from "@std/http/server";
+
+interface AppConfig {
+  port: number;
+  hostname: string;
+}
+
+const config: AppConfig = {
+  port: 8000,
+  hostname: "localhost",
+};
+
+const handler = (req: Request): Response => {
+  const url = new URL(req.url);
+  
+  // Simple routing
+  switch (url.pathname) {
+    case "/":
+      return new Response("🦕 Welcome to DenoGenesis Framework!");
+    case "/health":
+      return new Response(JSON.stringify({ status: "ok", timestamp: new Date() }), {
+        headers: { "content-type": "application/json" },
+      });
+    default:
+      return new Response("Not Found", { status: 404 });
+  }
+};
+
+// Start the server
+console.log(`🚀 Server running at http://${config.hostname}:${config.port}/`);
+await serve(handler, config);
+EOF
+        success "Created sample main.ts"
+    fi
+    
+    # Create src directory with example files
+    if [[ ! -d "src" ]]; then
+        mkdir -p src
+        
+        cat > "src/utils.ts" << 'EOF'
+/**
+ * Utility functions for DenoGenesis applications
+ */
+
+export function formatDate(date: Date): string {
+  return date.toISOString().split('T')[0];
+}
+
+export function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+export class Logger {
+  constructor(private prefix: string) {}
+  
+  info(message: string): void {
+    console.log(`[${this.prefix}] INFO: ${message}`);
+  }
+  
+  error(message: string): void {
+    console.error(`[${this.prefix}] ERROR: ${message}`);
+  }
+  
+  warn(message: string): void {
+    console.warn(`[${this.prefix}] WARN: ${message}`);
+  }
+}
+EOF
+        
+        success "Created src/ directory with utility files"
+    fi
+}
+
+perform_health_check() {
+    header "Performing Health Check"
+    
+    # Test Neovim configuration
+    log "Testing Neovim configuration..."
+    if nvim --headless -c 'checkhealth' -c 'qall' 2>/dev/null; then
+        success "Neovim configuration is healthy"
+    else
+        warn "Some issues found in configuration (check :checkhealth in Neovim)"
+    fi
+    
+    # Test Deno project
+    if [[ -f "deno.json" ]]; then
+        log "Testing Deno project setup..."
+        if deno check main.ts 2>/dev/null; then
+            success "Deno project configuration is valid"
+        else
+            warn "Issues found in Deno project (run 'deno check main.ts' for details)"
+        fi
+    fi
+    
+    # Display summary
+    echo
+    success "Setup completed successfully!"
+    echo
+    log "Next steps:"
+    log "1. Start Neovim: nvim"
+    log "2. Wait for any remaining plugins to install"
+    log "3. Open a TypeScript file to activate Deno LSP"
+    log "4. Run :checkhealth to verify everything is working"
+    log "5. Test Deno project: deno task dev"
+    echo
+    log "Key shortcuts to remember:"
+    log "- <leader>ff: Find files"
+    log "- <leader>fg: Live grep"
+    log "- <leader>e: Toggle file explorer"
+    log "- <leader>dr: Run Deno tasks"
+    log "- <leader>cf: Format code"
+    log "- gd: Go to definition"
+    log "- K: Show documentation"
+    echo
+    log "Happy coding with DenoGenesis Framework! 🦕"
+}
+
+# =============================================================================
+# MAIN EXECUTION
+# =============================================================================
+
+main() {
+    show_banner
+    
+    check_prerequisites
+    backup_existing_config
+    create_directory_structure
+    
+    # Generate core configuration
+    generate_init_lua
+    generate_options_lua
+    generate_keymaps_lua
+    generate_autocmds_lua
+    
+    # Generate plugin configurations
+    generate_lsp_config
+    generate_completion_config
+    generate_ui_plugins
+    generate_file_explorer_config
+    generate_telescope_config
+    generate_treesitter_config
+    
+    # Install and setup
+    install_plugins
+    generate_sample_deno_project
+    perform_health_check
+}
+
+# Execute main function with all arguments
+main "$@"",
           }),
           documentation = cmp.config.window.bordered({
             winhighlight = "Normal:CmpDoc,FloatBorder:CmpDocBorder",
