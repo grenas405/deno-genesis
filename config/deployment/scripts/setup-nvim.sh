@@ -3060,7 +3060,7 @@ return {
     main = "ibl",
   },
 
-  -- Active indent guide and indent text objects
+    -- Active indent guide and indent text objects
   {
     "echasnovski/mini.indentscope",
     version = false, -- wait till new 0.7.0 release to put it back on semver
@@ -3093,5 +3093,4 @@ return {
 }
 EOF
 
-    log "Created plugins/ui.lua"
-}
+log "Created plugins/ui.lua"
