@@ -361,12 +361,10 @@ git clone https://github.com/grenas405/deno-genesis.git
 cd deno-genesis
 
 # Setup infrastructure (automated)
-deno run --allow-all config/deployment/scripts/setup-mariadb.ts
-deno run --allow-all config/deployment/scripts/setup-env.ts
-deno run --allow-all config/deployment/scripts/setup-nginx.ts
+
 
 # Start development
-deno run --allow-all --watch sites/domtech/mod.ts
+
 ```
 
 ### Create Your First Site
