@@ -129,245 +129,46 @@
   border-radius: 4px;
 }
 
-/* Table of Contents Styling - Elegant Design */
-.toc-container {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-  border: 1px solid #475569;
-  border-radius: 16px;
-  margin: 2rem 0;
-  overflow: hidden;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  backdrop-filter: blur(10px);
-  position: relative;
+/* Enhanced styling for better visual appeal */
+.animated-header {
+  margin: 1.5rem 0;
 }
 
-.toc-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, #3b82f6, transparent);
-  opacity: 0.7;
-}
-
-.toc-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem 2rem;
-  background: rgba(15, 23, 42, 0.8);
-  border-bottom: 1px solid rgba(71, 85, 105, 0.3);
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.toc-header:hover {
-  background: rgba(30, 41, 59, 0.9);
-  transform: translateY(-1px);
-}
-
-.toc-header h3 {
-  color: #f1f5f9;
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  letter-spacing: 0.025em;
-}
-
-.toc-icon {
-  font-size: 1.5rem;
-  margin-right: 1rem;
-  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5));
-}
-
-.toc-toggle {
-  font-size: 1.25rem;
-  color: #94a3b8;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 50%;
-  background: rgba(59, 130, 246, 0.1);
-}
-
-.toc-toggle:hover {
-  color: #3b82f6;
-  background: rgba(59, 130, 246, 0.2);
-  transform: scale(1.1);
-}
-
-.toc-content {
-  max-height: 1000px;
-  overflow: hidden;
-  transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.toc-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 0;
-  padding: 2rem;
-}
-
-.toc-column {
+.quote-block {
+  border-left: 4px solid #3b82f6;
+  padding-left: 1rem;
+  font-style: italic;
+  color: #6b7280;
+  margin: 1rem 0;
+  background: rgba(59, 130, 246, 0.05);
   padding: 1rem;
-  position: relative;
+  border-radius: 0 8px 8px 0;
 }
 
-.toc-column:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 10%;
-  bottom: 10%;
-  width: 1px;
-  background: linear-gradient(to bottom, transparent, #475569, transparent);
-  opacity: 0.5;
-}
-
-.toc-section-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid rgba(59, 130, 246, 0.2);
-  color: #e2e8f0;
-  font-weight: 600;
-  font-size: 1rem;
-}
-
-.section-icon {
-  margin-right: 0.75rem;
-  font-size: 1.25rem;
-  filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.4));
-}
-
-.toc-links {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.toc-link {
-  display: flex;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  color: #cbd5e1;
-  text-decoration: none;
+.architecture-diagram {
+  font-family: 'Courier New', monospace;
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  color: #f9fafb;
+  padding: 1.5rem;
   border-radius: 8px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-  border-left: 3px solid transparent;
+  margin: 1rem 0;
+  border: 1px solid #4b5563;
+  overflow-x: auto;
 }
 
-.toc-link::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 0;
-  background: linear-gradient(45deg, #3b82f6, #6366f1);
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: -1;
+.feature-grid {
+  margin: 1rem 0;
 }
 
-.toc-link:hover {
-  color: #f8fafc;
-  transform: translateX(8px);
-  border-left-color: #3b82f6;
-  background: rgba(59, 130, 246, 0.1);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+.code-block {
+  margin: 1rem 0;
 }
 
-.toc-link:hover::before {
-  width: 100%;
-}
-
-.toc-link:hover .link-icon {
-  transform: scale(1.2) rotate(5deg);
-  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
-}
-
-.link-icon {
-  margin-right: 0.75rem;
-  font-size: 1rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  opacity: 0.8;
-}
-
-.toc-link span:last-child {
-  font-size: 0.9rem;
-  font-weight: 500;
-  letter-spacing: 0.025em;
-}
-
-/* Enhanced mobile responsiveness */
+/* Responsive design for mobile */
 @media (max-width: 768px) {
-  .toc-container {
-    margin: 1rem 0;
-    border-radius: 12px;
-  }
-  
-  .toc-header {
-    padding: 1rem 1.5rem;
-  }
-  
-  .toc-header h3 {
-    font-size: 1.1rem;
-  }
-  
-  .toc-grid {
-    grid-template-columns: 1fr;
+  .architecture-diagram {
+    font-size: 0.8rem;
     padding: 1rem;
-    gap: 1rem;
-  }
-  
-  .toc-column {
-    padding: 0.5rem;
-  }
-  
-  .toc-column:not(:last-child)::after {
-    display: none;
-  }
-  
-  .toc-column:not(:last-child) {
-    border-bottom: 1px solid rgba(71, 85, 105, 0.3);
-    padding-bottom: 1rem;
-    margin-bottom: 1rem;
-  }
-  
-  .toc-link {
-    padding: 0.6rem 0.8rem;
-    font-size: 0.9rem;
-  }
-  
-  .toc-section-header {
-    font-size: 0.95rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .toc-header {
-    padding: 0.8rem 1rem;
-  }
-  
-  .toc-grid {
-    padding: 0.5rem;
-  }
-  
-  .toc-link span:last-child {
-    font-size: 0.85rem;
-  }
-}
-
-/* Dark mode enhancements */
-@media (prefers-color-scheme: dark) {
-  .toc-container {
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -430,128 +231,39 @@ h2::before {
 
 ## 📋 Table of Contents
 
-<div class="toc-container">
-<div class="toc-header">
-  <span class="toc-icon">🧭</span>
-  <h3>Navigation</h3>
-  <span class="toc-toggle" onclick="toggleTOC()">⌄</span>
-</div>
+<table>
+<tr>
+<td width="50%" valign="top">
 
-<div class="toc-content" id="tocContent">
-  <div class="toc-grid">
-    <div class="toc-column">
-      <div class="toc-section-header">
-        <span class="section-icon">🚀</span>
-        <strong>Getting Started</strong>
-      </div>
-      <nav class="toc-links">
-        <a href="#quick-start" class="toc-link">
-          <span class="link-icon">⚡</span>
-          <span>Quick Start</span>
-        </a>
-        <a href="#installation" class="toc-link">
-          <span class="link-icon">📦</span>
-          <span>Installation</span>
-        </a>
-        <a href="#create-your-first-site" class="toc-link">
-          <span class="link-icon">🏗️</span>
-          <span>Create Your First Site</span>
-        </a>
-      </nav>
-    </div>
+### 🚀 **Getting Started**
+- [⚡ Quick Start](#quick-start)
+- [📦 Installation](#installation)  
+- [🏗️ Create Your First Site](#create-your-first-site)
 
-    <div class="toc-column">
-      <div class="toc-section-header">
-        <span class="section-icon">🏛️</span>
-        <strong>Architecture</strong>
-      </div>
-      <nav class="toc-links">
-        <a href="#the-philosophy-stack" class="toc-link">
-          <span class="link-icon">📐</span>
-          <span>Philosophy Stack</span>
-        </a>
-        <a href="#hub-and-spoke-architecture-version-drift-elimination" class="toc-link">
-          <span class="link-icon">🕸️</span>
-          <span>Hub-and-Spoke</span>
-        </a>
-        <a href="#the-emergence-story" class="toc-link">
-          <span class="link-icon">🌱</span>
-          <span>Emergence Story</span>
-        </a>
-        <a href="#local-first-software-principles" class="toc-link">
-          <span class="link-icon">🎯</span>
-          <span>Local-First Principles</span>
-        </a>
-      </nav>
-    </div>
+### 🏛️ **Architecture & Philosophy**
+- [📐 The Philosophy Stack](#the-philosophy-stack)
+- [🕸️ Hub-and-Spoke Architecture](#hub-and-spoke-architecture-version-drift-elimination)
+- [🌱 The Emergence Story](#the-emergence-story)
+- [🎯 Local-First Principles](#local-first-software-principles)
 
-    <div class="toc-column">
-      <div class="toc-section-header">
-        <span class="section-icon">🛠️</span>
-        <strong>Development</strong>
-      </div>
-      <nav class="toc-links">
-        <a href="#ai-augmented-development" class="toc-link">
-          <span class="link-icon">🤖</span>
-          <span>AI-Augmented</span>
-        </a>
-        <a href="#security-defense-in-depth" class="toc-link">
-          <span class="link-icon">🔒</span>
-          <span>Security</span>
-        </a>
-        <a href="#documentation-philosophy" class="toc-link">
-          <span class="link-icon">📚</span>
-          <span>Documentation</span>
-        </a>
-        <a href="#architecture-deep-dive" class="toc-link">
-          <span class="link-icon">🔍</span>
-          <span>Deep Dive</span>
-        </a>
-      </nav>
-    </div>
+</td>
+<td width="50%" valign="top">
 
-    <div class="toc-column">
-      <div class="toc-section-header">
-        <span class="section-icon">🚀</span>
-        <strong>Production</strong>
-      </div>
-      <nav class="toc-links">
-        <a href="#production-deployment" class="toc-link">
-          <span class="link-icon">⚙️</span>
-          <span>Deployment</span>
-        </a>
-        <a href="#contributing" class="toc-link">
-          <span class="link-icon">🤝</span>
-          <span>Contributing</span>
-        </a>
-        <a href="#philosophy-and-future" class="toc-link">
-          <span class="link-icon">🔮</span>
-          <span>Future</span>
-        </a>
-        <a href="#license" class="toc-link">
-          <span class="link-icon">📄</span>
-          <span>License</span>
-        </a>
-      </nav>
-    </div>
-  </div>
-</div>
-</div>
+### 🛠️ **Development**
+- [🤖 AI-Augmented Development](#ai-augmented-development)
+- [🔒 Security: Defense in Depth](#security-defense-in-depth)
+- [📚 Documentation Philosophy](#documentation-philosophy)
+- [🔍 Architecture Deep Dive](#architecture-deep-dive)
 
-<script>
-function toggleTOC() {
-  const content = document.getElementById('tocContent');
-  const toggle = document.querySelector('.toc-toggle');
-  
-  if (content.style.maxHeight === '0px' || content.style.maxHeight === '') {
-    content.style.maxHeight = content.scrollHeight + 'px';
-    toggle.style.transform = 'rotate(180deg)';
-  } else {
-    content.style.maxHeight = '0px';
-    toggle.style.transform = 'rotate(0deg)';
-  }
-}
-</script>
+### 🚀 **Production & Community**
+- [⚙️ Production Deployment](#production-deployment)
+- [🤝 Contributing](#contributing)
+- [🔮 Philosophy and Future](#philosophy-and-future)
+- [📄 License](#license)
+
+</td>
+</tr>
+</table>
 
 ---
 
