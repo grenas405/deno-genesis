@@ -20,6 +20,190 @@
 
 </div>
 
+<style>
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes typewriter {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.animated-header {
+  animation: fadeInUp 1s ease-out;
+}
+
+.badge-container {
+  animation: slideInRight 1.2s ease-out;
+}
+
+.badge-container img:hover {
+  animation: pulse 0.6s ease-in-out;
+  transform-origin: center;
+}
+
+.quote-block {
+  animation: fadeInUp 1.5s ease-out;
+  border-left: 4px solid #3b82f6;
+  padding-left: 1rem;
+  font-style: italic;
+  color: #6b7280;
+  margin: 1rem 0;
+}
+
+.architecture-diagram {
+  animation: fadeInUp 2s ease-out;
+  font-family: 'Courier New', monospace;
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  color: #f9fafb;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  border: 1px solid #4b5563;
+}
+
+.feature-grid {
+  animation: fadeInUp 1.8s ease-out;
+}
+
+.code-block {
+  animation: fadeInUp 2.2s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.typing-effect {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typewriter 3s steps(40, end);
+  border-right: 2px solid #3b82f6;
+}
+
+.glow-on-hover {
+  transition: all 0.3s ease;
+}
+
+.glow-on-hover:hover {
+  animation: glow 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+/* GitHub-compatible styling (limited CSS support) */
+.quote-block {
+  border-left: 4px solid #3b82f6;
+  padding-left: 1rem;
+  font-style: italic;
+  color: #6b7280;
+  margin: 1rem 0;
+  background: rgba(59, 130, 246, 0.05);
+  padding: 1rem;
+  border-radius: 0 8px 8px 0;
+}
+
+.architecture-diagram {
+  font-family: 'Courier New', monospace;
+  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+  color: #f9fafb;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  border: 1px solid #4b5563;
+  overflow-x: auto;
+}
+
+/* Note: Advanced animations and custom classes are stripped by GitHub */
+/* This README is optimized for GitHub's markdown renderer */
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Section header styling */
+h2, h3 {
+  scroll-margin-top: 2rem;
+  position: relative;
+}
+
+h2::before {
+  content: "";
+  position: absolute;
+  left: -1rem;
+  top: 50%;
+  height: 1px;
+  width: 0.5rem;
+  background: linear-gradient(90deg, #3b82f6, transparent);
+  transform: translateY(-50%);
+}
+
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+  .badge-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .architecture-diagram {
+    font-size: 0.8rem;
+    padding: 1rem;
+  }
+  
+  details {
+    margin: 0.5rem 0;
+    padding: 0.8rem;
+  }
+  
+  .toc-section {
+    padding-left: 0.5rem;
+  }
+  
+  .toc-section a {
+    font-size: 0.9rem;
+  }
+}
+</style>
+
 <div class="quote-block animated-header">
 
 > *"The best way to predict the future is to invent it."* — Alan Kay
@@ -35,30 +219,50 @@
 <td width="50%" valign="top">
 
 ### 🚀 **Getting Started**
-- [⚡ Quick Start](#quick-start)
-- [📦 Installation](#installation)  
-- [🏗️ Create Your First Site](#create-your-first-site)
+- [📦 Installation](docs/01-getting-started/installation.md)
+- [⚡ Quick Start](docs/01-getting-started/quick-start.md)
+- [🏗️ First Site](docs/01-getting-started/first-site.md)
+- [🔧 Troubleshooting](docs/01-getting-started/troubleshooting.md)
+- [📚 Learning Journey](docs/01-getting-started/learning-journey.md)
 
-### 🏛️ **Architecture & Philosophy**
-- [📐 The Philosophy Stack](#the-philosophy-stack)
-- [🕸️ Hub-and-Spoke Architecture](#hub-and-spoke-architecture-version-drift-elimination)
-- [🌱 The Emergence Story](#the-emergence-story)
-- [🎯 Local-First Principles](#local-first-software-principles)
+### 🏛️ **Framework Architecture**
+- [📐 Architecture Overview](docs/02-framework/architecture.md)
+- [🧭 Philosophy](docs/02-framework/philosophy.md)
+- [🎯 9 Principles](docs/02-framework/9-principles.md)
+- [🧩 Component Architecture](docs/02-framework/component-architecture.md)
+- [⚡ Performance](docs/02-framework/performance.md)
+- [🛡️ Security](docs/02-framework/security.md)
+
+### 🛠️ **Development**
+- [🔄 Workflow](docs/03-development/workflow.md)
+- [🤖 AI-Augmented](docs/03-development/ai-augmented-development.md)
+- [🧪 Testing](docs/03-development/testing-strategies.md)
+- [🐛 Debugging](docs/03-development/debugging.md)
+- [🚀 Deployment](docs/03-development/deployment.md)
 
 </td>
 <td width="50%" valign="top">
 
-### 🛠️ **Development**
-- [🤖 AI-Augmented Development](#ai-augmented-development)
-- [🔒 Security: Defense in Depth](#security-defense-in-depth)
-- [📚 Documentation Philosophy](#documentation-philosophy)
-- [🔍 Architecture Deep Dive](#architecture-deep-dive)
+### 📚 **API Reference**
+- [🔧 Middleware](docs/04-api-reference/core/middleware.md)
+- [🗃️ Database](docs/04-api-reference/core/database.md)
+- [⚙️ Configuration](docs/04-api-reference/core/config.md)
+- [🛠️ Utilities](docs/04-api-reference/core/utils.md)
+- [📝 Types](docs/04-api-reference/core/types.md)
 
-### 🚀 **Production & Community**
-- [⚙️ Production Deployment](#production-deployment)
-- [🤝 Contributing](#contributing)
-- [🔮 Philosophy and Future](#philosophy-and-future)
-- [📄 License](#license)
+### 🎨 **Frontend & Backend**
+- [🎨 UI Guidelines](docs/05-frontend/ui-guidelines.md)
+- [🧩 Components](docs/05-frontend/component-patterns.md)
+- [🎯 Routing](docs/06-backend/routing.md)
+- [🔐 Authentication](docs/06-backend/authentication.md)
+- [📊 API Design](docs/06-backend/api-design.md)
+
+### 🚀 **Production & Business**
+- [🌐 SystemD Services](docs/07-deployment/systemd-services.md)
+- [🔧 Nginx Config](docs/07-deployment/nginx-configuration.md)
+- [💼 Value Proposition](docs/08-business/value-proposition.md)
+- [📈 Case Studies](docs/08-business/case-studies.md)
+- [🏭 Industry Guides](docs/09-industries/README.md)
 
 </td>
 </tr>
@@ -85,7 +289,6 @@ This isn't just another web framework. It's an accidental odyssey through the de
 <div class="code-block">
 
 ```bash
-<div class="typing-effect">
 $ git clone https://github.com/grenas405/deno-genesis.git
 $ cd deno-genesis
 $ deno run --allow-all config/deployment/scripts/setup-mariadb.ts
@@ -93,7 +296,6 @@ $ deno run --allow-all config/deployment/scripts/setup-env.ts
 $ deno run --allow-all config/deployment/scripts/setup-nginx.ts
 
 # The future starts now.
-</div>
 ```
 
 </div>
@@ -361,10 +563,12 @@ git clone https://github.com/grenas405/deno-genesis.git
 cd deno-genesis
 
 # Setup infrastructure (automated)
-
+deno run --allow-all config/deployment/scripts/setup-mariadb.ts
+deno run --allow-all config/deployment/scripts/setup-env.ts
+deno run --allow-all config/deployment/scripts/setup-nginx.ts
 
 # Start development
-
+deno run --allow-all --watch sites/domtech/mod.ts
 ```
 
 ### Create Your First Site
@@ -424,6 +628,8 @@ sites/                             # The Spokes (Individual Sites)
 > *"Premature optimization is the root of all evil."* — Donald Knuth
 
 ### SystemD Service Management
+
+Management
 
 ```ini
 [Unit]
@@ -553,4 +759,4 @@ GPL v3 - Because good ideas should be shared, improved, and built upon by the co
 
 ---
 
-*Built with Deno 🦕, TypeScript 💙, and a healthy dose of controlled chaos ⚡*
+*Built with Deno 🦕, TypeScript 🔵, and a healthy dose of controlled chaos ⚡*
