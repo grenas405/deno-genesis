@@ -19,7 +19,7 @@
 [![GitHub Language Count](https://img.shields.io/github/languages/count/grenas405/deno-genesis?style=flat-square&logo=github&logoColor=white&color=yellow)](https://github.com/grenas405/deno-genesis)
 
 <div>
-/div>
+</div>
 
 <style>
 @keyframes fadeInUp {
