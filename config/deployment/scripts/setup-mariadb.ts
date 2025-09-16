@@ -25,8 +25,8 @@
  *   deno run --allow-run --allow-read --allow-write --allow-net setup-mariadb.ts --test-only
  */
 
-import { parseArgs } from "https://deno.land/std@0.204.0/cli/parse_args.ts";
-import { exists } from "https://deno.land/std@0.204.0/fs/mod.ts";
+import { parseArgs } from "https://deno.land/std@0.224.0/cli/parse_args.ts";
+import { exists } from "https://deno.land/std@0.224.0/fs/exists.ts";
 
 // Types for better developer experience
 interface DatabaseConfig {
