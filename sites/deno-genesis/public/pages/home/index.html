@@ -3,1144 +3,793 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 Deno Genesis Framework - System Operational</title>
+    <title>DenoGenesis Framework | Unix Philosophy + Modern Runtime = Revolutionary Development</title>
     
-    <!-- Meta tags for SEO and social sharing -->
-    <meta name="description" content="Deno Genesis Framework - Unix Philosophy Web Development Platform. System status: Operational">
-    <meta name="keywords" content="deno, genesis, framework, typescript, unix philosophy, operational">
-    <meta name="author" content="Pedro M. Dominguez - Dominguez Tech Solutions LLC">
-    <meta name="robots" content="noindex, nofollow">
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="DenoGenesis - The framework that proves individual developers can create enterprise-grade solutions through AI-augmented development and Unix Philosophy principles.">
+    <meta name="keywords" content="deno, typescript, unix philosophy, local-first software, framework, ai-augmented development">
+    <meta name="author" content="Pedro M. Dominguez, Dominguez Tech Solutions LLC">
     
-    <!-- Open Graph / Facebook -->
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="DenoGenesis Framework - Unix Philosophy + Modern Runtime">
+    <meta property="og:description" content="Revolutionary development experience through AI-augmented Unix principles. Real business results, enterprise performance.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="/">
-    <meta property="og:title" content="Deno Genesis Framework - System Operational">
-    <meta property="og:description" content="Unix Philosophy Web Development Platform - All systems operational">
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:title" content="Deno Genesis Framework - System Operational">
-    <meta property="twitter:description" content="Unix Philosophy Web Development Platform - All systems operational">
+    <meta property="og:url" content="https://denogenesis.com">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- DenoGenesis Framework Styling -->
     <style>
-        /* CSS Custom Properties - Modern Design System */
+        /* ============================================
+           🧬 DenoGenesis Framework Landing Page
+           ============================================
+           ✅ README-inspired documentation design
+           ✅ Unix Philosophy principles
+           ✅ Developer-focused presentation
+           ✅ Technical authenticity
+           ============================================ */
+        
         :root {
-            --color-primary: #00d4aa;
-            --color-primary-dark: #00b896;
-            --color-secondary: #0077be;
-            --color-accent: #f39c12;
-            --color-success: #27ae60;
-            --color-warning: #f39c12;
-            --color-error: #e74c3c;
-            --color-background: #0a0e27;
-            --color-surface: #1a1f3a;
-            --color-surface-light: #252a47;
-            --color-text: #ffffff;
-            --color-text-muted: #b8c5d1;
-            --color-text-dark: #8a9ba8;
-            --color-border: #2d3748;
-            --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-            --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-            --shadow-md: 0 4px 6px rgba(0,0,0,0.3);
-            --shadow-lg: 0 10px 25px rgba(0,0,0,0.4);
-            --border-radius: 8px;
-            --spacing-xs: 0.25rem;
-            --spacing-sm: 0.5rem;
-            --spacing-md: 1rem;
-            --spacing-lg: 1.5rem;
-            --spacing-xl: 3rem;
-            --transition: all 0.2s ease;
+            /* GitHub-inspired professional palette */
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --bg-accent: #30363d;
+            
+            /* Content backgrounds */
+            --bg-code: #161b22;
+            --bg-subtle: #f6f8fa;
+            --bg-muted: #656d76;
+            
+            /* Text hierarchy */
+            --text-primary: #f0f6fc;
+            --text-secondary: #9198a1;
+            --text-accent: #58a6ff;
+            --text-success: #3fb950;
+            --text-warning: #d29922;
+            --text-danger: #f85149;
+            
+            /* Borders */
+            --border-default: #30363d;
+            --border-muted: #21262d;
+            
+            /* Syntax highlighting */
+            --syntax-keyword: #ff7b72;
+            --syntax-string: #a5c261;
+            --syntax-comment: #8b949e;
+            --syntax-function: #d2a8ff;
+            --syntax-variable: #ffa657;
+            
+            /* Spacing */
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-12: 3rem;
+            --space-16: 4rem;
+            --space-24: 6rem;
         }
-
-        /* Reset and base styles */
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
-        html {
-            font-size: 16px;
-            line-height: 1.6;
-        }
-
+        
         body {
-            font-family: var(--font-sans);
-            background: linear-gradient(135deg, var(--color-background) 0%, #0f1419 100%);
-            color: var(--color-text);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 16px;
         }
-
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-6);
+        }
+        
         /* Header */
         .header {
-            background: rgba(26, 31, 58, 0.9);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--color-border);
-            padding: var(--spacing-md) 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 var(--spacing-lg);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-md);
-        }
-
-        .logo-icon {
-            font-size: 2rem;
-            animation: pulse 2s infinite;
-        }
-
-        .logo-text {
-            font-family: var(--font-mono);
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--color-primary);
-        }
-
-        .status-badge {
-            background: var(--color-success);
-            color: white;
-            padding: var(--spacing-xs) var(--spacing-sm);
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-xs);
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: white;
-            border-radius: 50%;
-            animation: blink 1.5s infinite;
-        }
-
-        /* Main content */
-        .main {
-            flex: 1;
-            padding: var(--spacing-xl) var(--spacing-lg);
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        .hero {
-            text-align: center;
-            margin-bottom: var(--spacing-xl);
-        }
-
-        .hero-title {
-            font-size: clamp(2rem, 5vw, 4rem);
-            font-weight: 800;
-            margin-bottom: var(--spacing-md);
-            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero-subtitle {
-            font-size: 1.25rem;
-            color: var(--color-text-muted);
-            margin-bottom: var(--spacing-lg);
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        /* System Status Grid */
-        .status-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: var(--spacing-lg);
-            margin-bottom: var(--spacing-xl);
-        }
-
-        .status-card {
-            background: var(--color-surface);
-            border: 1px solid var(--color-border);
-            border-radius: var(--border-radius);
-            padding: var(--spacing-lg);
-            box-shadow: var(--shadow-md);
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .status-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--color-primary);
-        }
-
-        .status-card::before {
-            content: '';
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+            z-index: 100;
+            background: rgba(13, 17, 23, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-default);
         }
-
-        .card-header {
+        
+        .nav {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: var(--spacing-md);
+            padding: var(--space-4) 0;
         }
-
-        .card-title {
-            font-size: 1.125rem;
+        
+        .nav-brand {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
             font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-        }
-
-        .card-status {
-            padding: var(--spacing-xs) var(--spacing-sm);
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .status-healthy {
-            background: rgba(39, 174, 96, 0.2);
-            color: var(--color-success);
-            border: 1px solid rgba(39, 174, 96, 0.3);
-        }
-
-        .status-warning {
-            background: rgba(243, 156, 18, 0.2);
-            color: var(--color-warning);
-            border: 1px solid rgba(243, 156, 18, 0.3);
-        }
-
-        .status-error {
-            background: rgba(231, 76, 60, 0.2);
-            color: var(--color-error);
-            border: 1px solid rgba(231, 76, 60, 0.3);
-        }
-
-        .card-content {
-            color: var(--color-text-muted);
-            line-height: 1.6;
-        }
-
-        .metric {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: var(--spacing-sm) 0;
-            padding: var(--spacing-sm) 0;
-            border-bottom: 1px solid rgba(45, 55, 72, 0.5);
-        }
-
-        .metric:last-child {
-            border-bottom: none;
-        }
-
-        .metric-label {
-            color: var(--color-text-muted);
-        }
-
-        .metric-value {
-            font-family: var(--font-mono);
-            font-weight: 600;
-            color: var(--color-text);
-        }
-
-        /* Sites monitoring */
-        .sites-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: var(--spacing-md);
-            margin-top: var(--spacing-lg);
-        }
-
-        .site-card {
-            background: var(--color-surface-light);
-            border: 1px solid var(--color-border);
-            border-radius: var(--border-radius);
-            padding: var(--spacing-md);
-            transition: var(--transition);
-        }
-
-        .site-card:hover {
-            border-color: var(--color-primary);
-        }
-
-        .site-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: var(--spacing-sm);
-        }
-
-        .site-name {
-            font-weight: 600;
-            color: var(--color-text);
-        }
-
-        .site-port {
-            font-family: var(--font-mono);
-            font-size: 0.875rem;
-            color: var(--color-text-dark);
-        }
-
-        .site-url {
-            color: var(--color-primary);
+            color: var(--text-primary);
             text-decoration: none;
+        }
+        
+        .nav-brand::before {
+            content: "🧬 ";
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: var(--space-6);
+        }
+        
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--text-accent);
+        }
+        
+        .nav-cta {
+            background: var(--text-accent);
+            color: var(--bg-primary);
+            padding: var(--space-2) var(--space-4);
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
             font-size: 0.875rem;
+            transition: all 0.2s ease;
         }
-
-        .site-url:hover {
-            text-decoration: underline;
+        
+        .nav-cta:hover {
+            background: #1f6feb;
+            transform: translateY(-1px);
         }
-
-        /* Footer */
-        .footer {
-            background: var(--color-surface);
-            border-top: 1px solid var(--color-border);
-            padding: var(--spacing-lg) 0;
+        
+        /* Main Content */
+        .main {
+            padding-top: 80px;
+        }
+        
+        /* Hero Section - README style */
+        .hero {
+            padding: var(--space-24) 0 var(--space-16) 0;
             text-align: center;
         }
-
-        .footer-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 var(--spacing-lg);
+        
+        .hero-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            margin-bottom: var(--space-6);
+            line-height: 1.1;
         }
-
-        .footer-text {
-            color: var(--color-text-dark);
-            font-size: 0.875rem;
-            margin-bottom: var(--spacing-sm);
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-8);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
         }
-
-        .footer-links {
+        
+        .hero-quote {
+            font-style: italic;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-2);
+            font-size: 1.1rem;
+        }
+        
+        .hero-attribution {
+            color: var(--text-accent);
+            font-size: 0.9rem;
+            margin-bottom: var(--space-12);
+        }
+        
+        /* Quick Start Section */
+        .quick-start {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: var(--space-8);
+            margin-bottom: var(--space-16);
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: var(--space-6);
             display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+        
+        .section-title::before {
+            content: attr(data-emoji);
+            font-size: 1.5em;
+        }
+        
+        .code-block {
+            background: var(--bg-code);
+            border: 1px solid var(--border-default);
+            border-radius: 8px;
+            padding: var(--space-6);
+            margin: var(--space-4) 0;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+        
+        .code-comment {
+            color: var(--syntax-comment);
+        }
+        
+        .code-keyword {
+            color: var(--syntax-keyword);
+        }
+        
+        .code-string {
+            color: var(--syntax-string);
+        }
+        
+        .code-function {
+            color: var(--syntax-function);
+        }
+        
+        .code-variable {
+            color: var(--syntax-variable);
+        }
+        
+        /* Features Grid */
+        .features {
+            padding: var(--space-16) 0;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: var(--space-8);
+            margin-top: var(--space-8);
+        }
+        
+        .feature-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-default);
+            border-radius: 12px;
+            padding: var(--space-8);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--text-accent);
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: var(--space-4);
+            display: block;
+        }
+        
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: var(--space-3);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* Architecture Section */
+        .architecture {
+            padding: var(--space-16) 0;
+            background: var(--bg-secondary);
+        }
+        
+        .architecture-diagram {
+            background: var(--bg-code);
+            border: 1px solid var(--border-default);
+            border-radius: 8px;
+            padding: var(--space-8);
+            margin: var(--space-6) 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+        }
+        
+        /* Stats Section */
+        .stats {
+            padding: var(--space-16) 0;
+            text-align: center;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-8);
+            margin-top: var(--space-8);
+        }
+        
+        .stat-item {
+            padding: var(--space-6);
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-default);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-success);
+            display: block;
+            margin-bottom: var(--space-2);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        /* Documentation Links */
+        .docs-section {
+            padding: var(--space-16) 0;
+            background: var(--bg-secondary);
+        }
+        
+        .docs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-6);
+            margin-top: var(--space-8);
+        }
+        
+        .docs-link {
+            display: block;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-default);
+            border-radius: 8px;
+            padding: var(--space-6);
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+        
+        .docs-link:hover {
+            border-color: var(--text-accent);
+            transform: translateY(-1px);
+        }
+        
+        .docs-link-title {
+            font-weight: 600;
+            margin-bottom: var(--space-2);
+            color: var(--text-accent);
+        }
+        
+        .docs-link-desc {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        /* Call to Action */
+        .cta {
+            padding: var(--space-16) 0;
+            text-align: center;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: var(--space-4);
             justify-content: center;
-            gap: var(--spacing-lg);
+            flex-wrap: wrap;
+            margin-top: var(--space-8);
+        }
+        
+        .btn {
+            padding: var(--space-3) var(--space-6);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        
+        .btn-primary {
+            background: var(--text-accent);
+            color: var(--bg-primary);
+        }
+        
+        .btn-primary:hover {
+            background: #1f6feb;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-accent);
+            border: 1px solid var(--text-accent);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--text-accent);
+            color: var(--bg-primary);
+        }
+        
+        /* Footer */
+        .footer {
+            background: var(--bg-tertiary);
+            border-top: 1px solid var(--border-default);
+            padding: var(--space-12) 0;
+            text-align: center;
+        }
+        
+        .footer-content {
+            color: var(--text-secondary);
+        }
+        
+        .footer-links {
+            margin-top: var(--space-6);
+            display: flex;
+            gap: var(--space-6);
+            justify-content: center;
             flex-wrap: wrap;
         }
-
+        
         .footer-link {
-            color: var(--color-primary);
+            color: var(--text-secondary);
             text-decoration: none;
-            font-size: 0.875rem;
-            transition: var(--transition);
+            transition: color 0.2s ease;
         }
-
+        
         .footer-link:hover {
-            color: var(--color-primary-dark);
-            text-decoration: underline;
+            color: var(--text-accent);
         }
-
-        /* Loading states */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--color-primary);
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        /* Animations */
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.6s ease-out;
-        }
-
-        /* Responsive design */
+        
+        /* Mobile Responsive */
         @media (max-width: 768px) {
-            .header-container {
-                padding: 0 var(--spacing-md);
+            .nav-links {
+                display: none;
             }
             
-            .main {
-                padding: var(--spacing-lg) var(--spacing-md);
+            .hero {
+                padding: var(--space-16) 0;
             }
             
-            .status-grid {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .features-grid,
+            .docs-grid {
                 grid-template-columns: 1fr;
             }
             
-            .sites-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .footer-links {
+            .cta-buttons {
                 flex-direction: column;
-                gap: var(--spacing-sm);
+                align-items: center;
+            }
+            
+            .container {
+                padding: 0 var(--space-4);
             }
         }
-
-        /* Accessibility */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
+        
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.6s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
-
-        /* Focus indicators */
-        a:focus, button:focus {
-            outline: 2px solid var(--color-primary);
-            outline-offset: 2px;
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
-
-        /* High contrast mode support */
-        @media (prefers-contrast: high) {
-            :root {
-                --color-background: #000000;
-                --color-surface: #111111;
-                --color-text: #ffffff;
-                --color-border: #444444;
-            }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-default);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
         }
     </style>
 </head>
 <body>
     <!-- Header -->
     <header class="header">
-        <div class="header-container">
-            <div class="logo">
-                <span class="logo-icon">🚀</span>
-                <span class="logo-text">DenoGenesis Framework</span>
-            </div>
-            <div class="status-badge">
-                <span class="status-dot"></span>
-                <span id="overall-status">System Operational</span>
-            </div>
-        </div>
+        <nav class="nav container">
+            <a href="/" class="nav-brand">DenoGenesis</a>
+            
+            <ul class="nav-links">
+                <li><a href="#features" class="nav-link">Features</a></li>
+                <li><a href="#architecture" class="nav-link">Architecture</a></li>
+                <li><a href="#docs" class="nav-link">Documentation</a></li>
+                <li><a href="/about" class="nav-link">About</a></li>
+                <li><a href="/contact" class="nav-link">Contact</a></li>
+            </ul>
+            
+            <a href="/admin/login" class="nav-cta">Get Started</a>
+        </nav>
     </header>
 
-    <!-- Main Content -->
     <main class="main">
         <!-- Hero Section -->
         <section class="hero">
-            <h1 class="hero-title">Framework Operational</h1>
-            <p class="hero-subtitle">
-                Unix Philosophy Web Development Platform - All systems running smoothly
-            </p>
-        </section>
-
-        <!-- System Status Grid -->
-        <section class="status-grid">
-            <!-- Framework Status -->
-            <div class="status-card fade-in">
-                <div class="card-header">
-                    <h2 class="card-title">
-                        <span>📦</span>
-                        Framework Core
-                    </h2>
-                    <span class="card-status status-healthy" id="framework-status">Healthy</span>
+            <div class="container">
+                <h1 class="hero-title fade-in">
+                    DenoGenesis Framework
+                </h1>
+                <p class="hero-subtitle fade-in">
+                    Unix Philosophy + Modern Runtime = Revolutionary Development Experience
+                </p>
+                <div class="hero-quote fade-in">
+                    "The tools we use have a profound and devious influence on our thinking habits, 
+                    and therefore on our thinking abilities."
                 </div>
-                <div class="card-content">
-                    <div class="metric">
-                        <span class="metric-label">Version</span>
-                        <span class="metric-value" id="framework-version">v2.1.0</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Environment</span>
-                        <span class="metric-value" id="environment">Production</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Uptime</span>
-                        <span class="metric-value" id="uptime">Loading...</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Build Date</span>
-                        <span class="metric-value" id="build-date">2025-09-12</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- System Resources -->
-            <div class="status-card fade-in">
-                <div class="card-header">
-                    <h2 class="card-title">
-                        <span>🖥️</span>
-                        System Resources
-                    </h2>
-                    <span class="card-status status-healthy" id="resources-status">Healthy</span>
-                </div>
-                <div class="card-content">
-                    <div class="metric">
-                        <span class="metric-label">CPU Usage</span>
-                        <span class="metric-value" id="cpu-usage">Loading...</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Memory Usage</span>
-                        <span class="metric-value" id="memory-usage">Loading...</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Disk Usage</span>
-                        <span class="metric-value" id="disk-usage">Loading...</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Load Average</span>
-                        <span class="metric-value" id="load-average">Loading...</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Database Status -->
-            <div class="status-card fade-in">
-                <div class="card-header">
-                    <h2 class="card-title">
-                        <span>🗄️</span>
-                        Database
-                    </h2>
-                    <span class="card-status status-healthy" id="database-status">Connected</span>
-                </div>
-                <div class="card-content">
-                    <div class="metric">
-                        <span class="metric-label">Connection Pool</span>
-                        <span class="metric-value" id="db-connections">Active</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Response Time</span>
-                        <span class="metric-value" id="db-response-time">Loading...</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Active Queries</span>
-                        <span class="metric-value" id="active-queries">Loading...</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Database Size</span>
-                        <span class="metric-value" id="db-size">Loading...</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Security & Services -->
-            <div class="status-card fade-in">
-                <div class="card-header">
-                    <h2 class="card-title">
-                        <span>🔐</span>
-                        Security & Services
-                    </h2>
-                    <span class="card-status status-healthy" id="security-status">Protected</span>
-                </div>
-                <div class="card-content">
-                    <div class="metric">
-                        <span class="metric-label">SSL Certificates</span>
-                        <span class="metric-value" id="ssl-status">Valid</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Firewall</span>
-                        <span class="metric-value" id="firewall-status">Active</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">Rate Limiting</span>
-                        <span class="metric-value" id="rate-limit-status">Enabled</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-label">CORS Policy</span>
-                        <span class="metric-value" id="cors-status">Configured</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Connected Sites -->
-        <section class="status-card">
-            <div class="card-header">
-                <h2 class="card-title">
-                    <span>🌐</span>
-                    Connected Sites
-                </h2>
-                <span class="card-status status-healthy" id="sites-status">5 Active</span>
-            </div>
-            <div class="card-content">
-                <div class="sites-grid" id="sites-grid">
-                    <!-- Sites will be populated by JavaScript -->
-                    <div class="loading"></div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-container">
-            <p class="footer-text">
-                Deno Genesis Framework v2.1.0 - Unix Philosophy Edition
-            </p>
-            <div class="footer-links">
-                <a href="/health" class="footer-link">Health Check</a>
-                <a href="/api/system/info" class="footer-link">System Info</a>
-                <a href="https://deno.land" class="footer-link" target="_blank">Powered by Deno</a>
-                <a href="https://domtech.network" class="footer-link" target="_blank">Dominguez Tech Solutions</a>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        // System Status Dashboard
-        class FrameworkDashboard {
-            constructor() {
-                this.startTime = Date.now();
-                this.sites = [
-                    { name: 'DomTech', port: 3000, url: 'https://domtech.network', description: 'Tech Solutions Hub' },
-                    { name: 'Heavenly Roofing', port: 3001, url: 'https://heavenly-roofing.com', description: 'Roofing Services' },
-                    { name: 'OK Devs', port: 3002, url: 'https://okdevs.com', description: 'Developer Community' },
-                    { name: 'Pedro Dominguez', port: 3003, url: 'https://pedromdominguez.com', description: 'Personal Portfolio' },
-                    { name: 'Efficient Movers', port: 3004, url: 'https://efficientmovers.com', description: 'Moving Services' }
-                ];
+                <div class="hero-attribution fade-in">— Edsger W. Dijkstra</div>
                 
-                this.init();
-            }
+                <p class="hero-subtitle fade-in">
+                    This framework exists because of <strong>AI-human collaboration</strong>. Not AI replacing human creativity, 
+                    but AI amplifying human intuition. The result: architecture that feels both familiar and alien, 
+                    built on principles older than computers but implemented with techniques that didn't exist last year.
+                </p>
+            </div>
+        </section>
 
-            async init() {
-                this.updateUptime();
-                await this.loadSystemStatus();
-                await this.loadSites();
+        <!-- Quick Start -->
+        <section class="quick-start container fade-in">
+            <h2 class="section-title" data-emoji="⚡">Quick Start: The Ritual</h2>
+            
+            <div class="code-block">
+<span class="code-comment"># Clone the genesis</span>
+<span class="code-keyword">git clone</span> <span class="code-string">https://github.com/grenas405/deno-genesis.git</span>
+<span class="code-keyword">cd</span> <span class="code-variable">deno-genesis</span>
+
+<span class="code-comment"># Initialize the primordial database</span>
+<span class="code-function">./core/utils/setup-mariadb.sh</span>
+
+<span class="code-comment"># Launch the first node</span>
+<span class="code-keyword">deno run</span> <span class="code-variable">--allow-all</span> <span class="code-string">sites/okdevs/main.ts</span>
+
+<span class="code-comment"># Visit the emergence</span>
+<span class="code-function">curl</span> <span class="code-string">http://localhost:3002</span>
+            </div>
+            
+            <h3 style="margin-top: var(--space-8); margin-bottom: var(--space-4); color: var(--text-accent);">System Requirements</h3>
+            <ul style="color: var(--text-secondary); list-style: none; padding-left: 0;">
+                <li>🦕 <strong>Deno 2.0+</strong> (Runtime of the future)</li>
+                <li>🗄️ <strong>MariaDB 10.6+</strong> (Persistence layer)</li>
+                <li>🌐 <strong>Nginx</strong> (Network interface)</li>
+                <li>⚙️ <strong>SystemD</strong> (Process orchestration)</li>
+                <li>🐧 <strong>Unix-like OS</strong> (Ubuntu 22.04+ recommended)</li>
+            </ul>
+        </section>
+
+        <!-- Features -->
+        <section class="features" id="features">
+            <div class="container">
+                <h2 class="section-title" data-emoji="🎯">What Makes DenoGenesis Different</h2>
                 
-                // Start real-time updates
-                setInterval(() => this.updateUptime(), 1000);
-                setInterval(() => this.loadSystemStatus(), 30000);
-                setInterval(() => this.loadSites(), 60000);
-            }
-
-            updateUptime() {
-                const uptime = Date.now() - this.startTime;
-                const seconds = Math.floor(uptime / 1000);
-                const minutes = Math.floor(seconds / 60);
-                const hours = Math.floor(minutes / 60);
-                const days = Math.floor(hours / 24);
-
-                let uptimeStr;
-                if (days > 0) {
-                    uptimeStr = `${days}d ${hours % 24}h ${minutes % 60}m`;
-                } else if (hours > 0) {
-                    uptimeStr = `${hours}h ${minutes % 60}m ${seconds % 60}s`;
-                } else if (minutes > 0) {
-                    uptimeStr = `${minutes}m ${seconds % 60}s`;
-                } else {
-                    uptimeStr = `${seconds}s`;
-                }
-
-                document.getElementById('uptime').textContent = uptimeStr;
-            }
-
-            async loadSystemStatus() {
-                try {
-                    // Simulate system metrics (in a real app, these would come from APIs)
-                    const metrics = {
-                        cpu: Math.floor(Math.random() * 30) + 10, // 10-40%
-                        memory: Math.floor(Math.random() * 40) + 30, // 30-70%
-                        disk: Math.floor(Math.random() * 20) + 40, // 40-60%
-                        loadAverage: (Math.random() * 2).toFixed(2),
-                        dbResponseTime: Math.floor(Math.random() * 50) + 5, // 5-55ms
-                        activeQueries: Math.floor(Math.random() * 10) + 1,
-                        dbSize: '2.3 GB'
-                    };
-
-                    document.getElementById('cpu-usage').textContent = `${metrics.cpu}%`;
-                    document.getElementById('memory-usage').textContent = `${metrics.memory}%`;
-                    document.getElementById('disk-usage').textContent = `${metrics.disk}%`;
-                    document.getElementById('load-average').textContent = metrics.loadAverage;
-                    document.getElementById('db-response-time').textContent = `${metrics.dbResponseTime}ms`;
-                    document.getElementById('active-queries').textContent = metrics.activeQueries;
-                    document.getElementById('db-size').textContent = metrics.dbSize;
-
-                    // Update status badges based on metrics
-                    this.updateStatusBadges(metrics);
-
-                } catch (error) {
-                    console.error('Failed to load system status:', error);
-                }
-            }
-
-            updateStatusBadges(metrics) {
-                // Update resource status
-                const resourcesStatus = document.getElementById('resources-status');
-                if (metrics.cpu > 80 || metrics.memory > 85) {
-                    resourcesStatus.textContent = 'Warning';
-                    resourcesStatus.className = 'card-status status-warning';
-                } else if (metrics.cpu > 90 || metrics.memory > 95) {
-                    resourcesStatus.textContent = 'Critical';
-                    resourcesStatus.className = 'card-status status-error';
-                } else {
-                    resourcesStatus.textContent = 'Healthy';
-                    resourcesStatus.className = 'card-status status-healthy';
-                }
-
-                // Update database status
-                const dbStatus = document.getElementById('database-status');
-                if (metrics.dbResponseTime > 100) {
-                    dbStatus.textContent = 'Slow';
-                    dbStatus.className = 'card-status status-warning';
-                } else {
-                    dbStatus.textContent = 'Connected';
-                    dbStatus.className = 'card-status status-healthy';
-                }
-            }
-
-            async loadSites() {
-                const sitesGrid = document.getElementById('sites-grid');
-                sitesGrid.innerHTML = '';
-
-                for (const site of this.sites) {
-                    const siteCard = this.createSiteCard(site);
-                    sitesGrid.appendChild(siteCard);
+                <div class="features-grid">
+                    <div class="feature-card fade-in">
+                        <span class="feature-icon">🔧</span>
+                        <h3 class="feature-title">Unix Philosophy Renaissance</h3>
+                        <p class="feature-description">
+                            Brings back the elegance of Unix principles with modern capabilities:
+                            Do one thing well, composable by design, text-based configuration,
+                            direct execution with no build pipelines.
+                        </p>
+                    </div>
                     
-                    // Check site health (simulate)
-                    this.checkSiteHealth(site, siteCard);
-                }
-            }
+                    <div class="feature-card fade-in">
+                        <span class="feature-icon">🏢</span>
+                        <h3 class="feature-title">Real Business Results</h3>
+                        <p class="feature-description">
+                            Not theoretical - deployed in production with quantified outcomes.
+                            80% cost reduction, sub-100ms response times, 100% uptime during
+                            Oklahoma storms. Enterprise performance from individual developers.
+                        </p>
+                    </div>
+                    
+                    <div class="feature-card fade-in">
+                        <span class="feature-icon">🤖</span>
+                        <h3 class="feature-title">AI-Augmented Development</h3>
+                        <p class="feature-description">
+                            Framework designed for human-AI collaboration. LLM-friendly architecture,
+                            structured documentation, type-safe composition, and explicit permissions
+                            that both humans and AI can understand.
+                        </p>
+                    </div>
+                    
+                    <div class="feature-card fade-in">
+                        <span class="feature-icon">🏗️</span>
+                        <h3 class="feature-title">Hub-and-Spoke Architecture</h3>
+                        <p class="feature-description">
+                            Centralized framework core with isolated site instances. Shared utilities
+                            and patterns, independent deployments, unified monitoring, and
+                            zero-conflict multi-tenancy.
+                        </p>
+                    </div>
+                    
+                    <div class="feature-card fade-in">
+                        <span class="feature-icon">🛡️</span>
+                        <h3 class="feature-title">Security by Design</h3>
+                        <p class="feature-description">
+                            Explicit permission models, secure defaults, input validation,
+                            SQL injection prevention, and comprehensive audit trails.
+                            Security that doesn't get in the way.
+                        </p>
+                    </div>
+                    
+                    <div class="feature-card fade-in">
+                        <span class="feature-icon">🎯</span>
+                        <h3 class="feature-title">Local-First Philosophy</h3>
+                        <p class="feature-description">
+                            Applications that work offline, sync when available, prioritize
+                            user agency, ensure data portability, and maintain business
+                            independence from vendor platforms.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            createSiteCard(site) {
-                const card = document.createElement('div');
-                card.className = 'site-card fade-in';
+        <!-- Architecture -->
+        <section class="architecture" id="architecture">
+            <div class="container">
+                <h2 class="section-title" data-emoji="🏛️">The Architecture</h2>
                 
-                card.innerHTML = `
-                    <div class="site-header">
-                        <div class="site-name">${site.name}</div>
-                        <div class="site-port">:${site.port}</div>
+                <div class="architecture-diagram">
+<span class="code-comment">// DenoGenesis Hub-and-Spoke Architecture</span>
+<span class="code-keyword">core/</span>                    <span class="code-comment">// Centralized framework</span>
+├── <span class="code-function">middleware/</span>         <span class="code-comment">// HTTP request processing</span>
+├── <span class="code-function">database/</span>          <span class="code-comment">// Universal schema + connections</span>
+├── <span class="code-function">utils/</span>             <span class="code-comment">// Shared utilities</span>
+└── <span class="code-function">types/</span>             <span class="code-comment">// TypeScript definitions</span>
+
+<span class="code-keyword">sites/</span>                  <span class="code-comment">// Independent applications</span>
+├── <span class="code-string">okdevs/</span>              <span class="code-comment">// Developer community (port 3002)</span>
+├── <span class="code-string">heavenly-roofing/</span>    <span class="code-comment">// Business site (port 3003)</span>
+└── <span class="code-string">your-project/</span>        <span class="code-comment">// Your application (port 30XX)</span>
+
+<span class="code-comment">// Each site imports core modules</span>
+<span class="code-keyword">import</span> { <span class="code-variable">middleware</span>, <span class="code-variable">db</span> } <span class="code-keyword">from</span> <span class="code-string">"../../core/mod.ts"</span>;
+                </div>
+                
+                <p style="color: var(--text-secondary); margin-top: var(--space-6);">
+                    This pattern allows shared infrastructure with complete application isolation.
+                    Update the framework once, benefit everywhere. Deploy sites independently,
+                    monitor centrally.
+                </p>
+            </div>
+        </section>
+
+        <!-- Stats -->
+        <section class="stats">
+            <div class="container">
+                <h2 class="section-title" data-emoji="📊">By the Numbers</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-item fade-in">
+                        <span class="stat-number">80%</span>
+                        <span class="stat-label">Cost Reduction vs Traditional</span>
                     </div>
-                    <div style="margin-bottom: 0.5rem; color: var(--color-text-muted); font-size: 0.875rem;">
-                        ${site.description}
+                    <div class="stat-item fade-in">
+                        <span class="stat-number">&lt;100ms</span>
+                        <span class="stat-label">Average Response Time</span>
                     </div>
-                    <a href="${site.url}" class="site-url" target="_blank" rel="noopener">
-                        ${site.url}
+                    <div class="stat-item fade-in">
+                        <span class="stat-number">99.9%</span>
+                        <span class="stat-label">Production Uptime</span>
+                    </div>
+                    <div class="stat-item fade-in">
+                        <span class="stat-number">0</span>
+                        <span class="stat-label">Security Incidents</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Documentation -->
+        <section class="docs-section" id="docs">
+            <div class="container">
+                <h2 class="section-title" data-emoji="📖">The Deep Documentation</h2>
+                <p style="color: var(--text-secondary); margin-bottom: var(--space-8);">
+                    <em>"The best documentation is the code itself."</em> — Clean Code
+                </p>
+                
+                <div class="docs-grid">
+                    <a href="/about" class="docs-link">
+                        <div class="docs-link-title">🚀 Getting Started</div>
+                        <div class="docs-link-desc">Installation, quick start, and your first site</div>
                     </a>
-                    <div class="site-status-indicator" style="margin-top: 0.5rem;">
-                        <span class="loading"></span> Checking...
-                    </div>
-                `;
-                
-                return card;
-            }
-
-            async checkSiteHealth(site, cardElement) {
-                try {
-                    // Simulate health check (in production, this would be a real API call)
-                    await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1500));
                     
-                    const isHealthy = Math.random() > 0.1; // 90% chance of being healthy
-                    const responseTime = Math.floor(Math.random() * 200) + 50;
+                    <a href="/services" class="docs-link">
+                        <div class="docs-link-title">🏗️ Framework Architecture</div>
+                        <div class="docs-link-desc">Hub-and-spoke pattern and core concepts</div>
+                    </a>
                     
-                    const statusIndicator = cardElement.querySelector('.site-status-indicator');
+                    <a href="/contact" class="docs-link">
+                        <div class="docs-link-title">🤖 AI-Augmented Development</div>
+                        <div class="docs-link-desc">Human-machine collaboration workflows</div>
+                    </a>
                     
-                    if (isHealthy) {
-                        statusIndicator.innerHTML = `
-                            <span style="color: var(--color-success);">✅ Online</span>
-                            <span style="color: var(--color-text-muted); font-size: 0.75rem; margin-left: 0.5rem;">
-                                ${responseTime}ms
-                            </span>
-                        `;
-                    } else {
-                        statusIndicator.innerHTML = `
-                            <span style="color: var(--color-error);">❌ Offline</span>
-                        `;
-                    }
-                } catch (error) {
-                    const statusIndicator = cardElement.querySelector('.site-status-indicator');
-                    statusIndicator.innerHTML = `
-                        <span style="color: var(--color-warning);">⚠️ Unknown</span>
-                    `;
-                }
-            }
-        }
-
-        // Initialize dashboard when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            new FrameworkDashboard();
-        });
-
-        // Health Check API Integration
-        class HealthCheckAPI {
-            constructor() {
-                this.baseURL = window.location.origin;
-                this.endpoints = {
-                    health: '/health',
-                    systemInfo: '/api/system/info',
-                    frameworkHealth: '/_framework/health'
-                };
-            }
-
-            async checkFrameworkHealth() {
-                try {
-                    const response = await fetch(`${this.baseURL}${this.endpoints.frameworkHealth}`);
-                    if (response.ok) {
-                        return await response.json();
-                    }
-                    throw new Error(`Health check failed: ${response.status}`);
-                } catch (error) {
-                    console.error('Framework health check failed:', error);
-                    return null;
-                }
-            }
-
-            async getSystemInfo() {
-                try {
-                    const response = await fetch(`${this.baseURL}${this.endpoints.systemInfo}`);
-                    if (response.ok) {
-                        return await response.json();
-                    }
-                    throw new Error(`System info failed: ${response.status}`);
-                } catch (error) {
-                    console.error('System info request failed:', error);
-                    return null;
-                }
-            }
-
-            async checkSiteHealth(port) {
-                try {
-                    const response = await fetch(`http://localhost:${port}/health`, {
-                        signal: AbortSignal.timeout(5000)
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        return {
-                            status: 'online',
-                            responseTime: Date.now() - this.requestStart,
-                            data
-                        };
-                    }
-                    return { status: 'offline' };
-                } catch (error) {
-                    return { status: 'offline', error: error.message };
-                }
-            }
-        }
-
-        // Performance monitoring
-        class PerformanceMonitor {
-            constructor() {
-                this.metrics = {
-                    pageLoad: 0,
-                    domReady: 0,
-                    firstPaint: 0,
-                    firstContentfulPaint: 0
-                };
-                this.measure();
-            }
-
-            measure() {
-                // Page load time
-                window.addEventListener('load', () => {
-                    this.metrics.pageLoad = performance.now();
-                    this.reportMetrics();
-                });
-
-                // DOM ready time
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', () => {
-                        this.metrics.domReady = performance.now();
-                    });
-                } else {
-                    this.metrics.domReady = performance.now();
-                }
-
-                // Paint metrics
-                if ('PerformanceObserver' in window) {
-                    const observer = new PerformanceObserver((list) => {
-                        for (const entry of list.getEntries()) {
-                            if (entry.name === 'first-paint') {
-                                this.metrics.firstPaint = entry.startTime;
-                            }
-                            if (entry.name === 'first-contentful-paint') {
-                                this.metrics.firstContentfulPaint = entry.startTime;
-                            }
-                        }
-                    });
-                    observer.observe({ entryTypes: ['paint'] });
-                }
-            }
-
-            reportMetrics() {
-                console.log('🚀 Framework Dashboard Performance Metrics:', {
-                    'Page Load': `${this.metrics.pageLoad.toFixed(2)}ms`,
-                    'DOM Ready': `${this.metrics.domReady.toFixed(2)}ms`,
-                    'First Paint': `${this.metrics.firstPaint.toFixed(2)}ms`,
-                    'First Contentful Paint': `${this.metrics.firstContentfulPaint.toFixed(2)}ms`
-                });
-            }
-        }
-
-        // Error tracking and reporting
-        class ErrorTracker {
-            constructor() {
-                this.errors = [];
-                this.maxErrors = 50;
-                this.setupErrorHandling();
-            }
-
-            setupErrorHandling() {
-                window.addEventListener('error', (event) => {
-                    this.logError({
-                        type: 'javascript',
-                        message: event.message,
-                        filename: event.filename,
-                        lineno: event.lineno,
-                        colno: event.colno,
-                        timestamp: new Date().toISOString()
-                    });
-                });
-
-                window.addEventListener('unhandledrejection', (event) => {
-                    this.logError({
-                        type: 'promise',
-                        message: event.reason?.message || 'Unhandled promise rejection',
-                        timestamp: new Date().toISOString()
-                    });
-                });
-            }
-
-            logError(error) {
-                this.errors.unshift(error);
-                if (this.errors.length > this.maxErrors) {
-                    this.errors.pop();
-                }
-                
-                console.error('🚨 Dashboard Error Tracked:', error);
-            }
-
-            getErrors() {
-                return [...this.errors];
-            }
-        }
-
-        // Theme management
-        class ThemeManager {
-            constructor() {
-                this.currentTheme = this.detectPreferredTheme();
-                this.applyTheme();
-                this.setupThemeListeners();
-            }
-
-            detectPreferredTheme() {
-                // Check for saved theme preference
-                const savedTheme = localStorage.getItem('framework-theme');
-                if (savedTheme) return savedTheme;
-
-                // Check system preference
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-                    return 'light';
-                }
-                
-                return 'dark'; // Default to dark theme
-            }
-
-            applyTheme() {
-                document.documentElement.setAttribute('data-theme', this.currentTheme);
-                
-                if (this.currentTheme === 'light') {
-                    // Light theme overrides
-                    document.documentElement.style.setProperty('--color-background', '#f8fafc');
-                    document.documentElement.style.setProperty('--color-surface', '#ffffff');
-                    document.documentElement.style.setProperty('--color-surface-light', '#f1f5f9');
-                    document.documentElement.style.setProperty('--color-text', '#1e293b');
-                    document.documentElement.style.setProperty('--color-text-muted', '#64748b');
-                    document.documentElement.style.setProperty('--color-text-dark', '#94a3b8');
-                    document.documentElement.style.setProperty('--color-border', '#e2e8f0');
-                }
-            }
-
-            setupThemeListeners() {
-                // Listen for system theme changes
-                if (window.matchMedia) {
-                    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-                        if (!localStorage.getItem('framework-theme')) {
-                            this.currentTheme = e.matches ? 'dark' : 'light';
-                            this.applyTheme();
-                        }
-                    });
-                }
-            }
-
-            toggleTheme() {
-                this.currentTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
-                localStorage.setItem('framework-theme', this.currentTheme);
-                this.applyTheme();
-            }
-        }
-
-        // Accessibility enhancements
-        class AccessibilityManager {
-            constructor() {
-                this.setupKeyboardNavigation();
-                this.setupAriaLabels();
-                this.setupReducedMotion();
-            }
-
-            setupKeyboardNavigation() {
-                // Add keyboard navigation for interactive elements
-                document.addEventListener('keydown', (e) => {
-                    // ESC key to clear focus
-                    if (e.key === 'Escape') {
-                        document.activeElement?.blur();
-                    }
+                    <a href="/admin/login" class="docs-link">
+                        <div class="docs-link-title">🔒 Security Patterns</div>
+                        <div class="docs-link-desc">Defense-in-depth implementation</div>
+                    </a>
                     
-                    // Tab navigation improvements
-                    if (e.key === 'Tab') {
-                        // Ensure visible focus indicators
-                        document.body.classList.add('keyboard-navigation');
-                    }
-                });
+                    <a href="/services" class="docs-link">
+                        <div class="docs-link-title">📊 Database Schema</div>
+                        <div class="docs-link-desc">Universal multi-tenancy design</div>
+                    </a>
+                    
+                    <a href="/contact" class="docs-link">
+                        <div class="docs-link-title">🚀 Deployment Strategies</div>
+                        <div class="docs-link-desc">Zero-downtime production workflows</div>
+                    </a>
+                </div>
+            </div>
+        </section>
 
-                // Remove keyboard navigation class on mouse use
-                document.addEventListener('mousedown', () => {
-                    document.body.classList.remove('keyboard-navigation');
-                });
-            }
-
-            setupAriaLabels() {
-                // Add aria labels to interactive elements that don't have them
-                document.querySelectorAll('a[href]:not([aria-label])').forEach(link => {
-                    if (!link.textContent.trim()) {
-                        link.setAttribute('aria-label', link.href);
-                    }
-                });
-            }
-
-            setupReducedMotion() {
-                // Respect user's motion preferences
-                if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                    document.documentElement.style.setProperty('--transition', 'none');
-                    // Disable animations for users who prefer reduced motion
-                    const style = document.createElement('style');
-                    style.textContent = `
-                        *, *::before, *::after {
-                            animation-duration: 0.01ms !important;
-                            animation-iteration-count: 1 !important;
-                            transition-duration: 0.01ms !important;
-                            scroll-behavior: auto !important;
-                        }
-                    `;
-                    document.head.appendChild(style);
-                }
-            }
-        }
-
-        // Console branding and information
-        class ConsoleBranding {
-            constructor() {
-                this.displayBrand();
-            }
-
-            displayBrand() {
-                const styles = {
-                    title: 'color: #00d4aa; font-size: 24px; font-weight: bold; text-shadow: 2px 2px 0px #0077be;',
-                    subtitle: 'color: #64748b; font-size: 14px; font-weight: normal;',
-                    info: 'color: #f39c12; font-size: 12px; font-weight: normal;',
-                    link: 'color: #0077be; font-size: 12px; font-weight: normal;'
-                };
-
-                console.log('%c🚀 Deno Genesis Framework', styles.title);
-                console.log('%cUnix Philosophy Web Development Platform', styles.subtitle);
-                console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #2d3748;');
-                console.log('%c📦 Framework Version: 2.1.0', styles.info);
-                console.log('%c⚡ Runtime: Deno ' + (typeof Deno !== 'undefined' ? Deno.version?.deno : 'Browser'), styles.info);
-                console.log('%c🏗️  Architecture: Hub-and-Spoke', styles.info);
-                console.log('%c🔧 Built by: Dominguez Tech Solutions LLC', styles.info);
-                console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #2d3748;');
-                console.log('%c🌐 Learn more: https://domtech.network', styles.link);
-                console.log('%c📚 Deno: https://deno.land', styles.link);
-                console.log('%c⭐ Unix Philosophy: Do one thing and do it well', styles.subtitle);
-                console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #2d3748;');
-            }
-        }
-
-        // Initialize all systems
-        document.addEventListener('DOMContentLoaded', () => {
-            // Core dashboard functionality
-            window.frameworkDashboard = new FrameworkDashboard();
-            window.healthAPI = new HealthCheckAPI();
-            
-            // Performance and monitoring
-            window.performanceMonitor = new PerformanceMonitor();
-            window.errorTracker = new ErrorTracker();
-            
-            // UI enhancements
-            window.themeManager = new ThemeManager();
-            window.accessibilityManager = new AccessibilityManager();
-            
-            // Console branding
-            new ConsoleBranding();
-
-            // Add development helpers in non-production environments
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                console.log('%c🔧 Development Mode Active', 'color: #f39c12; font-weight: bold;');
-                console.log('Available globals: frameworkDashboard, healthAPI, performanceMonitor, errorTracker, themeManager');
+        <!-- Call to Action -->
+        <section class="cta">
+            <div class="container">
+                <h2 class="section-title" data-emoji="🚀">The Paradox</h2>
+                <p style="color: var(--text-secondary); max-width: 800px; margin: 0 auto var(--space-8) auto;">
+                    How do you document a framework that built itself? How do you explain architecture 
+                    that emerged from collaboration between human intuition and artificial intelligence? 
+                    How do you capture 10 years of computer science compressed into 10 months of pure creation?
+                </p>
+                <p style="color: var(--text-secondary); margin-bottom: var(--space-8);">
+                    You don't. You let it speak for itself.
+                </p>
                 
-                // Add theme toggle shortcut
-                window.toggleTheme = () => window.themeManager.toggleTheme();
-                console.log('Type toggleTheme() to switch between light and dark themes');
-            }
-        });
-
-        // Service Worker registration for offline capability
-        if ('serviceWorker' in navigator && location.protocol === 'https:') {
-            navigator.serviceWorker.register('/sw.js')
-                .then(registration => {
-                    console.log('Service Worker registered successfully:', registration.scope);
-                })
-                .catch(error => {
-                    console.log('Service Worker registration failed:', error);
-                });
-        }
-
-        // Export for module usage
-        if (typeof module !== 'undefined' && module.exports) {
-            module.exports = {
-                FrameworkDashboard,
-                HealthCheckAPI,
-                PerformanceMonitor,
-                ErrorTracker,
-                ThemeManager,
-                AccessibilityManager
-            };
-        }
-    </script>
-</body>
-</html>
+                <div class="code-block" style="max-width: 600px; margin: 0 auto var(--space-8) auto;">
+<span class="code-comment">// The framework in its simplest form</span>
+<span class="code-keyword">export function</span> <span class="code-function">genesis</span>(): <span class="code-variable">Promise</span>&lt;<span class="code-keyword">void</span>&gt; {
+  <span class="code-keyword">return new</span> <span class="code-function">Promise</span>((<span class="code-variable">resolve</span>) => {
+    <span class="code-function">console.log</span>(<span class="code-string">"Hello, World. I exist now."</span>);
+    <span class="code-function">resolve</span>();
+  });
+}
+                </div>
+                
+                <div class="cta-buttons">
+                    <a href="/services" class="btn btn-primary">
+                        <span>Explore the Framework
