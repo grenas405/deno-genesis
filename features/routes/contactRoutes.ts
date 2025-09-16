@@ -1,10 +1,10 @@
 import { Router } from "https://deno.land/x/oak@v12.6.1/mod.ts";
 import {
-  submitContactMessage,
-  fetchContactMessages,
   deleteContactMessage,
+  fetchContactMessages,
+  submitContactMessage,
 } from "../controllers/contactController.ts";
-import { verifyAdminToken } from "../middleware/authMiddleware.ts";
+import { verifyAdminToken } from "../../core/middleware/authMiddleware.ts";
 
 const router = new Router();
 

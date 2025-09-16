@@ -1,6 +1,6 @@
 import { Router } from "https://deno.land/x/oak@v12.6.1/mod.ts";
 import { getDashboardOverview } from "../controllers/dashboardController.ts";
-import { verifyAdminToken } from "../middleware/authMiddleware.ts";
+import { verifyAdminToken } from "../../core/middleware/authMiddleware.ts";
 
 const router = new Router();
 
@@ -10,3 +10,4 @@ const router = new Router();
 router.get("/", verifyAdminToken, getDashboardOverview);
 
 export default router;
+

@@ -1,10 +1,10 @@
 import { Router } from "https://deno.land/x/oak@v12.6.1/mod.ts";
 import {
-  submitAppointment,
-  fetchAppointments,
   deleteAppointment,
+  fetchAppointments,
+  submitAppointment,
 } from "../controllers/appointmentController.ts";
-import { verifyAdminToken } from "../middleware/authMiddleware.ts";
+import { verifyAdminToken } from "../../core/middleware/authMiddleware.ts";
 
 const router = new Router();
 

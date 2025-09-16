@@ -3,7 +3,7 @@
 // 🎨 DenoGenesis Frontend Routes
 // ============================================
 // ✅ Thin router - only maps routes to controllers
-// ✅ No business logic, middleware, or framework headers
+// ✅ Uses only exports from frontendController.ts
 // ✅ Clean, declarative route registration
 // ✅ Follows established DenoGenesis patterns
 // ============================================
@@ -12,14 +12,11 @@ import { Router } from "https://deno.land/x/oak@v12.6.1/mod.ts";
 import {
   serve404,
   serveAbout,
-  serveApp,
+  serveAdminLogin,
   serveContact,
-  serveDashboard,
-  serveGenericPage,
-  serveHelp,
-  serveLogin,
-  serveSettings,
-  serveSignup,
+  serveCreateAdmin,
+  serveHome,
+  serveServices,
 } from "../controllers/frontendController.ts";
 
 // === Initialize Frontend Router ===
@@ -29,37 +26,23 @@ const router = new Router();
 // 🎨 FRONTEND ROUTES - Thin router pattern
 // ================================================================================
 // Route priority: Most specific → Least specific
-// Static routes first, then dynamic routes, finally fallbacks
+// Static routes first, then admin routes, finally fallbacks
 
 // === CORE APP ROUTES ===
-router.get("/", serveApp); // Main application
-router.get("/app", serveApp); // Alternative app route
-router.get("/home", serveApp); // Alternative home route
-
-// === AUTH ROUTES ===
-router.get("/login", serveLogin); // User login page
-router.get("/signin", serveLogin); // Alternative login route
-router.get("/signup", serveSignup); // User registration page
-router.get("/register", serveSignup); // Alternative signup route
+router.get("/", serveHome); // Home page (pages/home/index.html)
 
 // === MAIN NAVIGATION ROUTES ===
-router.get("/dashboard", serveDashboard); // User dashboard
-router.get("/about", serveAbout); // About page
-router.get("/contact", serveContact); // Contact page
-router.get("/settings", serveSettings); // User settings
-router.get("/profile", serveSettings); // Alternative settings route
-router.get("/help", serveHelp); // Help/documentation
-router.get("/docs", serveHelp); // Alternative help route
-router.get("/support", serveHelp); // Alternative support route
+router.get("/about", serveAbout); // About page (pages/about/about.html)
+router.get("/services", serveServices); // Services page (pages/services/services.html)
+router.get("/contact", serveContact); // Contact page (pages/contact/contact.html)
 
-// === DYNAMIC ROUTES ===
-// Generic page handler for custom pages
-// Must be after specific routes to avoid conflicts
-router.get("/:page", serveGenericPage); // Dynamic page serving
+// === ADMIN ROUTES ===
+router.get("/admin/login", serveAdminLogin); // Admin login (pages/admin/admin-login.html)
+router.get("/admin/create", serveCreateAdmin); // Create admin (pages/admin/create-admin.html)
 
 // === FALLBACK ROUTES ===
 // Catch-all for unmatched routes - must be last
-router.get("/(.*)", serve404); // 404 handler
+router.get("/(.*)", serve404); // 404 handler (pages/error/404.html)
 
 // ================================================================================
 // 📊 ROUTER EXPORT

@@ -1,7 +1,10 @@
 // /models/contactModel.ts
-import { db } from "../database/client.ts";
-import { SITE_KEY } from "../config/env.ts";
-import { ContactMessageInput, ContactMessageRecord } from "../types/contact.d.ts";
+import { db } from "../../core/database/client.ts";
+import { SITE_KEY } from "../../core/config/env.ts";
+import {
+  ContactMessageInput,
+  ContactMessageRecord,
+} from "../types/contact.d.ts";
 
 export class ContactModel {
   static async insertMessage(data: ContactMessageInput): Promise<void> {
