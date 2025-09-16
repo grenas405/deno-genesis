@@ -8,15 +8,15 @@
 // ============================================
 
 import { Router } from "https://deno.land/x/oak@v12.6.1/mod.ts";
-import { ConsoleStyler } from "../../utils/consoleStyler.ts";
+import { ConsoleStyler } from "../mod.ts";
 
 // Route module imports
 import frontendRoutes from "./frontendRoutes.ts";
 // Import API routes from the /features directory
-import authRoutes from "../../features/auth/routes/authRoutes.ts";
-import appointmentRoutes from "../../features/appointments/routes/appointmentRoutes.ts";
-import contactRoutes from "../../features/contact/routes/contactRoutes.ts";
-import dashboardRoutes from "../../features/dashboard/routes/dashboardRoutes.ts";
+import authRoutes from "../../../features/routes/authRoutes.ts";
+import appointmentRoutes from "../../features/routes/appointmentRoutes.ts";
+import contactRoutes from "../../features/routes/contactRoutes.ts";
+import dashboardRoutes from "../../features/routes/dashboardRoutes.ts";
 
 // === Initialize Master Router ===
 const router = new Router();
