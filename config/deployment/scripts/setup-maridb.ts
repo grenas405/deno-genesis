@@ -1,7 +1,16 @@
 #!/usr/bin/env -S deno run --allow-run --allow-read --allow-write --allow-net
 
 /**
- * Deno Genesis MariaDB Setup Utility
+ * Universal Deno Genesis MariaDB Setup Utility
+ *
+ * Supports all major Linux package managers:
+ * - APT (Debian, Ubuntu, Mint)
+ * - YUM/DNF (RHEL, CentOS, Fedora)
+ * - Pacman (Arch Linux, Manjaro)
+ * - Zypper (openSUSE)
+ * - APK (Alpine Linux)
+ * - Portage (Gentoo)
+ * - XBPS (Void Linux)
  *
  * Unix Philosophy Implementation:
  * - Do one thing well: Setup MariaDB for multi-tenant architecture
@@ -35,6 +44,15 @@ interface SetupOptions {
   configPath: string;
 }
 
+interface PackageManager {
+  name: string;
+  checkCmd: string[];
+  updateCmd: string[];
+  installCmd: string[];
+  packages: string[];
+  serviceName: string;
+}
+
 // Default configuration - follows principle of sensible defaults
 const DEFAULT_CONFIG: DatabaseConfig = {
   name: "universal_db",
@@ -44,17 +62,85 @@ const DEFAULT_CONFIG: DatabaseConfig = {
   port: 3306,
 };
 
+// Package manager configurations
+const PACKAGE_MANAGERS: PackageManager[] = [
+  {
+    name: "APT",
+    checkCmd: ["apt", "--version"],
+    updateCmd: ["sudo", "apt", "update"],
+    installCmd: ["sudo", "apt", "install", "-y"],
+    packages: ["mariadb-server", "mariadb-client"],
+    serviceName: "mariadb",
+  },
+  {
+    name: "DNF",
+    checkCmd: ["dnf", "--version"],
+    updateCmd: ["sudo", "dnf", "check-update"],
+    installCmd: ["sudo", "dnf", "install", "-y"],
+    packages: ["mariadb-server", "mariadb"],
+    serviceName: "mariadb",
+  },
+  {
+    name: "YUM",
+    checkCmd: ["yum", "--version"],
+    updateCmd: ["sudo", "yum", "check-update"],
+    installCmd: ["sudo", "yum", "install", "-y"],
+    packages: ["mariadb-server", "mariadb"],
+    serviceName: "mariadb",
+  },
+  {
+    name: "Pacman",
+    checkCmd: ["pacman", "--version"],
+    updateCmd: ["sudo", "pacman", "-Sy"],
+    installCmd: ["sudo", "pacman", "-S", "--noconfirm"],
+    packages: ["mariadb"],
+    serviceName: "mariadb",
+  },
+  {
+    name: "Zypper",
+    checkCmd: ["zypper", "--version"],
+    updateCmd: ["sudo", "zypper", "refresh"],
+    installCmd: ["sudo", "zypper", "install", "-y"],
+    packages: ["mariadb", "mariadb-client"],
+    serviceName: "mariadb",
+  },
+  {
+    name: "APK",
+    checkCmd: ["apk", "--version"],
+    updateCmd: ["sudo", "apk", "update"],
+    installCmd: ["sudo", "apk", "add"],
+    packages: ["mariadb", "mariadb-client"],
+    serviceName: "mariadb",
+  },
+  {
+    name: "Portage",
+    checkCmd: ["emerge", "--version"],
+    updateCmd: ["sudo", "emerge", "--sync"],
+    installCmd: ["sudo", "emerge"],
+    packages: ["dev-db/mariadb"],
+    serviceName: "mariadb",
+  },
+  {
+    name: "XBPS",
+    checkCmd: ["xbps-install", "--version"],
+    updateCmd: ["sudo", "xbps-install", "-S"],
+    installCmd: ["sudo", "xbps-install", "-y"],
+    packages: ["mariadb"],
+    serviceName: "mariadb",
+  },
+];
+
 // ANSI color codes for Unix-style terminal output
 const Colors = {
-  RED: '\x1b[31m',
-  GREEN: '\x1b[32m',
-  YELLOW: '\x1b[33m',
-  BLUE: '\x1b[34m',
-  MAGENTA: '\x1b[35m',
-  CYAN: '\x1b[36m',
-  WHITE: '\x1b[37m',
-  RESET: '\x1b[0m',
-  BOLD: '\x1b[1m'
+  RED: "\x1b[31m",
+  GREEN: "\x1b[32m",
+  YELLOW: "\x1b[33m",
+  BLUE: "\x1b[34m",
+  MAGENTA: "\x1b[35m",
+  CYAN: "\x1b[36m",
+  WHITE: "\x1b[37m",
+  RESET: "\x1b[0m",
+  BOLD: "\x1b[1m",
 } as const;
 
 // Unix-style logging functions - structured output for composability
@@ -75,13 +161,84 @@ function logError(message: string): void {
 }
 
 function logHeader(message: string): void {
-  const border = '='.repeat(50);
+  const border = "=".repeat(50);
   console.log(`\n${Colors.CYAN}${border}`);
   console.log(`${Colors.BOLD}${Colors.CYAN} ${message}`);
   console.log(`${border}${Colors.RESET}\n`);
 }
 
+// Detect available package manager
+async function detectPackageManager(): Promise<PackageManager | null> {
+  logInfo("Detecting package manager...");
+
+  for (const pm of PACKAGE_MANAGERS) {
+    try {
+      const command = new Deno.Command(pm.checkCmd[0], {
+        args: pm.checkCmd.slice(1),
+        stdout: "null",
+        stderr: "null",
+      });
+      const { success } = await command.output();
+
+      if (success) {
+        logSuccess(`Detected package manager: ${pm.name}`);
+        return pm;
+      }
+    } catch {
+      // Command not found, continue to next package manager
+      continue;
+    }
+  }
+
+  return null;
+}
+
 // Unix philosophy: Small functions that do one thing well
+async function checkRootPrivileges(): Promise<boolean> {
+  try {
+    // Check if running as root
+    const uid = Deno.uid();
+    if (uid === 0) {
+      logWarning(
+        "Running as root user - this is not recommended for security reasons",
+      );
+      return true;
+    }
+
+    // Check if user has sudo privileges by testing a harmless sudo command
+    const sudoTestCmd = new Deno.Command("sudo", {
+      args: ["-n", "true"], // -n flag means non-interactive (don't prompt for password)
+      stdout: "null",
+      stderr: "null",
+    });
+    const { success } = await sudoTestCmd.output();
+
+    if (success) {
+      logSuccess("Sudo privileges confirmed");
+      return true;
+    }
+
+    // If non-interactive sudo failed, try to prompt for password
+    logInfo("Testing sudo access (you may be prompted for your password)...");
+    const sudoPromptCmd = new Deno.Command("sudo", {
+      args: ["true"],
+      stdout: "inherit",
+      stderr: "inherit",
+    });
+    const { success: promptSuccess } = await sudoPromptCmd.output();
+
+    if (promptSuccess) {
+      logSuccess("Sudo privileges confirmed with password");
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    logError(`Failed to check privileges: ${error.message}`);
+    return false;
+  }
+}
+
 async function checkMariaDBInstalled(): Promise<boolean> {
   try {
     const command = new Deno.Command("mysql", {
@@ -96,83 +253,172 @@ async function checkMariaDBInstalled(): Promise<boolean> {
   }
 }
 
-async function checkMariaDBRunning(): Promise<boolean> {
+async function checkMariaDBRunning(serviceName: string): Promise<boolean> {
   try {
-    const command = new Deno.Command("systemctl", {
-      args: ["is-active", "mariadb"],
+    // Try systemctl first (most common)
+    const systemctlCommand = new Deno.Command("systemctl", {
+      args: ["is-active", serviceName],
       stdout: "null",
       stderr: "null",
     });
-    const { success } = await command.output();
+    const { success } = await systemctlCommand.output();
 
     if (success) return true;
 
-    // Also check for mysql service name
-    const mysqlCommand = new Deno.Command("systemctl", {
-      args: ["is-active", "mysql"],
+    // Try alternative service names
+    const altNames = ["mysql", "mysqld"];
+    for (const altName of altNames) {
+      const altCommand = new Deno.Command("systemctl", {
+        args: ["is-active", altName],
+        stdout: "null",
+        stderr: "null",
+      });
+      const { success: altSuccess } = await altCommand.output();
+      if (altSuccess) return true;
+    }
+
+    // Try service command (older systems)
+    const serviceCommand = new Deno.Command("service", {
+      args: [serviceName, "status"],
       stdout: "null",
       stderr: "null",
     });
-    const { success: mysqlSuccess } = await mysqlCommand.output();
-    return mysqlSuccess;
+    const { success: serviceSuccess } = await serviceCommand.output();
+    return serviceSuccess;
   } catch {
     return false;
   }
 }
 
-async function installMariaDB(): Promise<boolean> {
-  logHeader("Installing MariaDB Server");
+async function installMariaDB(
+  packageManager: PackageManager,
+): Promise<boolean> {
+  logHeader(`Installing MariaDB Server using ${packageManager.name}`);
 
   try {
+    // Update package list
     logInfo("Updating package list...");
-    const updateCmd = new Deno.Command("sudo", {
-      args: ["apt", "update"],
+    const updateCmd = new Deno.Command(packageManager.updateCmd[0], {
+      args: packageManager.updateCmd.slice(1),
       stdout: "inherit",
       stderr: "inherit",
     });
     await updateCmd.output();
 
-    logInfo("Installing MariaDB server and client...");
-    const installCmd = new Deno.Command("sudo", {
-      args: ["apt", "install", "-y", "mariadb-server", "mariadb-client"],
+    // Install MariaDB packages
+    logInfo(
+      `Installing MariaDB packages: ${packageManager.packages.join(", ")}`,
+    );
+    const installCmd = new Deno.Command(packageManager.installCmd[0], {
+      args: [...packageManager.installCmd.slice(1), ...packageManager.packages],
       stdout: "inherit",
       stderr: "inherit",
     });
     const { success } = await installCmd.output();
 
     if (!success) {
-      logError("Failed to install MariaDB");
+      logError("Failed to install MariaDB packages");
       return false;
     }
 
-    logInfo("Starting and enabling MariaDB service...");
-    const startCmd = new Deno.Command("sudo", {
-      args: ["systemctl", "start", "mariadb"],
-    });
-    await startCmd.output();
+    // Special handling for Arch Linux (Pacman)
+    if (packageManager.name === "Pacman") {
+      logInfo("Initializing MariaDB data directory (Arch Linux)...");
+      const initCmd = new Deno.Command("sudo", {
+        args: [
+          "mariadb-install-db",
+          "--user=mysql",
+          "--basedir=/usr",
+          "--datadir=/var/lib/mysql",
+        ],
+        stdout: "inherit",
+        stderr: "inherit",
+      });
+      await initCmd.output();
+    }
 
-    const enableCmd = new Deno.Command("sudo", {
-      args: ["systemctl", "enable", "mariadb"],
-    });
-    await enableCmd.output();
+    // Special handling for Gentoo (Portage)
+    if (packageManager.name === "Portage") {
+      logInfo("Configuring MariaDB (Gentoo)...");
+      const configCmd = new Deno.Command("sudo", {
+        args: ["emerge", "--config", "=dev-db/mariadb-10.6.0"], // Adjust version as needed
+        stdout: "inherit",
+        stderr: "inherit",
+      });
+      await configCmd.output();
+    }
+
+    // Start and enable MariaDB service
+    logInfo("Starting and enabling MariaDB service...");
+
+    // Try systemctl first
+    try {
+      const startCmd = new Deno.Command("sudo", {
+        args: ["systemctl", "start", packageManager.serviceName],
+        stdout: "inherit",
+        stderr: "inherit",
+      });
+      await startCmd.output();
+
+      const enableCmd = new Deno.Command("sudo", {
+        args: ["systemctl", "enable", packageManager.serviceName],
+        stdout: "inherit",
+        stderr: "inherit",
+      });
+      await enableCmd.output();
+    } catch {
+      // Fallback to service command
+      logInfo("Systemctl not available, trying service command...");
+      const serviceCmd = new Deno.Command("sudo", {
+        args: ["service", packageManager.serviceName, "start"],
+        stdout: "inherit",
+        stderr: "inherit",
+      });
+      await serviceCmd.output();
+    }
+
+    // For Alpine Linux, use OpenRC
+    if (packageManager.name === "APK") {
+      logInfo("Using OpenRC for Alpine Linux...");
+      const rcUpdateCmd = new Deno.Command("sudo", {
+        args: ["rc-update", "add", packageManager.serviceName, "default"],
+        stdout: "inherit",
+        stderr: "inherit",
+      });
+      await rcUpdateCmd.output();
+
+      const rcServiceCmd = new Deno.Command("sudo", {
+        args: ["rc-service", packageManager.serviceName, "start"],
+        stdout: "inherit",
+        stderr: "inherit",
+      });
+      await rcServiceCmd.output();
+    }
 
     logSuccess("MariaDB installation completed");
     return true;
-
   } catch (error) {
     logError(`Installation failed: ${error.message}`);
     return false;
   }
 }
 
-async function executeSQL(sql: string, config: DatabaseConfig, useDatabase = false): Promise<boolean> {
+async function executeSQL(
+  sql: string,
+  config: DatabaseConfig,
+  useDatabase = false,
+): Promise<boolean> {
   try {
     const mysqlArgs = [
-      "-h", config.host,
-      "-P", config.port.toString(),
-      "-u", "root",
+      "-h",
+      config.host,
+      "-P",
+      config.port.toString(),
+      "-u",
+      "root",
       "-p",
-      "--execute", sql
+      "--execute",
+      sql,
     ];
 
     if (useDatabase) {
@@ -215,115 +461,60 @@ async function createDatabase(config: DatabaseConfig): Promise<boolean> {
     return false;
   }
 
-  // Create tables with multi-tenant architecture
-  logInfo("Creating multi-tenant table structure...");
+  // Create tables with multi-tenant structure
   const createTablesSQL = `
     USE ${config.name};
 
-    -- Admin Users Table (Multi-tenant)
-    CREATE TABLE IF NOT EXISTS admin_users (
+    -- Sites table for multi-tenant architecture
+    CREATE TABLE IF NOT EXISTS sites (
       id INT AUTO_INCREMENT PRIMARY KEY,
-      site_key VARCHAR(50) NOT NULL,
-      username VARCHAR(50) NOT NULL,
-      password_hash VARCHAR(255) NOT NULL,
-      email VARCHAR(100),
-      role ENUM('admin', 'editor', 'viewer') DEFAULT 'admin',
+      site_key VARCHAR(50) NOT NULL UNIQUE,
+      domain VARCHAR(255) NOT NULL,
+      name VARCHAR(100) NOT NULL,
+      description TEXT,
+      settings JSON,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      last_login TIMESTAMP NULL,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
       is_active BOOLEAN DEFAULT true,
       INDEX idx_site_key (site_key),
-      INDEX idx_username_site (username, site_key),
-      UNIQUE KEY unique_user_site (username, site_key)
+      INDEX idx_domain (domain),
+      INDEX idx_is_active (is_active)
     ) ENGINE=InnoDB;
 
-    -- Contact Messages Table (Multi-tenant)
-    CREATE TABLE IF NOT EXISTS contact_messages (
+    -- Content table (Multi-tenant)
+    CREATE TABLE IF NOT EXISTS content (
       id INT AUTO_INCREMENT PRIMARY KEY,
       site_key VARCHAR(50) NOT NULL,
-      name VARCHAR(100) NOT NULL,
-      email VARCHAR(100) NOT NULL,
-      phone VARCHAR(20),
-      subject VARCHAR(200),
-      message TEXT NOT NULL,
-      status ENUM('new', 'read', 'replied', 'archived') DEFAULT 'new',
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      replied_at TIMESTAMP NULL,
-      notes TEXT,
-      INDEX idx_site_key (site_key),
-      INDEX idx_status (status),
-      INDEX idx_created_at (created_at)
-    ) ENGINE=InnoDB;
-
-    -- Appointments Table (Multi-tenant)
-    CREATE TABLE IF NOT EXISTS appointments (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      site_key VARCHAR(50) NOT NULL,
-      name VARCHAR(100) NOT NULL,
-      phone VARCHAR(20),
-      email VARCHAR(100),
-      service VARCHAR(100),
-      preferred_date DATE,
-      preferred_time TIME,
-      message TEXT,
-      status ENUM('pending', 'confirmed', 'completed', 'cancelled') DEFAULT 'pending',
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      notes TEXT,
-      INDEX idx_site_key (site_key),
-      INDEX idx_status (status),
-      INDEX idx_preferred_date (preferred_date),
-      INDEX idx_created_at (created_at)
-    ) ENGINE=InnoDB;
-
-    -- Site Settings Table (Multi-tenant)
-    CREATE TABLE IF NOT EXISTS site_settings (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      site_key VARCHAR(50) NOT NULL,
-      setting_key VARCHAR(100) NOT NULL,
-      setting_value TEXT,
-      setting_type ENUM('string', 'number', 'boolean', 'json') DEFAULT 'string',
-      description TEXT,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      INDEX idx_site_key (site_key),
-      INDEX idx_setting_key (setting_key),
-      UNIQUE KEY unique_setting_site (site_key, setting_key)
-    ) ENGINE=InnoDB;
-
-    -- Blog Posts Table (Multi-tenant)
-    CREATE TABLE IF NOT EXISTS blogs (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      site_key VARCHAR(50) NOT NULL,
-      title VARCHAR(200) NOT NULL,
-      slug VARCHAR(200) NOT NULL,
-      content TEXT NOT NULL,
+      type ENUM('page', 'post', 'product', 'service') NOT NULL,
+      title VARCHAR(255) NOT NULL,
+      slug VARCHAR(255) NOT NULL,
+      content TEXT,
       excerpt TEXT,
+      meta_title VARCHAR(255),
+      meta_description TEXT,
       featured_image VARCHAR(500),
-      author_id INT,
       status ENUM('draft', 'published', 'archived') DEFAULT 'draft',
-      published_at TIMESTAMP NULL,
+      author_id INT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-      meta_description TEXT,
-      meta_keywords TEXT,
+      published_at TIMESTAMP NULL,
+      sort_order INT DEFAULT 0,
       INDEX idx_site_key (site_key),
+      INDEX idx_type (type),
       INDEX idx_slug (slug),
       INDEX idx_status (status),
       INDEX idx_published_at (published_at),
-      UNIQUE KEY unique_slug_site (site_key, slug),
-      FOREIGN KEY (author_id) REFERENCES admin_users(id) ON DELETE SET NULL
+      INDEX idx_sort_order (sort_order),
+      UNIQUE KEY unique_slug_site (site_key, slug)
     ) ENGINE=InnoDB;
 
-    -- Projects/Portfolio Table (Multi-tenant)
+    -- Projects table (Multi-tenant)
     CREATE TABLE IF NOT EXISTS projects (
       id INT AUTO_INCREMENT PRIMARY KEY,
       site_key VARCHAR(50) NOT NULL,
-      title VARCHAR(200) NOT NULL,
-      slug VARCHAR(200) NOT NULL,
+      title VARCHAR(255) NOT NULL,
+      slug VARCHAR(255) NOT NULL,
       description TEXT,
-      long_description TEXT,
-      featured_image VARCHAR(500),
-      gallery JSON,
       technologies JSON,
       project_url VARCHAR(500),
       github_url VARCHAR(500),
@@ -384,13 +575,11 @@ async function createDatabaseUser(config: DatabaseConfig): Promise<boolean> {
     FLUSH PRIVILEGES;
   `;
 
-  logInfo(`Creating database user: ${config.user}`);
-
   if (!await executeSQL(createUserSQL, config)) {
     return false;
   }
 
-  logSuccess(`Database user '${config.user}' created with full privileges`);
+  logSuccess(`Database user '${config.user}' created successfully`);
   return true;
 }
 
@@ -398,20 +587,25 @@ async function testConnection(config: DatabaseConfig): Promise<boolean> {
   logHeader("Testing Database Connection");
 
   try {
-    const command = new Deno.Command("mysql", {
+    const testCmd = new Deno.Command("mysql", {
       args: [
-        "-h", config.host,
-        "-P", config.port.toString(),
-        "-u", config.user,
-        `-p${config.password}`,
-        "-D", config.name,
-        "--execute", "SELECT 'Connection successful' AS test;"
+        "-h",
+        config.host,
+        "-P",
+        config.port.toString(),
+        "-u",
+        config.user,
+        "-p",
+        "-D",
+        config.name,
+        "--execute",
+        "SELECT 1 as test_connection;",
       ],
       stdout: "piped",
       stderr: "piped",
     });
 
-    const { success, stdout, stderr } = await command.output();
+    const { success, stdout, stderr } = await testCmd.output();
 
     if (success) {
       logSuccess("Database connection test passed");
@@ -431,32 +625,22 @@ async function createSampleData(config: DatabaseConfig): Promise<boolean> {
   logHeader("Creating Sample Data");
 
   const sampleDataSQL = `
-    USE ${config.name};
+    INSERT IGNORE INTO sites (site_key, domain, name, description) VALUES
+    ('demo', 'demo.example.com', 'Demo Site', 'A demonstration site for Deno Genesis'),
+    ('portfolio', 'portfolio.example.com', 'Portfolio Site', 'Personal portfolio website');
 
-    -- Sample admin users (password: 'admin123' - should be changed in production)
-    INSERT IGNORE INTO admin_users (site_key, username, password_hash, email) VALUES
-    ('pedromdominguez-com', 'admin', '$2b$10$rQZ8gqZ7JqZ7JqZ7JqZ7JeXKv1tF5xF5xF5xF5xF5xF5xF5xF5xF5x', 'admin@pedromdominguez.com'),
-    ('domtech', 'admin', '$2b$10$rQZ8gqZ7JqZ7JqZ7JqZ7JeXKv1tF5xF5xF5xF5xF5xF5xF5xF5xF5x', 'admin@domtech.dev');
+    INSERT IGNORE INTO content (site_key, type, title, slug, content, status, published_at) VALUES
+    ('demo', 'page', 'Home', 'home', 'Welcome to our demo site!', 'published', NOW()),
+    ('demo', 'page', 'About', 'about', 'Learn more about our company.', 'published', NOW()),
+    ('portfolio', 'page', 'Home', 'home', 'Welcome to my portfolio!', 'published', NOW()),
+    ('portfolio', 'post', 'My First Project', 'my-first-project', 'This is my first project...', 'published', NOW());
 
-    -- Sample contact messages
-    INSERT IGNORE INTO contact_messages (site_key, name, email, phone, message) VALUES
-    ('pedromdominguez-com', 'John Doe', 'john@example.com', '555-1234', 'Interested in web development services for my business.'),
-    ('domtech', 'Jane Smith', 'jane@example.com', '555-5678', 'Looking for technical consulting for our startup.');
-
-    -- Sample appointments
-    INSERT IGNORE INTO appointments (site_key, name, phone, email, service, message) VALUES
-    ('pedromdominguez-com', 'Mike Johnson', '555-9999', 'mike@example.com', 'Website Redesign', 'Need to modernize our company website.'),
-    ('domtech', 'Sarah Wilson', '555-0000', 'sarah@example.com', 'IT Consultation', 'Startup needs technology infrastructure guidance.');
-
-    -- Sample site settings
-    INSERT IGNORE INTO site_settings (site_key, setting_key, setting_value, setting_type) VALUES
-    ('pedromdominguez-com', 'site_title', 'Pedro M. Dominguez - Full Stack Developer', 'string'),
-    ('pedromdominguez-com', 'contact_email', 'contact@pedromdominguez.com', 'string'),
-    ('domtech', 'site_title', 'DomTech - Technology Solutions', 'string'),
-    ('domtech', 'contact_email', 'hello@domtech.dev', 'string');
+    INSERT IGNORE INTO projects (site_key, title, slug, description, status, is_featured) VALUES
+    ('portfolio', 'Deno Genesis Framework', 'deno-genesis', 'A powerful web framework built with Deno', 'development', true),
+    ('portfolio', 'MariaDB Setup Tool', 'mariadb-setup', 'Universal database setup utility', 'completed', false);
   `;
 
-  if (!await executeSQL(sampleDataSQL, config)) {
+  if (!await executeSQL(sampleDataSQL, config, true)) {
     return false;
   }
 
@@ -467,20 +651,28 @@ async function createSampleData(config: DatabaseConfig): Promise<boolean> {
 function displaySummary(config: DatabaseConfig): void {
   logHeader("Setup Summary");
 
-  console.log(`${Colors.GREEN}✅ Database Setup Complete${Colors.RESET}\n`);
-  console.log(`${Colors.CYAN}Database Details:${Colors.RESET}`);
-  console.log(`  📊 Database: ${config.name}`);
-  console.log(`  👤 User: ${config.user}`);
-  console.log(`  🏠 Host: ${config.host}:${config.port}`);
-  console.log(`  🔗 Connection: mysql://${config.user}:${config.password}@${config.host}:${config.port}/${config.name}`);
+  console.log(
+    `${Colors.GREEN}✓ MariaDB Server: ${Colors.RESET}Installed and running`,
+  );
+  console.log(`${Colors.GREEN}✓ Database: ${Colors.RESET}${config.name}`);
+  console.log(`${Colors.GREEN}✓ Database User: ${Colors.RESET}${config.user}`);
+  console.log(
+    `${Colors.GREEN}✓ Host: ${Colors.RESET}${config.host}:${config.port}`,
+  );
 
-  console.log(`\n${Colors.CYAN}Test Connection:${Colors.RESET}`);
-  console.log(`  ${Colors.YELLOW}mysql -u ${config.user} -p'${config.password}' -D ${config.name}${Colors.RESET}`);
+  console.log(`\n${Colors.CYAN}Database Connection Details:${Colors.RESET}`);
+  console.log(`  Host: ${config.host}`);
+  console.log(`  Port: ${config.port}`);
+  console.log(`  Database: ${config.name}`);
+  console.log(`  Username: ${config.user}`);
+  console.log(`  Password: [CONFIGURED]`);
 
-  console.log(`\n${Colors.YELLOW}⚠️  IMPORTANT SECURITY NOTES:${Colors.RESET}`);
-  console.log(`  • Change the default password in production environments`);
-  console.log(`  • Update your Deno Genesis config files with these credentials`);
+  console.log(`\n${Colors.YELLOW}Next Steps:${Colors.RESET}`);
+  console.log(
+    `  • Update your Deno Genesis config files with these credentials`,
+  );
   console.log(`  • Consider using environment variables for sensitive data`);
+  console.log(`  • Review the created database schema and sample data`);
 }
 
 // Main execution function - orchestrates all setup steps
@@ -493,20 +685,20 @@ async function main(): Promise<void> {
       "sample-data": false,
       "test-only": false,
       "verbose": false,
-      "config": "./config/database.json"
+      "config": "./config/database.json",
     },
     alias: {
       "s": "sample-data",
       "t": "test-only",
       "v": "verbose",
       "h": "help",
-      "c": "config"
-    }
+      "c": "config",
+    },
   });
 
   if (args.help) {
     console.log(`
-Deno Genesis MariaDB Setup Utility
+Universal Deno Genesis MariaDB Setup Utility
 
 USAGE:
   deno run --allow-run --allow-read --allow-write --allow-net setup-mariadb.ts [OPTIONS]
@@ -518,15 +710,30 @@ OPTIONS:
   -c, --config FILE    Use custom config file (default: ./config/database.json)
   -h, --help           Show this help message
 
+SUPPORTED PACKAGE MANAGERS:
+  • APT (Debian, Ubuntu, Linux Mint)
+  • DNF/YUM (Fedora, RHEL, CentOS)
+  • Pacman (Arch Linux, Manjaro)
+  • Zypper (openSUSE)
+  • APK (Alpine Linux)
+  • Portage (Gentoo)
+  • XBPS (Void Linux)
+
 EXAMPLES:
-  # Basic setup
-  deno run --allow-run --allow-read --allow-write --allow-net setup-mariadb.ts
+  # Basic setup (requires sudo)
+  sudo deno run --allow-run --allow-read --allow-write --allow-net setup-mariadb.ts
 
   # Setup with sample data
-  deno run --allow-run --allow-read --allow-write --allow-net setup-mariadb.ts --sample-data
+  sudo deno run --allow-run --allow-read --allow-write --allow-net setup-mariadb.ts --sample-data
 
-  # Test existing connection
+  # Test existing connection (no sudo required)
   deno run --allow-run --allow-read --allow-write --allow-net setup-mariadb.ts --test-only
+
+PRIVILEGE REQUIREMENTS:
+  • Package installation requires root/sudo privileges
+  • Service management requires root/sudo privileges
+  • Database operations can run as regular user
+  • Test-only mode does not require elevated privileges
     `);
     Deno.exit(0);
   }
@@ -535,7 +742,7 @@ EXAMPLES:
     sampleData: args["sample-data"],
     testOnly: args["test-only"],
     verbose: args.verbose,
-    configPath: args.config
+    configPath: args.config,
   };
 
   // Load configuration - prefer environment, fall back to defaults
@@ -549,7 +756,9 @@ EXAMPLES:
       config = { ...config, ...fileConfig };
       logInfo(`Loaded configuration from ${options.configPath}`);
     } catch (error) {
-      logWarning(`Failed to load config file, using defaults: ${error.message}`);
+      logWarning(
+        `Failed to load config file, using defaults: ${error.message}`,
+      );
     }
   }
 
@@ -560,7 +769,23 @@ EXAMPLES:
   config.host = Deno.env.get("DB_HOST") || config.host;
   config.port = parseInt(Deno.env.get("DB_PORT") || config.port.toString());
 
-  logHeader("Deno Genesis Framework - MariaDB Setup");
+  logHeader("Universal Deno Genesis Framework - MariaDB Setup");
+
+  // Check for root/sudo privileges first - required for package installation
+  logInfo("Checking system privileges...");
+  if (!await checkRootPrivileges()) {
+    logError("This script requires root privileges or sudo access to:");
+    logError("  • Install MariaDB packages");
+    logError("  • Start and enable system services");
+    logError("  • Configure MariaDB system settings");
+    logError("");
+    logError("Please run one of the following:");
+    logError(
+      "  sudo deno run --allow-run --allow-read --allow-write --allow-net setup-mariadb.ts",
+    );
+    logError("  Or ensure your user is in the sudo group");
+    Deno.exit(1);
+  }
 
   // Test-only mode
   if (options.testOnly) {
@@ -569,13 +794,21 @@ EXAMPLES:
     Deno.exit(connectionOk ? 0 : 1);
   }
 
+  // Detect package manager
+  const packageManager = await detectPackageManager();
+  if (!packageManager) {
+    logError("No supported package manager found!");
+    logError(
+      "Supported package managers: APT, DNF, YUM, Pacman, Zypper, APK, Portage, XBPS",
+    );
+    Deno.exit(1);
+  }
+
   // Check if MariaDB is installed
   if (!await checkMariaDBInstalled()) {
-    logWarning("MariaDB not found. Would you like to install it? (This requires sudo privileges)");
+    logWarning("MariaDB not found. Installing it now...");
 
-    // In a real implementation, you might want to prompt for user input
-    // For now, we'll proceed with installation
-    if (!await installMariaDB()) {
+    if (!await installMariaDB(packageManager)) {
       logError("MariaDB installation failed. Exiting.");
       Deno.exit(1);
     }
@@ -584,18 +817,18 @@ EXAMPLES:
   }
 
   // Check if MariaDB service is running
-  if (!await checkMariaDBRunning()) {
+  if (!await checkMariaDBRunning(packageManager.serviceName)) {
     logInfo("Starting MariaDB service...");
     try {
       const startCmd = new Deno.Command("sudo", {
-        args: ["systemctl", "start", "mariadb"]
+        args: ["systemctl", "start", packageManager.serviceName],
       });
       await startCmd.output();
 
       // Give it a moment to start
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
 
-      if (!await checkMariaDBRunning()) {
+      if (!await checkMariaDBRunning(packageManager.serviceName)) {
         logError("Failed to start MariaDB service");
         Deno.exit(1);
       }
@@ -626,7 +859,9 @@ EXAMPLES:
   // Create sample data if requested
   if (options.sampleData) {
     if (!await createSampleData(config)) {
-      logWarning("Sample data creation failed, but setup completed successfully");
+      logWarning(
+        "Sample data creation failed, but setup completed successfully",
+      );
     }
   }
 
@@ -634,7 +869,9 @@ EXAMPLES:
   displaySummary(config);
 
   logSuccess("MariaDB setup completed successfully!");
-  logInfo("You can now configure your Deno Genesis applications to use this database.");
+  logInfo(
+    "You can now configure your Deno Genesis applications to use this database.",
+  );
 }
 
 // Unix philosophy: Fail fast and provide clear error messages
