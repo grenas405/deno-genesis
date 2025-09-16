@@ -2,8 +2,8 @@
 import { compare } from "https://deno.land/x/bcrypt/mod.ts";
 import { create, getNumericDate } from "https://deno.land/x/djwt/mod.ts";
 import { AuthModel } from "../models/authModel.ts";
-import { jwtKey } from "../utils/authKey.ts";
-import { SITE_KEY } from "../config/env.ts";
+import { jwtKey } from "../../core/utils/authKey.ts";
+import { SITE_KEY } from "../../core/config/env.ts";
 import { AuthLoginInput, AuthTokenPayload } from "../types/auth.d.ts";
 
 export class AuthService {

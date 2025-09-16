@@ -14,9 +14,9 @@ import { ConsoleStyler } from "../mod.ts";
 import frontendRoutes from "./frontendRoutes.ts";
 // Import API routes from the /features directory
 import authRoutes from "../../../features/routes/authRoutes.ts";
-import appointmentRoutes from "../../features/routes/appointmentRoutes.ts";
-import contactRoutes from "../../features/routes/contactRoutes.ts";
-import dashboardRoutes from "../../features/routes/dashboardRoutes.ts";
+import appointmentRoutes from "../../../features/routes/appointmentRoutes.ts";
+import contactRoutes from "../../../features/routes/contactRoutes.ts";
+import dashboardRoutes from "../../../features/routes/dashboardRoutes.ts";
 
 // === Initialize Master Router ===
 const router = new Router();
