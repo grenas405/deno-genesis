@@ -25,9 +25,18 @@ export class SiteSettingsModel {
         facebook_url, instagram_url, twitter_url, tracking_code
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        SITE_KEY, data.heroHeadline, data.contactEmail, data.businessPhone,
-        data.footerText, data.primaryColor, data.secondaryColor, data.aboutUsText,
-        data.facebookUrl, data.instagramUrl, data.twitterUrl, data.trackingCode,
+        SITE_KEY,
+        data.heroHeadline,
+        data.contactEmail,
+        data.businessPhone,
+        data.footerText,
+        data.primaryColor,
+        data.secondaryColor,
+        data.aboutUsText,
+        data.facebookUrl,
+        data.instagramUrl,
+        data.twitterUrl,
+        data.trackingCode,
       ],
     );
   }
@@ -40,9 +49,17 @@ export class SiteSettingsModel {
         facebook_url = ?, instagram_url = ?, twitter_url = ?, tracking_code = ?
        WHERE site_key = ?`,
       [
-        data.heroHeadline, data.contactEmail, data.businessPhone,
-        data.footerText, data.primaryColor, data.secondaryColor, data.aboutUsText,
-        data.facebookUrl, data.instagramUrl, data.twitterUrl, data.trackingCode,
+        data.heroHeadline,
+        data.contactEmail,
+        data.businessPhone,
+        data.footerText,
+        data.primaryColor,
+        data.secondaryColor,
+        data.aboutUsText,
+        data.facebookUrl,
+        data.instagramUrl,
+        data.twitterUrl,
+        data.trackingCode,
         SITE_KEY,
       ],
     );
