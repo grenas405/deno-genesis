@@ -131,7 +131,7 @@ async function setupMariaDBRoot(): Promise<boolean> {
     
     const setupSQL = `
       -- Create root@localhost with password if it doesn't exist
-      CREATE USER IF NOT EXISTS 'root'@'localhost' IDENTIFIED BY 'SecureRootPassword123!';
+      CREATE USER IF NOT EXISTS 'root'@'localhost' IDENTIFIED BY 'rootpassword!';
       
       -- Grant all privileges to root@localhost
       GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
@@ -350,7 +350,7 @@ EXAMPLES:
     
     console.log(`\n${Colors.CYAN}Next steps:${Colors.RESET}`);
     console.log("1. Update your MariaDB setup script with the new executeSQL function");
-    console.log("2. Use root password: SecureRootPassword123! (change this for production)");
+    console.log("2. Use root password: rootpassword (change this for production)");
     console.log("3. Run your database setup: ./setup-mariadb.ts");
   } else {
     logError("MariaDB root setup failed");
