@@ -131,7 +131,7 @@ async function setupMariaDBRoot(): Promise<boolean> {
     
     const setupSQL = `
       -- Create root@localhost with password if it doesn't exist
-      CREATE USER IF NOT EXISTS 'root'@'localhost' IDENTIFIED BY 'rootpassword!';
+      CREATE USER IF NOT EXISTS 'root'@'localhost' IDENTIFIED BY 'password!';
       
       -- Grant all privileges to root@localhost
       GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
@@ -166,7 +166,7 @@ async function setupMariaDBRoot(): Promise<boolean> {
     
     if (setupSuccess) {
       logSuccess("MariaDB root user configured successfully");
-      logSuccess("Root password set to: SecureRootPassword123!");
+      logSuccess("Root password set to: password");
       logWarning("IMPORTANT: Change this default password for production use!");
       return true;
     } else {
@@ -189,7 +189,7 @@ async function executeSQL(sql: string, config: DatabaseConfig, useDatabase = fal
     const authMethods = [
       // Method 1: Try with configured root password
       {
-        args: ["-h", config.host, "-P", config.port.toString(), "-u", "root", "-pSecureRootPassword123!", "--execute", sql]
+        args: ["-h", config.host, "-P", config.port.toString(), "-u", "root", "-p password", "--execute", sql]
       },
       // Method 2: Try Unix socket with sudo
       {
@@ -350,7 +350,7 @@ EXAMPLES:
     
     console.log(`\n${Colors.CYAN}Next steps:${Colors.RESET}`);
     console.log("1. Update your MariaDB setup script with the new executeSQL function");
-    console.log("2. Use root password: rootpassword (change this for production)");
+    console.log("2. Use root password: password (change this for production)");
     console.log("3. Run your database setup: ./setup-mariadb.ts");
   } else {
     logError("MariaDB root setup failed");
