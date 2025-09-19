@@ -16,7 +16,7 @@
  *   deno run --allow-run --allow-read --allow-write --allow-net setup-nginx.ts --remove example.com
  */
 
-import { parseArgs } from "https://deno.land/std@0.204.0/cli/parse_args.ts";
+import { parseArgs } from "https://deno.land/std@0.224.0/cli/parse_args.ts";
 import { exists, ensureDir } from "https://deno.land/std@0.204.0/fs/mod.ts";
 import { join, basename } from "https://deno.land/std@0.204.0/path/mod.ts";
 
