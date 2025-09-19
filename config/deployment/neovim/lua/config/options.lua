@@ -1,56 +1,74 @@
+-- ~/.config/nvim/lua/config/options.lua
+-- Deno-optimized Neovim options
+
 local opt = vim.opt
 
--- Editor behavior
-opt.number = true
-opt.relativenumber = true
-opt.signcolumn = "yes"
-opt.wrap = false
-opt.scrolloff = 4
-opt.sidescrolloff = 8
-opt.cursorline = true
-
--- Indentation
-opt.expandtab = true
-opt.shiftwidth = 2
-opt.tabstop = 2
-opt.smartindent = true
-
--- Search
-opt.ignorecase = true
-opt.smartcase = true
-opt.hlsearch = false
-opt.incsearch = true
-
--- Completion
+-- General settings
+opt.autowrite = true -- Enable auto write
+opt.clipboard = "unnamedplus" -- Sync with system clipboard
 opt.completeopt = "menu,menuone,noselect"
-opt.shortmess:append "c"
-
--- Performance
-opt.lazyredraw = false
-opt.updatetime = 250
-opt.timeout = true
+opt.conceallevel = 3 -- Hide * markup for bold and italic
+opt.confirm = true -- Confirm to save changes before exiting modified buffer
+opt.cursorline = true -- Enable highlighting of the current line
+opt.expandtab = true -- Use spaces instead of tabs
+opt.formatoptions = "jcroqlnt" -- tcqj
+opt.grepformat = "%f:%l:%c:%m"
+opt.grepprg = "rg --vimgrep"
+opt.ignorecase = true -- Ignore case
+opt.inccommand = "nosplit" -- preview incremental substitute
+opt.laststatus = 3 -- global statusline
+opt.list = true -- Show some invisible characters (tabs...
+opt.mouse = "a" -- Enable mouse mode
+opt.number = true -- Print line number
+opt.pumblend = 10 -- Popup blend
+opt.pumheight = 10 -- Maximum number of entries in a popup
+opt.relativenumber = true -- Relative line numbers
+opt.scrolloff = 4 -- Lines of context
+opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" }
+opt.shiftround = true -- Round indent
+opt.shiftwidth = 2 -- Size of an indent
+opt.shortmess:append({ W = true, I = true, c = true, C = true })
+opt.showmode = false -- Dont show mode since we have a statusline
+opt.sidescrolloff = 8 -- Columns of context
+opt.signcolumn = "yes" -- Always show the signcolumn
+opt.smartcase = true -- Don't ignore case with capitals
+opt.smartindent = true -- Insert indents automatically
+opt.spelllang = { "en" }
+opt.splitbelow = true -- Put new windows below current
+opt.splitright = true -- Put new windows right of current
+opt.tabstop = 2 -- Number of spaces tabs count for
+opt.termguicolors = true -- True color support
 opt.timeoutlen = 300
-
--- UI
-opt.termguicolors = true
-opt.showmode = false
-opt.conceallevel = 0
-opt.pumheight = 10
-opt.pumblend = 10
-opt.winblend = 0
-
--- Files
-opt.backup = false
-opt.writebackup = false
 opt.undofile = true
-opt.swapfile = false
+opt.undolevels = 10000
+opt.updatetime = 200 -- Save swap file and trigger CursorHold
+opt.virtualedit = "block" -- Allow cursor to move where there is no text in visual block mode
+opt.wildmode = "longest:full,full" -- Command-line completion mode
+opt.winminwidth = 5 -- Minimum window width
+opt.wrap = false -- Disable line wrap
 
--- Splits
-opt.splitbelow = true
-opt.splitright = true
+-- Deno-specific settings
+opt.suffixesadd:prepend(".ts")
+opt.suffixesadd:prepend(".js") 
+opt.suffixesadd:append(".tsx")
+opt.suffixesadd:append(".jsx")
 
--- Clipboard
-opt.clipboard = "unnamedplus"
+-- Set up file type associations for Deno
+vim.filetype.add({
+  pattern = {
+    [".*%.config%.ts"] = "typescript",
+    [".*%.test%.ts"] = "typescript",
+    [".*%.spec%.ts"] = "typescript",
+    ["deno%.json"] = "jsonc",
+    ["deno%.jsonc"] = "jsonc",
+    ["import_map%.json"] = "json",
+  },
+})
 
--- Mouse
-opt.mouse = "a"
+if vim.fn.has("nvim-0.9.0") == 1 then
+  opt.splitkeep = "screen"
+  opt.shortmess:append({ C = true })
+end
+
+-- Fix markdown indentation settings
+vim.g.markdown_recommended_style = 0
