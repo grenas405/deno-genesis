@@ -1,0 +1,117 @@
+-- ~/.config/nvim/snippets/typescript.json
+-- Deno-specific TypeScript snippets
+{
+  "Deno HTTP Server": {
+    "prefix": "deno-server",
+    "body": [
+      "import { serve } from \"https://deno.land/std@0.224.0/http/server.ts\";",
+      "",
+      "const handler = (req: Request): Response => {",
+      "  const url = new URL(req.url);",
+      "  ",
+      "  if (url.pathname === \"/\") {",
+      "    return new Response(\"Hello, Deno!\", {",
+      "      headers: { \"content-type\": \"text/plain\" },",
+      "    });",
+      "  }",
+      "  ",
+      "  return new Response(\"Not Found\", { status: 404 });",
+      "};",
+      "",
+      "console.log(\"HTTP server running on http://localhost:8000/\");",
+      "await serve(handler, { port: ${1:8000} });"
+    ],
+    "description": "Create a basic Deno HTTP server"
+  },
+  
+  "Deno Test": {
+    "prefix": "deno-test",
+    "body": [
+      "import { assertEquals, assertExists } from \"https://deno.land/std@0.224.0/testing/asserts.ts\";",
+      "",
+      "Deno.test(\"${1:test description}\", () => {",
+      "  ${2:// Test implementation}",
+      "  assertEquals(${3:actual}, ${4:expected});",
+      "});"
+    ],
+    "description": "Create a Deno test case"
+  },
+  
+  "Deno CLI Script": {
+    "prefix": "deno-cli",
+    "body": [
+      "#!/usr/bin/env -S deno run --allow-read --allow-write",
+      "",
+      "import { parseArgs } from \"https://deno.land/std@0.224.0/cli/parse_args.ts\";",
+      "",
+      "function main() {",
+      "  const args = parseArgs(Deno.args, {",
+      "    boolean: [\"help\", \"verbose\"],",
+      "    string: [\"${1:config}\"],",
+      "    alias: { h: \"help\", v: \"verbose\" },",
+      "  });",
+      "",
+      "  if (args.help) {",
+      "    console.log(\"${2:Usage information}\");",
+      "    Deno.exit(0);",
+      "  }",
+      "",
+      "  ${3:// Implementation}",
+      "}",
+      "",
+      "if (import.meta.main) {",
+      "  main();",
+      "}"
+    ],
+    "description": "Create a Deno CLI script template"
+  },
+  
+  "Deno Fresh Route": {
+    "prefix": "fresh-route",
+    "body": [
+      "import { Handlers, PageProps } from \"$fresh/server.ts\";",
+      "",
+      "interface ${1:Data} {",
+      "  ${2:// Define your data structure}",
+      "}",
+      "",
+      "export const handler: Handlers<${1:Data}> = {",
+      "  async GET(req, ctx) {",
+      "    ${3:// Handler logic}",
+      "    return ctx.render(${4:data});",
+      "  },",
+      "};",
+      "",
+      "export default function ${5:ComponentName}({ data }: PageProps<${1:Data}>) {",
+      "  return (",
+      "    <div>",
+      "      ${6:// Component JSX}",
+      "    </div>",
+      "  );",
+      "}"
+    ],
+    "description": "Create a Fresh framework route"
+  },
+
+  "Deno KV Store": {
+    "prefix": "deno-kv",
+    "body": [
+      "const kv = await Deno.openKv(${1:\"./db.sqlite\"});",
+      "",
+      "// Set a value",
+      "await kv.set([\"${2:key}\"], ${3:value});",
+      "",
+      "// Get a value", 
+      "const result = await kv.get([\"${2:key}\"]);",
+      "console.log(result.value);",
+      "",
+      "// List entries",
+      "for await (const entry of kv.list({ prefix: [\"${4:prefix}\"] })) {",
+      "  console.log(entry.key, entry.value);",
+      "}",
+      "",
+      "kv.close();"
+    ],
+    "description": "Deno KV database operations"
+  }
+}
