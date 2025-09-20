@@ -107,7 +107,7 @@ This isn't just another web framework. It's an accidental odyssey through the de
 <div class="code-block">
 
 ```bash
-$ 
+$ curl -fsSL https://deno-genesis.com/install.sh | sh
 
 # The future starts now.
 ```
