@@ -10,7 +10,7 @@
 
 import { Context } from "https://deno.land/x/oak@v12.6.1/mod.ts";
 import { send } from "https://deno.land/x/oak@v12.6.1/mod.ts";
-import { ConsoleStyler } from "../mod.ts";
+import { ConsoleStyler } from "../utils/consoleStyler.ts";
 
 // ================================================================================
 // 🎨 FRONTEND PAGE CONTROLLERS - DenoGenesis patterns
