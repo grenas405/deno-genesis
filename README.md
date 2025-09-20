@@ -107,11 +107,7 @@ This isn't just another web framework. It's an accidental odyssey through the de
 <div class="code-block">
 
 ```bash
-$ git clone https://github.com/grenas405/deno-genesis.git
-$ cd deno-genesis
-$ deno run --allow-all config/deployment/scripts/setup-mariadb.ts
-$ deno run --allow-all config/deployment/scripts/setup-env.ts
-$ deno run --allow-all config/deployment/scripts/setup-nginx.ts
+$ 
 
 # The future starts now.
 ```
