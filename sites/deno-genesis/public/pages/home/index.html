@@ -3,793 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DenoGenesis Framework | Unix Philosophy + Modern Runtime = Revolutionary Development</title>
-    
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="DenoGenesis - The framework that proves individual developers can create enterprise-grade solutions through AI-augmented development and Unix Philosophy principles.">
-    <meta name="keywords" content="deno, typescript, unix philosophy, local-first software, framework, ai-augmented development">
-    <meta name="author" content="Pedro M. Dominguez, Dominguez Tech Solutions LLC">
-    
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="DenoGenesis Framework - Unix Philosophy + Modern Runtime">
-    <meta property="og:description" content="Revolutionary development experience through AI-augmented Unix principles. Real business results, enterprise performance.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://denogenesis.com">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    
-    <!-- DenoGenesis Framework Styling -->
+    <title>Deno Genesis - Coming Soon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* ============================================
-           🧬 DenoGenesis Framework Landing Page
-           ============================================
-           ✅ README-inspired documentation design
-           ✅ Unix Philosophy principles
-           ✅ Developer-focused presentation
-           ✅ Technical authenticity
-           ============================================ */
-        
         :root {
-            /* GitHub-inspired professional palette */
-            --bg-primary: #0d1117;
-            --bg-secondary: #161b22;
-            --bg-tertiary: #21262d;
-            --bg-accent: #30363d;
-            
-            /* Content backgrounds */
-            --bg-code: #161b22;
-            --bg-subtle: #f6f8fa;
-            --bg-muted: #656d76;
-            
-            /* Text hierarchy */
-            --text-primary: #f0f6fc;
-            --text-secondary: #9198a1;
-            --text-accent: #58a6ff;
-            --text-success: #3fb950;
-            --text-warning: #d29922;
-            --text-danger: #f85149;
-            
-            /* Borders */
-            --border-default: #30363d;
-            --border-muted: #21262d;
-            
-            /* Syntax highlighting */
-            --syntax-keyword: #ff7b72;
-            --syntax-string: #a5c261;
-            --syntax-comment: #8b949e;
-            --syntax-function: #d2a8ff;
-            --syntax-variable: #ffa657;
-            
-            /* Spacing */
-            --space-1: 0.25rem;
-            --space-2: 0.5rem;
-            --space-3: 0.75rem;
-            --space-4: 1rem;
-            --space-6: 1.5rem;
-            --space-8: 2rem;
-            --space-12: 3rem;
-            --space-16: 4rem;
-            --space-24: 6rem;
+            /* Mystery Color Scheme */
+            --bg-dark: #1a1a2e; /* Deep dark background */
+            --bg-light: #2a2a4a; /* Slightly lighter background for elements */
+            --text-primary: #e0e0e0; /* Light grey for main text */
+            --text-secondary: #9a9aab; /* Muted grey for secondary text */
+            --accent-primary: #0f3460; /* Deep blue/purple accent */
+            --accent-secondary: #533483; /* Muted purple accent */
+            --border-color: #3e3e60; /* Subtle border color */
         }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', roboto, sans-serif;
-            background: var(--bg-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--accent-primary) 100%);
             color: var(--text-primary);
-            line-height: 1.6;
-            font-size: 16px;
+            text-align: center;
+            overflow: hidden; /* Prevent scroll for subtle animations */
+            position: relative;
         }
-        
+
+        /* Background animation element */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 50% 50%, rgba(83, 52, 131, 0.2) 0%, transparent 70%);
+            animation: rotateBackground 20s linear infinite;
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+        @keyframes rotateBackground {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 var(--space-6);
-        }
-        
-        /* Header */
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            background: rgba(13, 17, 23, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border-default);
-        }
-        
-        .nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: var(--space-4) 0;
-        }
-        
-        .nav-brand {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            text-decoration: none;
-        }
-        
-        .nav-brand::before {
-            content: "🧬 ";
-        }
-        
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: var(--space-6);
-        }
-        
-        .nav-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s ease;
-        }
-        
-        .nav-link:hover {
-            color: var(--text-accent);
-        }
-        
-        .nav-cta {
-            background: var(--text-accent);
-            color: var(--bg-primary);
-            padding: var(--space-2) var(--space-4);
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.875rem;
-            transition: all 0.2s ease;
-        }
-        
-        .nav-cta:hover {
-            background: #1f6feb;
-            transform: translateY(-1px);
-        }
-        
-        /* Main Content */
-        .main {
-            padding-top: 80px;
-        }
-        
-        /* Hero Section - README style */
-        .hero {
-            padding: var(--space-24) 0 var(--space-16) 0;
-            text-align: center;
-        }
-        
-        .hero-title {
-            font-size: clamp(2.5rem, 5vw, 4rem);
-            font-weight: 800;
-            margin-bottom: var(--space-6);
-            line-height: 1.1;
-        }
-        
-        .hero-subtitle {
-            font-size: 1.25rem;
-            color: var(--text-secondary);
-            margin-bottom: var(--space-8);
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .hero-quote {
-            font-style: italic;
-            color: var(--text-secondary);
-            margin-bottom: var(--space-2);
-            font-size: 1.1rem;
-        }
-        
-        .hero-attribution {
-            color: var(--text-accent);
-            font-size: 0.9rem;
-            margin-bottom: var(--space-12);
-        }
-        
-        /* Quick Start Section */
-        .quick-start {
-            background: var(--bg-secondary);
+            position: relative; /* Bring container above background effect */
+            z-index: 1;
+            padding: 40px 50px;
             border-radius: 12px;
-            padding: var(--space-8);
-            margin-bottom: var(--space-16);
+            background: var(--bg-light);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--border-color);
+            max-width: 600px;
+            width: 90%;
+            animation: fadeInScale 1.5s ease-out forwards;
         }
-        
-        .section-title {
-            font-size: 2rem;
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        h1 {
+            font-family: 'Roboto Mono', monospace;
             font-weight: 700;
-            margin-bottom: var(--space-6);
-            display: flex;
-            align-items: center;
-            gap: var(--space-3);
+            font-size: 3.5em; /* Larger, more impactful */
+            margin-bottom: 20px;
+            color: var(--accent-primary); /* Use an accent color for the main heading */
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
-        
-        .section-title::before {
-            content: attr(data-emoji);
-            font-size: 1.5em;
-        }
-        
-        .code-block {
-            background: var(--bg-code);
-            border: 1px solid var(--border-default);
-            border-radius: 8px;
-            padding: var(--space-6);
-            margin: var(--space-4) 0;
-            overflow-x: auto;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.875rem;
+
+        p {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+            font-size: 1.4em;
             line-height: 1.6;
-        }
-        
-        .code-comment {
-            color: var(--syntax-comment);
-        }
-        
-        .code-keyword {
-            color: var(--syntax-keyword);
-        }
-        
-        .code-string {
-            color: var(--syntax-string);
-        }
-        
-        .code-function {
-            color: var(--syntax-function);
-        }
-        
-        .code-variable {
-            color: var(--syntax-variable);
-        }
-        
-        /* Features Grid */
-        .features {
-            padding: var(--space-16) 0;
-        }
-        
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: var(--space-8);
-            margin-top: var(--space-8);
-        }
-        
-        .feature-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-default);
-            border-radius: 12px;
-            padding: var(--space-8);
-            transition: transform 0.2s ease, border-color 0.2s ease;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--text-accent);
-        }
-        
-        .feature-icon {
-            font-size: 2rem;
-            margin-bottom: var(--space-4);
-            display: block;
-        }
-        
-        .feature-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: var(--space-3);
-            font-family: 'JetBrains Mono', monospace;
-        }
-        
-        .feature-description {
+            margin-bottom: 15px;
             color: var(--text-secondary);
-            line-height: 1.6;
         }
-        
-        /* Architecture Section */
-        .architecture {
-            padding: var(--space-16) 0;
-            background: var(--bg-secondary);
-        }
-        
-        .architecture-diagram {
-            background: var(--bg-code);
-            border: 1px solid var(--border-default);
-            border-radius: 8px;
-            padding: var(--space-8);
-            margin: var(--space-6) 0;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.875rem;
-            overflow-x: auto;
-        }
-        
-        /* Stats Section */
-        .stats {
-            padding: var(--space-16) 0;
-            text-align: center;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: var(--space-8);
-            margin-top: var(--space-8);
-        }
-        
-        .stat-item {
-            padding: var(--space-6);
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            border: 1px solid var(--border-default);
-        }
-        
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--text-success);
-            display: block;
-            margin-bottom: var(--space-2);
-            font-family: 'JetBrains Mono', monospace;
-        }
-        
-        .stat-label {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-        
-        /* Documentation Links */
-        .docs-section {
-            padding: var(--space-16) 0;
-            background: var(--bg-secondary);
-        }
-        
-        .docs-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: var(--space-6);
-            margin-top: var(--space-8);
-        }
-        
-        .docs-link {
-            display: block;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-default);
-            border-radius: 8px;
-            padding: var(--space-6);
-            text-decoration: none;
+
+        p:first-of-type { /* Specific style for the framework tagline */
+            font-weight: 400;
             color: var(--text-primary);
-            transition: all 0.2s ease;
         }
-        
-        .docs-link:hover {
-            border-color: var(--text-accent);
-            transform: translateY(-1px);
+
+        .genesis-text {
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 700;
+            font-size: 1.8em;
+            color: var(--accent-secondary);
+            margin-top: 30px;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
         }
-        
-        .docs-link-title {
-            font-weight: 600;
-            margin-bottom: var(--space-2);
-            color: var(--text-accent);
-        }
-        
-        .docs-link-desc {
+
+        .date {
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 400;
+            font-size: 1.1em;
             color: var(--text-secondary);
-            font-size: 0.875rem;
-        }
-        
-        /* Call to Action */
-        .cta {
-            padding: var(--space-16) 0;
-            text-align: center;
-        }
-        
-        .cta-buttons {
-            display: flex;
-            gap: var(--space-4);
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: var(--space-8);
-        }
-        
-        .btn {
-            padding: var(--space-3) var(--space-6);
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: var(--space-2);
-        }
-        
-        .btn-primary {
-            background: var(--text-accent);
-            color: var(--bg-primary);
-        }
-        
-        .btn-primary:hover {
-            background: #1f6feb;
-            transform: translateY(-1px);
-        }
-        
-        .btn-secondary {
-            background: transparent;
-            color: var(--text-accent);
-            border: 1px solid var(--text-accent);
-        }
-        
-        .btn-secondary:hover {
-            background: var(--text-accent);
-            color: var(--bg-primary);
-        }
-        
-        /* Footer */
-        .footer {
-            background: var(--bg-tertiary);
-            border-top: 1px solid var(--border-default);
-            padding: var(--space-12) 0;
-            text-align: center;
-        }
-        
-        .footer-content {
-            color: var(--text-secondary);
-        }
-        
-        .footer-links {
-            margin-top: var(--space-6);
-            display: flex;
-            gap: var(--space-6);
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .footer-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-        
-        .footer-link:hover {
-            color: var(--text-accent);
-        }
-        
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-            
-            .hero {
-                padding: var(--space-16) 0;
-            }
-            
-            .hero-title {
-                font-size: 2.5rem;
-            }
-            
-            .features-grid,
-            .docs-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .cta-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .container {
-                padding: 0 var(--space-4);
-            }
-        }
-        
-        /* Animations */
-        .fade-in {
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeIn 0.6s ease forwards;
-        }
-        
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: var(--bg-secondary);
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: var(--border-default);
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--text-secondary);
+            margin-top: 10px;
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <nav class="nav container">
-            <a href="/" class="nav-brand">DenoGenesis</a>
-            
-            <ul class="nav-links">
-                <li><a href="#features" class="nav-link">Features</a></li>
-                <li><a href="#architecture" class="nav-link">Architecture</a></li>
-                <li><a href="#docs" class="nav-link">Documentation</a></li>
-                <li><a href="/about" class="nav-link">About</a></li>
-                <li><a href="/contact" class="nav-link">Contact</a></li>
-            </ul>
-            
-            <a href="/admin/login" class="nav-cta">Get Started</a>
-        </nav>
-    </header>
-
-    <main class="main">
-        <!-- Hero Section -->
-        <section class="hero">
-            <div class="container">
-                <h1 class="hero-title fade-in">
-                    DenoGenesis Framework
-                </h1>
-                <p class="hero-subtitle fade-in">
-                    Unix Philosophy + Modern Runtime = Revolutionary Development Experience
-                </p>
-                <div class="hero-quote fade-in">
-                    "The tools we use have a profound and devious influence on our thinking habits, 
-                    and therefore on our thinking abilities."
-                </div>
-                <div class="hero-attribution fade-in">— Edsger W. Dijkstra</div>
-                
-                <p class="hero-subtitle fade-in">
-                    This framework exists because of <strong>AI-human collaboration</strong>. Not AI replacing human creativity, 
-                    but AI amplifying human intuition. The result: architecture that feels both familiar and alien, 
-                    built on principles older than computers but implemented with techniques that didn't exist last year.
-                </p>
-            </div>
-        </section>
-
-        <!-- Quick Start -->
-        <section class="quick-start container fade-in">
-            <h2 class="section-title" data-emoji="⚡">Quick Start: The Ritual</h2>
-            
-            <div class="code-block">
-<span class="code-comment"># Clone the genesis</span>
-<span class="code-keyword">git clone</span> <span class="code-string">https://github.com/grenas405/deno-genesis.git</span>
-<span class="code-keyword">cd</span> <span class="code-variable">deno-genesis</span>
-
-<span class="code-comment"># Initialize the primordial database</span>
-<span class="code-function">./core/utils/setup-mariadb.sh</span>
-
-<span class="code-comment"># Launch the first node</span>
-<span class="code-keyword">deno run</span> <span class="code-variable">--allow-all</span> <span class="code-string">sites/okdevs/main.ts</span>
-
-<span class="code-comment"># Visit the emergence</span>
-<span class="code-function">curl</span> <span class="code-string">http://localhost:3002</span>
-            </div>
-            
-            <h3 style="margin-top: var(--space-8); margin-bottom: var(--space-4); color: var(--text-accent);">System Requirements</h3>
-            <ul style="color: var(--text-secondary); list-style: none; padding-left: 0;">
-                <li>🦕 <strong>Deno 2.0+</strong> (Runtime of the future)</li>
-                <li>🗄️ <strong>MariaDB 10.6+</strong> (Persistence layer)</li>
-                <li>🌐 <strong>Nginx</strong> (Network interface)</li>
-                <li>⚙️ <strong>SystemD</strong> (Process orchestration)</li>
-                <li>🐧 <strong>Unix-like OS</strong> (Ubuntu 22.04+ recommended)</li>
-            </ul>
-        </section>
-
-        <!-- Features -->
-        <section class="features" id="features">
-            <div class="container">
-                <h2 class="section-title" data-emoji="🎯">What Makes DenoGenesis Different</h2>
-                
-                <div class="features-grid">
-                    <div class="feature-card fade-in">
-                        <span class="feature-icon">🔧</span>
-                        <h3 class="feature-title">Unix Philosophy Renaissance</h3>
-                        <p class="feature-description">
-                            Brings back the elegance of Unix principles with modern capabilities:
-                            Do one thing well, composable by design, text-based configuration,
-                            direct execution with no build pipelines.
-                        </p>
-                    </div>
-                    
-                    <div class="feature-card fade-in">
-                        <span class="feature-icon">🏢</span>
-                        <h3 class="feature-title">Real Business Results</h3>
-                        <p class="feature-description">
-                            Not theoretical - deployed in production with quantified outcomes.
-                            80% cost reduction, sub-100ms response times, 100% uptime during
-                            Oklahoma storms. Enterprise performance from individual developers.
-                        </p>
-                    </div>
-                    
-                    <div class="feature-card fade-in">
-                        <span class="feature-icon">🤖</span>
-                        <h3 class="feature-title">AI-Augmented Development</h3>
-                        <p class="feature-description">
-                            Framework designed for human-AI collaboration. LLM-friendly architecture,
-                            structured documentation, type-safe composition, and explicit permissions
-                            that both humans and AI can understand.
-                        </p>
-                    </div>
-                    
-                    <div class="feature-card fade-in">
-                        <span class="feature-icon">🏗️</span>
-                        <h3 class="feature-title">Hub-and-Spoke Architecture</h3>
-                        <p class="feature-description">
-                            Centralized framework core with isolated site instances. Shared utilities
-                            and patterns, independent deployments, unified monitoring, and
-                            zero-conflict multi-tenancy.
-                        </p>
-                    </div>
-                    
-                    <div class="feature-card fade-in">
-                        <span class="feature-icon">🛡️</span>
-                        <h3 class="feature-title">Security by Design</h3>
-                        <p class="feature-description">
-                            Explicit permission models, secure defaults, input validation,
-                            SQL injection prevention, and comprehensive audit trails.
-                            Security that doesn't get in the way.
-                        </p>
-                    </div>
-                    
-                    <div class="feature-card fade-in">
-                        <span class="feature-icon">🎯</span>
-                        <h3 class="feature-title">Local-First Philosophy</h3>
-                        <p class="feature-description">
-                            Applications that work offline, sync when available, prioritize
-                            user agency, ensure data portability, and maintain business
-                            independence from vendor platforms.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Architecture -->
-        <section class="architecture" id="architecture">
-            <div class="container">
-                <h2 class="section-title" data-emoji="🏛️">The Architecture</h2>
-                
-                <div class="architecture-diagram">
-<span class="code-comment">// DenoGenesis Hub-and-Spoke Architecture</span>
-<span class="code-keyword">core/</span>                    <span class="code-comment">// Centralized framework</span>
-├── <span class="code-function">middleware/</span>         <span class="code-comment">// HTTP request processing</span>
-├── <span class="code-function">database/</span>          <span class="code-comment">// Universal schema + connections</span>
-├── <span class="code-function">utils/</span>             <span class="code-comment">// Shared utilities</span>
-└── <span class="code-function">types/</span>             <span class="code-comment">// TypeScript definitions</span>
-
-<span class="code-keyword">sites/</span>                  <span class="code-comment">// Independent applications</span>
-├── <span class="code-string">okdevs/</span>              <span class="code-comment">// Developer community (port 3002)</span>
-├── <span class="code-string">heavenly-roofing/</span>    <span class="code-comment">// Business site (port 3003)</span>
-└── <span class="code-string">your-project/</span>        <span class="code-comment">// Your application (port 30XX)</span>
-
-<span class="code-comment">// Each site imports core modules</span>
-<span class="code-keyword">import</span> { <span class="code-variable">middleware</span>, <span class="code-variable">db</span> } <span class="code-keyword">from</span> <span class="code-string">"../../core/mod.ts"</span>;
-                </div>
-                
-                <p style="color: var(--text-secondary); margin-top: var(--space-6);">
-                    This pattern allows shared infrastructure with complete application isolation.
-                    Update the framework once, benefit everywhere. Deploy sites independently,
-                    monitor centrally.
-                </p>
-            </div>
-        </section>
-
-        <!-- Stats -->
-        <section class="stats">
-            <div class="container">
-                <h2 class="section-title" data-emoji="📊">By the Numbers</h2>
-                
-                <div class="stats-grid">
-                    <div class="stat-item fade-in">
-                        <span class="stat-number">80%</span>
-                        <span class="stat-label">Cost Reduction vs Traditional</span>
-                    </div>
-                    <div class="stat-item fade-in">
-                        <span class="stat-number">&lt;100ms</span>
-                        <span class="stat-label">Average Response Time</span>
-                    </div>
-                    <div class="stat-item fade-in">
-                        <span class="stat-number">99.9%</span>
-                        <span class="stat-label">Production Uptime</span>
-                    </div>
-                    <div class="stat-item fade-in">
-                        <span class="stat-number">0</span>
-                        <span class="stat-label">Security Incidents</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Documentation -->
-        <section class="docs-section" id="docs">
-            <div class="container">
-                <h2 class="section-title" data-emoji="📖">The Deep Documentation</h2>
-                <p style="color: var(--text-secondary); margin-bottom: var(--space-8);">
-                    <em>"The best documentation is the code itself."</em> — Clean Code
-                </p>
-                
-                <div class="docs-grid">
-                    <a href="/about" class="docs-link">
-                        <div class="docs-link-title">🚀 Getting Started</div>
-                        <div class="docs-link-desc">Installation, quick start, and your first site</div>
-                    </a>
-                    
-                    <a href="/services" class="docs-link">
-                        <div class="docs-link-title">🏗️ Framework Architecture</div>
-                        <div class="docs-link-desc">Hub-and-spoke pattern and core concepts</div>
-                    </a>
-                    
-                    <a href="/contact" class="docs-link">
-                        <div class="docs-link-title">🤖 AI-Augmented Development</div>
-                        <div class="docs-link-desc">Human-machine collaboration workflows</div>
-                    </a>
-                    
-                    <a href="/admin/login" class="docs-link">
-                        <div class="docs-link-title">🔒 Security Patterns</div>
-                        <div class="docs-link-desc">Defense-in-depth implementation</div>
-                    </a>
-                    
-                    <a href="/services" class="docs-link">
-                        <div class="docs-link-title">📊 Database Schema</div>
-                        <div class="docs-link-desc">Universal multi-tenancy design</div>
-                    </a>
-                    
-                    <a href="/contact" class="docs-link">
-                        <div class="docs-link-title">🚀 Deployment Strategies</div>
-                        <div class="docs-link-desc">Zero-downtime production workflows</div>
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        <!-- Call to Action -->
-        <section class="cta">
-            <div class="container">
-                <h2 class="section-title" data-emoji="🚀">The Paradox</h2>
-                <p style="color: var(--text-secondary); max-width: 800px; margin: 0 auto var(--space-8) auto;">
-                    How do you document a framework that built itself? How do you explain architecture 
-                    that emerged from collaboration between human intuition and artificial intelligence? 
-                    How do you capture 10 years of computer science compressed into 10 months of pure creation?
-                </p>
-                <p style="color: var(--text-secondary); margin-bottom: var(--space-8);">
-                    You don't. You let it speak for itself.
-                </p>
-                
-                <div class="code-block" style="max-width: 600px; margin: 0 auto var(--space-8) auto;">
-<span class="code-comment">// The framework in its simplest form</span>
-<span class="code-keyword">export function</span> <span class="code-function">genesis</span>(): <span class="code-variable">Promise</span>&lt;<span class="code-keyword">void</span>&gt; {
-  <span class="code-keyword">return new</span> <span class="code-function">Promise</span>((<span class="code-variable">resolve</span>) => {
-    <span class="code-function">console.log</span>(<span class="code-string">"Hello, World. I exist now."</span>);
-    <span class="code-function">resolve</span>();
-  });
-}
-                </div>
-                
-                <div class="cta-buttons">
-                    <a href="/services" class="btn btn-primary">
-                        <span>Explore the Framework
+    <div class="container">
+        <h1>Coming Soon.</h1>
+        <p>A meta framework for digital sovereignty.</p>
+        <p class="genesis-text">Deno Genesis</p>
+        <div class="date">September 26, 1995</div>
+    </div>
+</body>
+</html>
