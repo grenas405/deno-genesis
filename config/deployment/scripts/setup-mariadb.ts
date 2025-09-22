@@ -1,4 +1,4 @@
-#!/usr/bin/env -S deno run --allow-run --allow-read --allow-write --allow-net
+#!/usr/bin/env -S deno run --allow-sys --allow-env --allow-run --allow-read --allow-write --allow-net
 
 /**
  * Universal Deno Genesis MariaDB Setup Utility
