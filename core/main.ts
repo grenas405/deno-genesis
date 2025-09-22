@@ -453,7 +453,7 @@ async function main(): Promise<void> {
       environment: DENO_ENV,
       port: PORT,
       staticFiles: {
-        root: `${Deno.cwd()}/static`,
+        root: `${Deno.cwd()}/public`,
         enableCaching: DENO_ENV === 'production',
         maxAge: DENO_ENV === 'production' ? 86400 : 300,
       },
