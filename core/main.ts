@@ -579,7 +579,7 @@ async function main(): Promise<void> {
     };
 
     // Create middleware stack (now includes advanced static file handling)
-    const { middlewares, monitor } = createMiddlewareStack(middlewareConfig);
+    const { middlewares, monitor } = await createMiddlewareStack(middlewareConfig);
 
     ConsoleStyler.logSuccess("Advanced middleware stack configured", {
       middlewareCount: middlewares.length,
