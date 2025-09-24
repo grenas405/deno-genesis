@@ -15,7 +15,7 @@
  * All imports centralized through mod.ts for version consistency.
  *
  * @author Pedro M. Dominguez - Dominguez Tech Solutions LLC
- * @version 2.1.0-enhanced-logging
+ * @version 2.1.1-static-middleware
  * @license AGPL-3.0
  * @framework DenoGenesis Framework
  * @follows Unix Philosophy + Centralized Module Pattern
@@ -29,7 +29,8 @@
 import {
   // Core Oak Framework - HTTP server functionality
   Application,
-  send,
+  // Remove send import - no longer using simple static handler
+  // send,
 
   // Environment Management - Configuration loading
   loadEnv,
@@ -39,6 +40,11 @@ import {
   createMiddlewareStack,
   MiddlewareManager,
   type MiddlewareConfig,
+
+  // Static File Middleware - Advanced static file handling
+  StaticFileAnalytics,
+  StaticFileUtils,
+  StaticFilePresets,
 
   // Database Layer - Data persistence
   db,
@@ -157,11 +163,12 @@ function generateAppConfig(): any {
       "Unix Philosophy Compliant",
       "Centralized Module System",
       "Type-Safe Routing",
-      "Essential Middleware Stack",
+      "Advanced Static File Serving",
       "Enterprise Logging",
       "Database Integration",
       "Security Hardened",
-      "Performance Monitoring"
+      "Performance Monitoring",
+      "Static File Analytics"
     ],
     database: "SQLite with Enterprise Extensions",
     ai: {
@@ -181,6 +188,7 @@ function collectDependencyInfo(): DependencyInfo[] {
     { name: "DotEnv", version: "3.2.2", status: "loaded" },
     { name: "DenoGenesis Router", version: VERSION, status: "loaded" },
     { name: "DenoGenesis Middleware", version: VERSION, status: "loaded" },
+    { name: "Static File Handler", version: VERSION, status: "loaded" },
     { name: "Process Handlers", version: VERSION, status: "loaded" },
     { name: "MIME Type Manager", version: VERSION, status: "loaded" },
     { name: "Framework Validator", version: VERSION, status: "loaded" },
@@ -308,7 +316,7 @@ function createRequestLogger() {
 }
 
 /**
- * Display application performance metrics
+ * Display application performance metrics with static file analytics
  */
 function displayPerformanceMetrics() {
   const uptime = Date.now() - appMetrics.startTime;
@@ -332,6 +340,13 @@ function displayPerformanceMetrics() {
     { label: "DB Connections", value: appMetrics.dbConnections.toString() }
   ];
 
+  // Add static file analytics
+  const staticStats = StaticFileAnalytics.getTotalStats();
+  metrics.push(
+    { label: "Static Files Served", value: staticStats.totalRequests.toString() },
+    { label: "Static Bandwidth", value: formatBytes(staticStats.totalBandwidth) }
+  );
+
   try {
     const memUsage = Deno.memoryUsage();
     metrics.push(
@@ -343,6 +358,16 @@ function displayPerformanceMetrics() {
   }
 
   ConsoleStyler.printTable(metrics, "Application Metrics");
+
+  // Display popular static files if any
+  const popularFiles = StaticFileAnalytics.getPopularFiles(3);
+  if (popularFiles.length > 0) {
+    const staticMetrics = popularFiles.map(file => ({
+      label: file.path.replace(`${Deno.cwd()}/public`, ''),
+      value: `${file.requests} requests`
+    }));
+    ConsoleStyler.printTable(staticMetrics, "Popular Static Files");
+  }
 }
 
 /**
@@ -359,6 +384,20 @@ function setupGracefulShutdown(app: Application) {
       // Display final metrics
       displayPerformanceMetrics();
 
+      // Generate static file report if development
+      if (DENO_ENV === 'development') {
+        try {
+          const report = await StaticFileUtils.generateReport(`${Deno.cwd()}/public`);
+          ConsoleStyler.logInfo("Static File Analytics Report Generated", {
+            totalRequests: report.analytics.totalRequests,
+            popularFiles: report.popularFiles.length,
+            supportedExtensions: report.systemInfo.supportedExtensions.length
+          });
+        } catch (error) {
+          ConsoleStyler.logWarning("Could not generate static file report", { error: error.message });
+        }
+      }
+
       // Close database connections
       if (bootstrapConfig.enableDatabaseConnection) {
         await closeDatabaseConnection();
@@ -366,7 +405,7 @@ function setupGracefulShutdown(app: Application) {
       }
 
       spinner.stop("Application shutdown completed successfully");
-      ConsoleStyler.logSuccess("Goodbye! 👋");
+      ConsoleStyler.logSuccess("Goodbye!");
 
       Deno.exit(0);
     } catch (error) {
@@ -384,6 +423,50 @@ function setupGracefulShutdown(app: Application) {
       stack: error.stack
     });
   });
+}
+
+/**
+ * Validate static file directory and setup
+ */
+async function validateStaticSetup(staticRoot: string): Promise<boolean> {
+  try {
+    const stat = await Deno.stat(staticRoot);
+    if (!stat.isDirectory) {
+      ConsoleStyler.logError(`Static root is not a directory: ${staticRoot}`);
+      return false;
+    }
+
+    // Check for index files
+    const indexFiles = ['index.html', 'index.htm'];
+    const homeDir = `${staticRoot}/pages/home`;
+    
+    let hasIndex = false;
+    for (const indexFile of indexFiles) {
+      try {
+        const indexPath = `${homeDir}/${indexFile}`;
+        const indexStat = await Deno.stat(indexPath);
+        if (indexStat.isFile) {
+          hasIndex = true;
+          ConsoleStyler.logSuccess(`Found home page: ${indexPath}`);
+          break;
+        }
+      } catch {
+        // Continue checking
+      }
+    }
+
+    if (!hasIndex) {
+      ConsoleStyler.logWarning(`No index files found in ${homeDir}`);
+    }
+
+    return true;
+  } catch (error) {
+    ConsoleStyler.logError("Static file directory validation failed", {
+      error: error.message,
+      path: staticRoot
+    });
+    return false;
+  }
 }
 
 // ============================================================================
@@ -439,7 +522,17 @@ async function main(): Promise<void> {
     }
 
     // ========================================================================
-    // Phase 4: Application and Middleware Setup
+    // Phase 4: Static File Setup Validation
+    // ========================================================================
+
+    const staticRoot = `${Deno.cwd()}/public`;
+    const staticSetupValid = await validateStaticSetup(staticRoot);
+    if (!staticSetupValid) {
+      ConsoleStyler.logWarning("Static file setup validation failed - static serving may not work properly");
+    }
+
+    // ========================================================================
+    // Phase 5: Application and Middleware Setup
     // ========================================================================
 
     ConsoleStyler.logSection("🚀 Application Initialization", "blue");
@@ -448,14 +541,17 @@ async function main(): Promise<void> {
     const app = new Application();
     ConsoleStyler.logSuccess("Oak application instance created");
 
-    // Create and configure middleware stack
+    // Create and configure middleware stack with advanced static file handling
     const middlewareConfig: MiddlewareConfig = {
       environment: DENO_ENV,
       port: PORT,
       staticFiles: {
-        root: `${Deno.cwd()}/public`,
+        root: staticRoot,
         enableCaching: DENO_ENV === 'production',
         maxAge: DENO_ENV === 'production' ? 86400 : 300,
+        extensions: ['.html', '.htm', '.css', '.js', '.mjs', '.json', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.otf'],
+        index: 'index.html',
+        dotFiles: 'deny' // Security: deny hidden files
       },
       cors: {
         allowedOrigins: CORS_ORIGINS,
@@ -482,71 +578,60 @@ async function main(): Promise<void> {
       },
     };
 
-    // CORRECT: Destructure the returned object to get the middlewares array
+    // Create middleware stack (now includes advanced static file handling)
     const { middlewares, monitor } = createMiddlewareStack(middlewareConfig);
 
-    ConsoleStyler.logSuccess("Middleware stack configured", {
+    ConsoleStyler.logSuccess("Advanced middleware stack configured", {
       middlewareCount: middlewares.length,
+      staticFileHandling: "Advanced (with caching, compression, analytics)",
       cors: middlewareConfig.cors.allowedOrigins.length > 0,
-      security: middlewareConfig.security.enableHSTS
+      security: middlewareConfig.security.enableHSTS,
+      caching: middlewareConfig.staticFiles.enableCaching
     });
 
     // Add simple request counter (metrics only - let middleware handle logging)
     app.use(createRequestLogger());
 
-    // Apply essential middleware stack
+    // Apply essential middleware stack (now includes static file middleware)
     middlewares.forEach((middleware) => {
       app.use(middleware);
     });
 
-    ConsoleStyler.logSuccess(`Essential middleware applied (${middlewares.length} components + request counter)`);
+    ConsoleStyler.logSuccess(`Complete middleware stack applied (${middlewares.length} components + request counter)`);
 
     // Add router
     app.use(router.routes());
     app.use(router.allowedMethods());
     ConsoleStyler.logSuccess("Router configured and mounted");
 
-  // ========================================================================
-// Phase 5: Static File Serving Configuration
-// ========================================================================
+    // ========================================================================
+    // Phase 6: Static File Analytics Setup
+    // ========================================================================
 
-// Configure static file serving with custom index page routing
-app.use(async (ctx, next) => {
-  try {
-    // Handle root path - serve home page
-    if (ctx.request.url.pathname === "/" || ctx.request.url.pathname === "/home") {
-      await send(ctx, "/pages/home/index.html", {
-        root: `${Deno.cwd()}/public`,
-      });
-      return;
-    }
+    // Reset analytics for fresh start
+    StaticFileAnalytics.reset();
+    ConsoleStyler.logSuccess("Static file analytics initialized");
 
-    // Handle all other static files
-    await send(ctx, ctx.request.url.pathname, {
-      root: `${Deno.cwd()}/public`,
+    // Display static file configuration details
+    const supportedExtensions = getSupportedExtensions();
+    ConsoleStyler.logSuccess("Static file system configured", {
+      supportedExtensions: supportedExtensions.length,
+      mimeTypes: Object.keys(DEFAULT_MIME_TYPES).length,
+      caching: middlewareConfig.staticFiles.enableCaching,
+      compression: DENO_ENV === 'production' ? "gzip" : "disabled",
+      analytics: "enabled",
+      securityHeaders: "enabled"
     });
-  } catch {
-    // If file not found, continue to next middleware
-    await next();
-  }
-});
-
-const supportedExtensions = getSupportedExtensions();
-ConsoleStyler.logSuccess("Static file serving configured", {
-  supportedExtensions: supportedExtensions.length,
-  mimeTypes: Object.keys(DEFAULT_MIME_TYPES).length,
-  homePage: "pages/home/index.html"
-});
 
     // ========================================================================
-    // Phase 6: Graceful Shutdown Setup
+    // Phase 7: Graceful Shutdown Setup
     // ========================================================================
 
     setupGracefulShutdown(app);
     ConsoleStyler.logSuccess("Graceful shutdown handlers registered");
 
     // ========================================================================
-    // Phase 7: Server Startup
+    // Phase 8: Server Startup
     // ========================================================================
 
     ConsoleStyler.logSection("🌐 Server Startup", "green");
@@ -560,12 +645,14 @@ ConsoleStyler.logSuccess("Static file serving configured", {
     ConsoleStyler.logBox([
       `Server starting on ${bootstrapConfig.host}:${bootstrapConfig.port}`,
       `Environment: ${DENO_ENV}`,
-      `Framework: DenoGenesis v${VERSION}`
+      `Framework: DenoGenesis v${VERSION}`,
+      `Static Files: Advanced Middleware`,
+      `Analytics: Enabled`
     ], "Server Configuration", "green");
-
 
     ConsoleStyler.asciiArt('DENOGENESIS');
     ConsoleStyler.asciiArt('READY');
+    
     // Start the server
     ConsoleStyler.logSuccess(`🚀 Server listening on http://${bootstrapConfig.host}:${bootstrapConfig.port}`);
     ConsoleStyler.logInfo("Press Ctrl+C to gracefully shutdown the server");
@@ -573,7 +660,7 @@ ConsoleStyler.logSuccess("Static file serving configured", {
     // Start metrics display interval in development
     if (DENO_ENV === 'development') {
       setInterval(() => {
-        if (appMetrics.totalRequests > 0) {
+        if (appMetrics.totalRequests > 0 || StaticFileAnalytics.getTotalStats().totalRequests > 0) {
           displayPerformanceMetrics();
         }
       }, 30000); // Display metrics every 30 seconds
