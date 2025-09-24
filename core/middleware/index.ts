@@ -66,7 +66,7 @@ export interface MiddlewareConfig {
 // 🚀 MIDDLEWARE STACK FACTORY
 // ================================================================================
 
-export function createMiddlewareStack(config: MiddlewareConfig) {
+export async function createMiddlewareStack(config: MiddlewareConfig) {
   // Create performance monitor instance
   let monitor: PerformanceMonitor;
 
