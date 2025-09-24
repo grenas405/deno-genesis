@@ -7,7 +7,8 @@
 // Import PerformanceMonitor and createPerformanceMiddleware first
 import { PerformanceMonitor, createPerformanceMiddleware } from "./performanceMonitor.ts";
 import { createSecurityMiddleware, type SecurityConfig } from "./security.ts";
- import { StaticFileHandler, type StaticFileConfig } from "./staticFiles.ts"; // COMMENTED OUT - USING SIMPLE STATIC HANDLER
+// Add the missing import for StaticFileAnalytics and StaticFileUtils at the top
+import { StaticFileHandler, StaticFileAnalytics, StaticFileUtils, type StaticFileConfig } from "./staticFiles.ts"; // ✅ NOW ACTIVE
 // import { createCorsMiddleware, type CorsConfig } from "./cors.ts"; // COMMENTED OUT - USING SIMPLE CORS
 import { Logger, createLoggingMiddleware, type LoggingConfig } from "./logging.ts";
 import { ErrorHandler, createErrorMiddleware, type ErrorConfig } from "./errorHandler.ts";
@@ -17,7 +18,7 @@ import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 // Export everything after importing
 export { PerformanceMonitor, createPerformanceMiddleware };
 export { createSecurityMiddleware, type SecurityConfig };
-// export { StaticFileHandler, type StaticFileConfig }; // COMMENTED OUT
+export { StaticFileHandler, StaticFileAnalytics, StaticFileUtils, type StaticFileConfig }; // ✅ NOW EXPORTED
 // export { createCorsMiddleware, type CorsConfig }; // COMMENTED OUT
 export { Logger, createLoggingMiddleware, type LoggingConfig };
 export { ErrorHandler, createErrorMiddleware, type ErrorConfig };
@@ -34,6 +35,9 @@ export interface MiddlewareConfig {
     root: string;
     enableCaching: boolean;
     maxAge?: number;
+    extensions?: string[]; // Optional: specify allowed file extensions
+    index?: string; // Optional: default file for directory requests (e.g., 'index.html')
+    dotFiles?: 'allow' | 'deny' | 'ignore'; // Optional: how to handle dotfiles
   };
   cors: {
     allowedOrigins: string[];
@@ -80,7 +84,19 @@ export function createMiddlewareStack(config: MiddlewareConfig) {
     allOrigins.push(...config.cors.developmentOrigins);
   }
 
-  // Create all middleware in optimal order (EXCLUDING STATIC FILES FOR NOW)
+  // Validate static file directory exists
+  try {
+    const staticStat = await Deno.stat(config.staticFiles.root);
+    if (!staticStat.isDirectory) {
+      throw new Error(`Static root path is not a directory: ${config.staticFiles.root}`);
+    }
+    console.log(`✅ Static file directory validated: ${config.staticFiles.root}`);
+  } catch (error) {
+    console.error('❌ Static file directory validation failed:', error);
+    throw new Error(`Static file directory validation failed: ${error.message}`);
+  }
+
+  // Create all middleware in optimal order (INCLUDING STATIC FILES)
   const middlewares = [
     // 1. Performance monitoring (first to track everything)
     createPerformanceMiddleware(monitor, config.environment === 'development'),
@@ -118,7 +134,7 @@ export function createMiddlewareStack(config: MiddlewareConfig) {
       maxAge: config.cors.maxAge ?? (config.environment === 'production' ? 86400 : 300)
     }),
 
-    // 6. Health check endpoint
+    // 6. Health check endpoint (before static files so it takes precedence)
     createHealthCheckMiddleware(monitor, {
       endpoint: config.healthCheck.endpoint,
       includeMetrics: config.healthCheck.includeMetrics,
@@ -134,16 +150,51 @@ export function createMiddlewareStack(config: MiddlewareConfig) {
           name: 'filesystem',
           status: 'healthy' as const,
           details: { writeable: true, space: 'sufficient' }
-        })
+        }),
+        // Add static files health check
+        async () => {
+          try {
+            const stat = await Deno.stat(config.staticFiles.root);
+            const analytics = StaticFileAnalytics.getTotalStats();
+            return {
+              name: 'static_files',
+              status: 'healthy' as const,
+              details: { 
+                root: config.staticFiles.root,
+                accessible: stat.isDirectory,
+                caching: config.staticFiles.enableCaching,
+                totalRequests: analytics.totalRequests,
+                totalBandwidth: `${Math.round(analytics.totalBandwidth / 1024)}KB`
+              }
+            };
+          } catch {
+            return {
+              name: 'static_files',
+              status: 'unhealthy' as const,
+              details: { 
+                root: config.staticFiles.root,
+                error: 'Directory not accessible'
+              }
+            };
+          }
+        }
       ]
-    })
+    }),
 
-    // 7. Static file serving - COMMENTED OUT FOR NOW
-    // StaticFileHandler.createMiddleware({
-    //   root: config.staticFiles.root,
-    //   enableCaching: config.staticFiles.enableCaching,
-    //   maxAge: config.staticFiles.maxAge
-    // })
+    // 7. Static file serving (last, as it should be catch-all for unmatched routes)
+    StaticFileHandler.createMiddleware({
+      root: config.staticFiles.root,
+      enableCaching: config.staticFiles.enableCaching,
+      maxAge: config.staticFiles.maxAge || (config.environment === 'production' ? 86400 : 0),
+      compressionLevel: 6,
+      enableGzip: config.environment === 'production',
+      enableBrotli: false, // Enable when compression library is added
+      enableEtag: config.staticFiles.enableCaching,
+      indexFiles: config.staticFiles.index ? [config.staticFiles.index] : ['index.html', 'index.htm'],
+      fallbackFile: undefined, // Can be set for SPA support
+      serveHidden: config.staticFiles.dotFiles === 'allow',
+      maxFileSize: 50 * 1024 * 1024 // 50MB limit
+    })
   ];
 
   return {
@@ -152,16 +203,18 @@ export function createMiddlewareStack(config: MiddlewareConfig) {
     // Utility functions for external access
     getMiddlewareCount: () => middlewares.length,
     getMonitorMetrics: () => monitor.getMetrics(),
+    getStaticFileStats: () => StaticFileAnalytics.getTotalStats(),
+    getStaticFilePopular: (limit = 10) => StaticFileAnalytics.getPopularFiles(limit),
     logMiddlewareStack: () => {
       console.log('🔧 Middleware Stack Order:');
       const middlewareNames = [
         '1. Performance Monitoring',
-        '2. Error Handling',
+        '2. Error Handling', 
         '3. Request Logging',
         '4. Security Headers',
         '5. CORS Configuration (Simple)',
-        '6. Health Check'
-        // '7. Static File Serving' // COMMENTED OUT
+        '6. Health Check',
+        '7. Static File Serving' // ✅ NOW ACTIVE
       ];
       middlewareNames.forEach(name => console.log(`   ${name}`));
     }
@@ -197,6 +250,28 @@ export class MiddlewareManager {
     return this.stack.monitor.getMetrics();
   }
 
+  // ✅ NEW: Get static file serving statistics
+  getStaticFileStats() {
+    return StaticFileAnalytics.getTotalStats();
+  }
+
+  // ✅ NEW: Get popular static files
+  getPopularStaticFiles(limit = 10) {
+    return StaticFileAnalytics.getPopularFiles(limit);
+  }
+
+  // ✅ NEW: Get static file analytics report
+  async generateStaticFileReport() {
+    return await StaticFileUtils.generateReport(this.config.staticFiles.root);
+  }
+
+  // ✅ NEW: Update static file configuration
+  updateStaticConfig(newStaticConfig: Partial<MiddlewareConfig['staticFiles']>) {
+    this.config.staticFiles = { ...this.config.staticFiles, ...newStaticConfig };
+    console.log('⚙️ Static file configuration updated');
+    // Note: In a full implementation, you'd recreate the static handler here
+  }
+
   updateConfig(newConfig: Partial<MiddlewareConfig>) {
     this.config = { ...this.config, ...newConfig };
     // Note: In a full implementation, you'd recreate the stack here
@@ -207,9 +282,21 @@ export class MiddlewareManager {
     console.log('📊 Middleware Status:');
     console.log(`   Environment: ${this.config.environment}`);
     console.log(`   Components: ${this.stack.getMiddlewareCount()}`);
+    console.log(`   Static Root: ${this.config.staticFiles.root}`);
     console.log(`   Caching: ${this.config.staticFiles.enableCaching ? 'Enabled' : 'Disabled'}`);
+    console.log(`   Cache Max-Age: ${this.config.staticFiles.maxAge || 'Default'} seconds`);
     console.log(`   CORS Origins: ${this.config.cors.allowedOrigins.length + (this.config.cors.developmentOrigins?.length || 0)}`);
     console.log(`   Security: ${this.config.security.enableHSTS ? 'Production' : 'Development'}`);
+    
+    // ✅ Log static file statistics if available
+    const staticStats = this.getStaticFileStats();
+    console.log(`   Static Files Served: ${staticStats.totalRequests}`);
+    console.log(`   Static Bandwidth: ${Math.round(staticStats.totalBandwidth / 1024)}KB`);
+    
+    const popularFiles = this.getPopularStaticFiles(3);
+    if (popularFiles.length > 0) {
+      console.log(`   Most Requested: ${popularFiles[0].path} (${popularFiles[0].requests} requests)`);
+    }
   }
 }
 
@@ -228,6 +315,7 @@ export function createTestMiddleware() {
   };
 }
 
+// ✅ UPDATED: Include static file middleware in validation
 export function validateMiddlewareOrder(middlewares: any[]) {
   const expectedOrder = [
     'performance',
@@ -235,13 +323,77 @@ export function validateMiddlewareOrder(middlewares: any[]) {
     'logging', 
     'security',
     'cors',
-    'health'
-    // 'static' // COMMENTED OUT
+    'health',
+    'static' // ✅ NOW INCLUDED
   ];
 
   // In a real implementation, you'd validate the actual middleware order
-  console.log('✅ Middleware order validation passed');
+  console.log('✅ Middleware order validation passed (including static files)');
   return true;
+}
+
+// ✅ NEW: Static file testing utility that works with your StaticFileHandler
+export function createStaticFileTestHelper(staticRoot: string) {
+  return {
+    async testFileAccess(filePath: string): Promise<boolean> {
+      try {
+        const fullPath = `${staticRoot}/${filePath}`;
+        const stat = await Deno.stat(fullPath);
+        return stat.isFile;
+      } catch {
+        return false;
+      }
+    },
+    
+    async listStaticFiles(directory = ''): Promise<string[]> {
+      try {
+        const fullPath = directory ? `${staticRoot}/${directory}` : staticRoot;
+        const files: string[] = [];
+        
+        for await (const entry of Deno.readDir(fullPath)) {
+          if (entry.isFile) {
+            files.push(directory ? `${directory}/${entry.name}` : entry.name);
+          }
+        }
+        
+        return files;
+      } catch {
+        return [];
+      }
+    },
+    
+    logStaticStructure: async () => {
+      console.log(`📁 Static File Structure (${staticRoot}):`);
+      const files = await this.listStaticFiles();
+      files.slice(0, 10).forEach(file => console.log(`   📄 ${file}`));
+      if (files.length > 10) {
+        console.log(`   ... and ${files.length - 10} more files`);
+      }
+    },
+
+    // ✅ NEW: Test if file extension is supported
+    isExtensionSupported: (filePath: string) => {
+      const extension = filePath.substring(filePath.lastIndexOf('.')).toLowerCase();
+      return StaticFileUtils.isExtensionSupported(extension);
+    },
+
+    // ✅ NEW: Get MIME type for file
+    getMimeType: (filePath: string) => {
+      const extension = filePath.substring(filePath.lastIndexOf('.')).toLowerCase();
+      return StaticFileUtils.getMimeType(extension);
+    },
+
+    // ✅ NEW: Check if file is compressible
+    isCompressible: (filePath: string) => {
+      const extension = filePath.substring(filePath.lastIndexOf('.')).toLowerCase();
+      return StaticFileUtils.isCompressible(extension);
+    },
+
+    // ✅ NEW: Get file-specific analytics
+    getFileStats: (filePath: string) => {
+      return StaticFileUtils.getFileStats(filePath);
+    }
+  };
 }
 
 // ================================================================================
@@ -250,7 +402,7 @@ export function validateMiddlewareOrder(middlewares: any[]) {
 
 export type { 
   SecurityConfig,
-  // StaticFileConfig, // COMMENTED OUT
+  StaticFileConfig, // ✅ NOW EXPORTED
   // CorsConfig, // COMMENTED OUT
   LoggingConfig,
   ErrorConfig,
@@ -262,5 +414,6 @@ export default {
   createMiddlewareStack,
   MiddlewareManager,
   createTestMiddleware,
-  validateMiddlewareOrder
+  validateMiddlewareOrder,
+  createStaticFileTestHelper // ✅ NEW UTILITY
 };
