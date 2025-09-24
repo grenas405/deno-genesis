@@ -56,7 +56,7 @@ import {
   PORT,
   DENO_ENV,
   SITE_KEY,
-  SERVER_HOST,
+  DB_HOST,
   CORS_ORIGINS,
   VERSION,
   BUILD_DATE,
@@ -137,7 +137,7 @@ const appMetrics: AppMetrics = {
  */
 const bootstrapConfig: AppBootstrapConfig = {
   port: PORT,
-  host: SERVER_HOST,
+  host: DB_HOST,
   environment: DENO_ENV,
   enableFrameworkIntegrity: true,
   enableDatabaseConnection: true,
