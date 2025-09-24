@@ -350,7 +350,7 @@ EXAMPLES:
     
     console.log(`\n${Colors.CYAN}Next steps:${Colors.RESET}`);
     console.log("1. Update your MariaDB setup script with the new executeSQL function");
-    console.log("2. Use root password: password (change this for production)");
+    console.log("2. Use root password: password! (change this for production)");
     console.log("3. Run your database setup: ./setup-mariadb.ts");
   } else {
     logError("MariaDB root setup failed");
