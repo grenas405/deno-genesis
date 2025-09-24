@@ -39,12 +39,9 @@ import {
   router,
   createMiddlewareStack,
   MiddlewareManager,
+  createStaticFileTestHelper, // ✅ NEW UTILITY
   type MiddlewareConfig,
 
-  // Static File Middleware - Advanced static file handling
-  StaticFileAnalytics,
-  StaticFileUtils,
-  StaticFilePresets,
 
   // Database Layer - Data persistence
   db,

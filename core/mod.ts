@@ -67,11 +67,9 @@ export {
  * Imports middleware management system from middleware/index.ts
  */
 export {
-  staticFileHandler,
-  staticFileAnalytics,
-  staticFileUtils,
   createMiddlewareStack,
   MiddlewareManager,
+  createStaticFileTestHelper, // ✅ NEW UTILITY
   type MiddlewareConfig,
 } from "./middleware/index.ts";
 
