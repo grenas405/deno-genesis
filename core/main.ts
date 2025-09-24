@@ -42,9 +42,9 @@ import {
   createStaticFileTestHelper, // ✅ NEW UTILITY
   type MiddlewareConfig,
  
-  staticFileHandler,
-  staticFileAnalytics,
-  staticFileUtils,
+  StaticFileHandler,
+  StaticFileAnalytics,
+  StaticFileUtils,
 
 
   // Database Layer - Data persistence
