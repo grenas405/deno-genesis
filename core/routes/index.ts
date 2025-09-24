@@ -8,7 +8,7 @@
 // ============================================
 
 import { Router } from "https://deno.land/x/oak@v12.6.1/mod.ts";
-import { ConsoleStyler } from "../mod.ts";
+import { ConsoleStyler } from "../utils/consoleStyler.ts";
 
 // Route module imports
 //import frontendRoutes from "./frontendRoutes.ts";
