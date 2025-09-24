@@ -42,10 +42,9 @@ import {
   createStaticFileTestHelper, // ✅ NEW UTILITY
   type MiddlewareConfig,
  
-  StaticFileHandler,
   StaticFileAnalytics,
+  StaticFileHandler,
   StaticFileUtils,
-
 
   // Database Layer - Data persistence
   db,
@@ -494,7 +493,7 @@ async function main(): Promise<void> {
     await loadEnv({ export: true });
     ConsoleStyler.logSuccess("Environment configuration loaded", {
       port: PORT,
-      host: SERVER_HOST,
+      host: DB_HOST,
       environment: DENO_ENV
     });
 

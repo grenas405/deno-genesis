@@ -104,7 +104,7 @@ export function createSecurityMiddleware(config: SecurityConfig) {
         "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:",
         "img-src 'self' data: https: blob:",
         "media-src 'self' data: https:",
-        "connect-src 'self' https://pedromdominguez.com https://www.pedromdominguez.com",
+        "connect-src 'self'",
         "object-src 'none'",
         "base-uri 'self'",
         "form-action 'self'",
@@ -122,7 +122,7 @@ export function createSecurityMiddleware(config: SecurityConfig) {
         "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:",
         "img-src 'self' data: https: blob:",
         "media-src 'self' data: https:",
-        "connect-src 'self' ws: wss: http://localhost:* http://127.0.0.1:* https://pedromdominguez.com https://www.pedromdominguez.com",
+        "connect-src 'self' ws: wss: http://localhost:* http://127.0.0.1:* ",
         "object-src 'none'",
         "base-uri 'self'"
       ].join('; ');
