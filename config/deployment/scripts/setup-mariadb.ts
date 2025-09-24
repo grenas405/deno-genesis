@@ -2,6 +2,14 @@
 
 /**
  * Universal Deno Genesis MariaDB Setup Utility
+ * 
+ * Combines root authentication setup with complete database configuration:
+ * - Handles different MariaDB authentication scenarios
+ * - Fresh installation (no root password)
+ * - Unix socket authentication  
+ * - Password-based authentication
+ * - Secure setup wizard integration
+ * - Multi-tenant database architecture setup
  *
  * Supports all major Linux package managers:
  * - APT (Debian, Ubuntu, Mint)
@@ -12,16 +20,10 @@
  * - Portage (Gentoo)
  * - XBPS (Void Linux)
  *
- * Unix Philosophy Implementation:
- * - Do one thing well: Setup MariaDB for multi-tenant architecture
- * - Accept text input: Environment variables and command line flags
- * - Produce text output: Structured logging with clear success/error states
- * - Filter and transform: Takes system state → configured database state
- * - Composable: Can be chained with other setup utilities
- *
  * Usage:
  *   deno run --allow-run --allow-read --allow-write --allow-net setup-mariadb.ts
  *   deno run --allow-run --allow-read --allow-write --allow-net setup-mariadb.ts --sample-data
+ *   deno run --allow-run --allow-read --allow-write --allow-net setup-mariadb.ts --interactive
  *   deno run --allow-run --allow-read --allow-write --allow-net setup-mariadb.ts --test-only
  */
 
@@ -41,6 +43,8 @@ interface SetupOptions {
   sampleData: boolean;
   testOnly: boolean;
   verbose: boolean;
+  interactive: boolean;
+  rootSetupOnly: boolean;
   configPath: string;
 }
 
@@ -177,10 +181,10 @@ function logPasswordPrompt(promptType: "root" | "webadmin"): void {
   const userInfo = promptType === "root" 
     ? "MariaDB root user (root@localhost)"
     : "Database user (webadmin)";
-  
+
   console.log(`\n${Colors.YELLOW}[PASSWORD REQUIRED]${Colors.RESET} ${Colors.BOLD}${userInfo}${Colors.RESET}`);
   console.log(`${Colors.CYAN}You will be prompted for the ${promptType === "root" ? "MariaDB root" : "webadmin"} password.${Colors.RESET}`);
-  
+
   if (promptType === "root") {
     console.log(`${Colors.YELLOW}Note: This is the MariaDB root@localhost database password${Colors.RESET}`);
     console.log(`${Colors.YELLOW}      (not your system user password)${Colors.RESET}`);
@@ -194,7 +198,7 @@ function logPasswordPrompt(promptType: "root" | "webadmin"): void {
 // Test different MariaDB authentication methods
 async function testMariaDBConnection(): Promise<AuthMethod> {
   logHeader("Testing MariaDB Root Access");
-  
+
   // Method 1: Unix socket authentication (most common on fresh installs)
   logInfo("Testing Unix socket authentication...");
   try {
@@ -204,7 +208,7 @@ async function testMariaDBConnection(): Promise<AuthMethod> {
       stderr: "piped",
     });
     const { success } = await socketCmd.output();
-    
+
     if (success) {
       logSuccess("Unix socket authentication successful");
       return { method: "socket", success: true, rootPassword: false };
@@ -212,7 +216,7 @@ async function testMariaDBConnection(): Promise<AuthMethod> {
   } catch (error) {
     logWarning(`Unix socket failed: ${(error as Error).message}`);
   }
-  
+
   // Method 2: No password authentication
   logInfo("Testing no-password authentication...");
   try {
@@ -222,7 +226,7 @@ async function testMariaDBConnection(): Promise<AuthMethod> {
       stderr: "piped",
     });
     const { success } = await noPassCmd.output();
-    
+
     if (success) {
       logSuccess("No-password authentication successful");
       return { method: "no-password", success: true, rootPassword: false };
@@ -230,7 +234,7 @@ async function testMariaDBConnection(): Promise<AuthMethod> {
   } catch (error) {
     logWarning(`No-password authentication failed: ${(error as Error).message}`);
   }
-  
+
   // Method 3: Interactive password prompt with clear messaging
   logPasswordPrompt("root");
   try {
@@ -240,7 +244,7 @@ async function testMariaDBConnection(): Promise<AuthMethod> {
       stderr: "inherit",
     });
     const { success } = await passCmd.output();
-    
+
     if (success) {
       logSuccess("Root password authentication successful");
       return { method: "password", success: true, rootPassword: true };
@@ -248,8 +252,116 @@ async function testMariaDBConnection(): Promise<AuthMethod> {
   } catch (error) {
     logWarning(`Password authentication failed: ${(error as Error).message}`);
   }
-  
+
   return { method: "none", success: false, rootPassword: false };
+}
+
+// Setup MariaDB root user properly  
+async function setupMariaDBRoot(): Promise<AuthMethod | null> {
+  logHeader("Setting up MariaDB Root User");
+
+  const authMethod = await testMariaDBConnection();
+
+  if (!authMethod.success) {
+    logError("Cannot connect to MariaDB with any authentication method");
+    logError("Please ensure MariaDB is running and try one of these solutions:");
+    logError("1. Run: sudo mysql -u root");
+    logError("2. Run: mysql_secure_installation");
+    logError("3. Reset root password manually");
+    return null;
+  }
+
+  logInfo(`Connected using: ${authMethod.method} authentication`);
+
+  if (!authMethod.rootPassword) {
+    logWarning("MariaDB root user has no password - this is a security risk");
+    logInfo("Setting up proper root authentication...");
+
+    const setupSQL = `
+      -- Create root@localhost with password if it doesn't exist
+      CREATE USER IF NOT EXISTS 'root'@'localhost' IDENTIFIED BY 'password!';
+      
+      -- Grant all privileges to root@localhost  
+      GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
+      
+      -- Remove anonymous users
+      DELETE FROM mysql.user WHERE User='';
+      
+      -- Remove remote root access
+      DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+      
+      -- Remove test database
+      DROP DATABASE IF EXISTS test;
+      DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
+      
+      -- Reload privileges
+      FLUSH PRIVILEGES;
+    `;
+
+    const executeCmd = authMethod.method === "socket" 
+      ? new Deno.Command("sudo", {
+          args: ["mysql", "-u", "root", "--execute", setupSQL],
+          stdout: "inherit",
+          stderr: "inherit",
+        })
+      : new Deno.Command("mysql", {
+          args: ["-u", "root", "--execute", setupSQL],
+          stdout: "inherit",
+          stderr: "inherit",
+        });
+
+    const { success: setupSuccess } = await executeCmd.output();
+
+    if (setupSuccess) {
+      logSuccess("MariaDB root user configured successfully");
+      logSuccess("Root password set to: password!");
+      logWarning("IMPORTANT: Change this default password for production use!");
+      
+      // Return updated auth method
+      return { method: "password", success: true, rootPassword: true };
+    } else {
+      logError("Failed to configure MariaDB root user");
+      return null;
+    }
+  }
+
+  logSuccess("MariaDB root authentication is already configured");
+  return authMethod;
+}
+
+// Interactive MariaDB setup wizard
+async function runInteractiveSetup(): Promise<boolean> {
+  logHeader("Interactive MariaDB Security Setup");
+
+  logInfo("This will run the MariaDB security setup wizard...");
+  logWarning("Please answer the prompts to secure your MariaDB installation");
+
+  console.log(`
+${Colors.CYAN}You will be asked:${Colors.RESET}
+1. Enter current password for root (probably empty - just press Enter)
+2. Set root password? ${Colors.GREEN}[Y/n]${Colors.RESET} - Choose Y
+3. Remove anonymous users? ${Colors.GREEN}[Y/n]${Colors.RESET} - Choose Y  
+4. Disallow root login remotely? ${Colors.GREEN}[Y/n]${Colors.RESET} - Choose Y
+5. Remove test database? ${Colors.GREEN}[Y/n]${Colors.RESET} - Choose Y
+6. Reload privilege tables? ${Colors.GREEN}[Y/n]${Colors.RESET} - Choose Y
+  `);
+
+  const secureCmd = new Deno.Command("sudo", {
+    args: ["mysql_secure_installation"],
+    stdout: "inherit",
+    stderr: "inherit",
+    stdin: "inherit",
+  });
+
+  const { success } = await secureCmd.output();
+
+  if (success) {
+    logSuccess("MariaDB security setup completed");
+    return true;
+  } else {
+    logError("MariaDB security setup failed");
+    return false;
+  }
 }
 
 // Detect available package manager
@@ -689,7 +801,7 @@ async function testConnection(config: DatabaseConfig): Promise<boolean> {
 
   try {
     logPasswordPrompt("webadmin");
-    
+
     const testCmd = new Deno.Command("mysql", {
       args: [
         "-h", config.host,
@@ -777,18 +889,22 @@ function displaySummary(config: DatabaseConfig): void {
 async function main(): Promise<void> {
   // Parse command line arguments - Unix philosophy: accept text input
   const args = parseArgs(Deno.args, {
-    boolean: ["sample-data", "test-only", "verbose", "help"],
+    boolean: ["sample-data", "test-only", "verbose", "interactive", "root-setup-only", "help"],
     string: ["config"],
     default: {
       "sample-data": false,
       "test-only": false,
       "verbose": false,
+      "interactive": false,
+      "root-setup-only": false,
       "config": "./config/database.json",
     },
     alias: {
       "s": "sample-data",
       "t": "test-only",
       "v": "verbose",
+      "i": "interactive",
+      "r": "root-setup-only",
       "h": "help",
       "c": "config",
     },
@@ -802,11 +918,13 @@ USAGE:
   deno run --allow-run --allow-read --allow-write --allow-net setup-mariadb.ts [OPTIONS]
 
 OPTIONS:
-  -s, --sample-data    Create sample data for testing
-  -t, --test-only      Only test the database connection
-  -v, --verbose        Enable verbose logging
-  -c, --config FILE    Use custom config file (default: ./config/database.json)
-  -h, --help           Show this help message
+  -s, --sample-data      Create sample data for testing
+  -t, --test-only        Only test the database connection
+  -i, --interactive      Run interactive security setup wizard
+  -r, --root-setup-only  Only setup root authentication (no database creation)
+  -v, --verbose          Enable verbose logging
+  -c, --config FILE      Use custom config file (default: ./config/database.json)
+  -h, --help             Show this help message
 
 SUPPORTED PACKAGE MANAGERS:
   • APT (Debian, Ubuntu, Linux Mint)
@@ -818,8 +936,14 @@ SUPPORTED PACKAGE MANAGERS:
   • XBPS (Void Linux)
 
 EXAMPLES:
-  # Basic setup (requires sudo)
+  # Complete setup (installation + root setup + database creation)
   sudo deno run --allow-run --allow-read --allow-write --allow-net setup-mariadb.ts
+
+  # Interactive security setup only
+  deno run --allow-run --allow-read --allow-write --allow-net setup-mariadb.ts --interactive
+
+  # Root authentication setup only
+  deno run --allow-run --allow-read --allow-write --allow-net setup-mariadb.ts --root-setup-only
 
   # Setup with sample data
   sudo deno run --allow-run --allow-read --allow-write --allow-net setup-mariadb.ts --sample-data
@@ -832,10 +956,17 @@ PRIVILEGE REQUIREMENTS:
   • Service management requires root/sudo privileges
   • Database operations can run as regular user
   • Test-only mode does not require elevated privileges
+  • Root-setup-only mode does not require elevated privileges
 
 PASSWORD PROMPTS:
   • First prompts ask for MariaDB 'root'@'localhost' password
   • Final prompt asks for 'webadmin' database user password
+
+MODES:
+  1. Full Setup: Installs MariaDB, configures root, creates database & user
+  2. Interactive: Runs mysql_secure_installation wizard
+  3. Root Setup Only: Just configures MariaDB root authentication
+  4. Test Only: Tests existing database connection
     `);
     Deno.exit(0);
   }
@@ -844,6 +975,8 @@ PASSWORD PROMPTS:
     sampleData: args["sample-data"],
     testOnly: args["test-only"],
     verbose: args.verbose,
+    interactive: args.interactive,
+    rootSetupOnly: args["root-setup-only"],
     configPath: args.config,
   };
 
@@ -873,6 +1006,13 @@ PASSWORD PROMPTS:
 
   logHeader("Universal Deno Genesis Framework - MariaDB Setup");
 
+  // Interactive mode - run mysql_secure_installation
+  if (options.interactive) {
+    logInfo("Running in interactive mode");
+    const success = await runInteractiveSetup();
+    Deno.exit(success ? 0 : 1);
+  }
+
   // Test-only mode
   if (options.testOnly) {
     logInfo("Running in test-only mode");
@@ -880,73 +1020,99 @@ PASSWORD PROMPTS:
     Deno.exit(connectionOk ? 0 : 1);
   }
 
-  // Check for root/sudo privileges first - required for package installation
-  logInfo("Checking system privileges...");
-  if (!await checkRootPrivileges()) {
-    logError("This script requires root privileges or sudo access to:");
-    logError("  • Install MariaDB packages");
-    logError("  • Start and enable system services");
-    logError("  • Configure MariaDB system settings");
-    logError("");
-    logError("Please run one of the following:");
-    logError(
-      "  sudo deno run --allow-run --allow-read --allow-write --allow-net setup-mariadb.ts",
-    );
-    logError("  Or ensure your user is in the sudo group");
-    Deno.exit(1);
-  }
-
-  // Detect package manager
-  const packageManager = await detectPackageManager();
-  if (!packageManager) {
-    logError("No supported package manager found!");
-    logError(
-      "Supported package managers: APT, DNF, YUM, Pacman, Zypper, APK, Portage, XBPS",
-    );
-    Deno.exit(1);
-  }
-
-  // Check if MariaDB is installed
-  if (!await checkMariaDBInstalled()) {
-    logWarning("MariaDB not found. Installing it now...");
-
-    if (!await installMariaDB(packageManager)) {
-      logError("MariaDB installation failed. Exiting.");
+  // Root setup only mode
+  if (options.rootSetupOnly) {
+    logInfo("Running in root-setup-only mode");
+    const authMethod = await setupMariaDBRoot();
+    if (authMethod) {
+      logSuccess("MariaDB root authentication is properly configured");
+      logInfo("You can now run the full setup or create your databases manually");
+      
+      console.log(`\n${Colors.CYAN}Next steps:${Colors.RESET}`);
+      console.log("1. Run full setup: ./setup-mariadb.ts");
+      console.log("2. Or manually create your databases and users");
+      console.log("3. Root password is: password! (change this for production)");
+      Deno.exit(0);
+    } else {
+      logError("MariaDB root setup failed");
+      logError("Please run with --interactive flag for manual setup");
       Deno.exit(1);
     }
-  } else {
-    logSuccess("MariaDB client found");
   }
 
-  // Check if MariaDB service is running
-  if (!await checkMariaDBRunning(packageManager.serviceName)) {
-    logInfo("Starting MariaDB service...");
-    try {
-      const startCmd = new Deno.Command("sudo", {
-        args: ["systemctl", "start", packageManager.serviceName],
-      });
-      await startCmd.output();
+  // Full setup mode requires elevated privileges for package management
+  if (!options.testOnly && !options.interactive && !options.rootSetupOnly) {
+    // Check for root/sudo privileges first - required for package installation
+    logInfo("Checking system privileges...");
+    if (!await checkRootPrivileges()) {
+      logError("This script requires root privileges or sudo access to:");
+      logError("  • Install MariaDB packages");
+      logError("  • Start and enable system services");
+      logError("  • Configure MariaDB system settings");
+      logError("");
+      logError("Please run one of the following:");
+      logError(
+        "  sudo deno run --allow-run --allow-read --allow-write --allow-net setup-mariadb.ts",
+      );
+      logError("  Or ensure your user is in the sudo group");
+      logError("");
+      logError("Alternative: Use --root-setup-only to configure authentication without sudo");
+      Deno.exit(1);
+    }
 
-      // Give it a moment to start
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+    // Detect package manager
+    const packageManager = await detectPackageManager();
+    if (!packageManager) {
+      logError("No supported package manager found!");
+      logError(
+        "Supported package managers: APT, DNF, YUM, Pacman, Zypper, APK, Portage, XBPS",
+      );
+      Deno.exit(1);
+    }
 
-      if (!await checkMariaDBRunning(packageManager.serviceName)) {
-        logError("Failed to start MariaDB service");
+    // Check if MariaDB is installed
+    if (!await checkMariaDBInstalled()) {
+      logWarning("MariaDB not found. Installing it now...");
+
+      if (!await installMariaDB(packageManager)) {
+        logError("MariaDB installation failed. Exiting.");
         Deno.exit(1);
       }
-    } catch (error) {
-      logError(`Failed to start MariaDB: ${(error as Error).message}`);
-      Deno.exit(1);
+    } else {
+      logSuccess("MariaDB client found");
+    }
+
+    // Check if MariaDB service is running
+    if (!await checkMariaDBRunning(packageManager.serviceName)) {
+      logInfo("Starting MariaDB service...");
+      try {
+        const startCmd = new Deno.Command("sudo", {
+          args: ["systemctl", "start", packageManager.serviceName],
+        });
+        await startCmd.output();
+
+        // Give it a moment to start
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+
+        if (!await checkMariaDBRunning(packageManager.serviceName)) {
+          logError("Failed to start MariaDB service");
+          Deno.exit(1);
+        }
+      } catch (error) {
+        logError(`Failed to start MariaDB: ${(error as Error).message}`);
+        Deno.exit(1);
+      }
     }
   }
 
-  // Test MariaDB connection and determine authentication method
-  const authMethod = await testMariaDBConnection();
-  if (!authMethod.success) {
+  // Setup or test MariaDB root authentication 
+  const authMethod = await setupMariaDBRoot();
+  if (!authMethod) {
     logError("Cannot establish connection to MariaDB. Please check:");
     logError("  • MariaDB service is running");
     logError("  • Root user authentication is configured");
     logError("  • Try running: sudo mysql_secure_installation");
+    logError("  • Or run: ./setup-mariadb.ts --interactive");
     Deno.exit(1);
   }
 
