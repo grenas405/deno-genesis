@@ -70,6 +70,9 @@ export {
   createMiddlewareStack,
   MiddlewareManager,
   createStaticFileTestHelper, // ✅ NEW UTILITY
+  staticFileHandler,
+  staticFileAnalytics,
+  staticFileUtils,
   type MiddlewareConfig,
 } from "./middleware/index.ts";
 
