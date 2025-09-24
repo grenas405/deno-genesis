@@ -11,8 +11,8 @@ import { Router } from "https://deno.land/x/oak@v12.6.1/mod.ts";
 import { ConsoleStyler } from "../utils/consoleStyler.ts";
 import { send } from "https://deno.land/x/oak@v12.6.1/mod.ts";
 
+import frontendRoutes from "./frontendRoutes.ts";
 // Route module imports
-//import frontendRoutes from "./frontendRoutes.ts";
 // Import API routes from the /features directory
 import authRoutes from "../../../features/routes/authRoutes.ts";
 import appointmentRoutes from "../../../features/routes/appointmentRoutes.ts";
@@ -25,7 +25,7 @@ const router = new Router();
 // === ROUTES - Thin router pattern ===
 
 // Frontend route registration
-//router.use("/", frontendRoutes.routes(), frontendRoutes.allowedMethods());
+router.use("/", frontendRoutes.routes(), frontendRoutes.allowedMethods());
 
 // In your router file
 router.get("/", async (ctx) => {
