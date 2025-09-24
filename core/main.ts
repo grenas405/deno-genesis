@@ -514,7 +514,7 @@ async function main(): Promise<void> {
     app.use(async (ctx) => {
       try {
         await send(ctx, ctx.request.url.pathname, {
-          root: `${Deno.cwd()}/static`,
+          root: `${Deno.cwd()}/public`,
           index: "index.html",
         });
       } catch {
