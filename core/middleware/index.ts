@@ -228,16 +228,17 @@ export async function createMiddlewareStack(config: MiddlewareConfig) {
 export class MiddlewareManager {
   private static instance: MiddlewareManager;
   private config: MiddlewareConfig;
-  private stack: ReturnType<typeof createMiddlewareStack>;
+  private stack: Awaited<ReturnType<typeof createMiddlewareStack>>;
 
-  private constructor(config: MiddlewareConfig) {
+  private constructor(config: MiddlewareConfig, stack: Awaited<ReturnType<typeof createMiddlewareStack>>) {
     this.config = config;
-    this.stack = createMiddlewareStack(config);
+    this.stack = stack;
   }
 
-  static getInstance(config: MiddlewareConfig): MiddlewareManager {
+  static async getInstance(config: MiddlewareConfig): Promise<MiddlewareManager> {
     if (!MiddlewareManager.instance) {
-      MiddlewareManager.instance = new MiddlewareManager(config);
+      const stack = await createMiddlewareStack(config);
+      MiddlewareManager.instance = new MiddlewareManager(config, stack);
     }
     return MiddlewareManager.instance;
   }
@@ -246,7 +247,7 @@ export class MiddlewareManager {
     return this.stack;
   }
 
-  getMetrics() {
+  async getMetrics() {
     return this.stack.monitor.getMetrics();
   }
 
