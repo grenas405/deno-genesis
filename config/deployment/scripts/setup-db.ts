@@ -189,7 +189,7 @@ async function executeSQL(sql: string, config: DatabaseConfig, useDatabase = fal
     const authMethods = [
       // Method 1: Try with configured root password
       {
-        args: ["-h", config.host, "-P", config.port.toString(), "-u", "root", "-p password", "--execute", sql]
+        args: ["-h", config.host, "-P", config.port.toString(), "-u", "root", "-ppassword!", "--execute", sql]
       },
       // Method 2: Try Unix socket with sudo
       {
