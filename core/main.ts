@@ -41,6 +41,10 @@ import {
   MiddlewareManager,
   createStaticFileTestHelper, // ✅ NEW UTILITY
   type MiddlewareConfig,
+ 
+  staticFileHandler,
+  staticFileAnalytics,
+  staticFileUtils,
 
 
   // Database Layer - Data persistence
