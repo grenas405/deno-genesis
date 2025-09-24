@@ -506,28 +506,37 @@ async function main(): Promise<void> {
     app.use(router.allowedMethods());
     ConsoleStyler.logSuccess("Router configured and mounted");
 
-    // ========================================================================
-    // Phase 5: Static File Serving Configuration
-    // ========================================================================
+  // ========================================================================
+// Phase 5: Static File Serving Configuration
+// ========================================================================
 
-    // Configure static file serving
-    app.use(async (ctx) => {
-      try {
-        await send(ctx, ctx.request.url.pathname, {
-          root: `${Deno.cwd()}/public`,
-          index: "index.html",
-        });
-      } catch {
-        // Let other middleware handle non-static requests
-        return;
-      }
-    });
+// Configure static file serving with custom index page routing
+app.use(async (ctx, next) => {
+  try {
+    // Handle root path - serve home page
+    if (ctx.request.url.pathname === "/" || ctx.request.url.pathname === "/home") {
+      await send(ctx, "/pages/home/index.html", {
+        root: `${Deno.cwd()}/public`,
+      });
+      return;
+    }
 
-    const supportedExtensions = getSupportedExtensions();
-    ConsoleStyler.logSuccess("Static file serving configured", {
-      supportedExtensions: supportedExtensions.length,
-      mimeTypes: Object.keys(DEFAULT_MIME_TYPES).length
+    // Handle all other static files
+    await send(ctx, ctx.request.url.pathname, {
+      root: `${Deno.cwd()}/public`,
     });
+  } catch {
+    // If file not found, continue to next middleware
+    await next();
+  }
+});
+
+const supportedExtensions = getSupportedExtensions();
+ConsoleStyler.logSuccess("Static file serving configured", {
+  supportedExtensions: supportedExtensions.length,
+  mimeTypes: Object.keys(DEFAULT_MIME_TYPES).length,
+  homePage: "pages/home/index.html"
+});
 
     // ========================================================================
     // Phase 6: Graceful Shutdown Setup
