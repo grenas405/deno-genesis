@@ -4,7 +4,8 @@
 // Optimized caching, compression, security, and performance for static assets
 // ================================================================================
 
-import { send } from "https://deno.land/x/oak@v12.6.1/mod.ts";
+import { Context } from "https://deno.land/x/oak@v12.6.1/mod.ts";
+import { DEFAULT_MIME_TYPES } from "../utils/mime-types.ts";
 
 // ================================================================================
 // 🔧 STATIC FILE CONFIGURATION
@@ -22,6 +23,12 @@ export interface StaticFileConfig {
   fallbackFile?: string;
   serveHidden?: boolean;
   maxFileSize?: number; // in bytes
+}
+
+interface CacheConfig {
+  maxAge: number;
+  public: boolean;
+  immutable?: boolean;
 }
 
 // ================================================================================
@@ -47,61 +54,8 @@ export class StaticFileHandler {
     '.map', '.ts' // Source maps and TypeScript files for development
   ]);
 
-  // MIME type mapping for proper Content-Type headers
-  private static readonly MIME_TYPES = new Map([
-    // Text files
-    ['.html', 'text/html; charset=utf-8'],
-    ['.htm', 'text/html; charset=utf-8'],
-    ['.css', 'text/css; charset=utf-8'],
-    ['.js', 'application/javascript; charset=utf-8'],
-    ['.mjs', 'application/javascript; charset=utf-8'],
-    ['.json', 'application/json; charset=utf-8'],
-    ['.xml', 'application/xml; charset=utf-8'],
-    ['.txt', 'text/plain; charset=utf-8'],
-    ['.md', 'text/markdown; charset=utf-8'],
-    // Images
-    ['.png', 'image/png'],
-    ['.jpg', 'image/jpeg'],
-    ['.jpeg', 'image/jpeg'],
-    ['.gif', 'image/gif'],
-    ['.webp', 'image/webp'],
-    ['.svg', 'image/svg+xml'],
-    ['.ico', 'image/x-icon'],
-    ['.bmp', 'image/bmp'],
-    ['.tiff', 'image/tiff'],
-    // Fonts
-    ['.ttf', 'font/ttf'],
-    ['.otf', 'font/otf'],
-    ['.woff', 'font/woff'],
-    ['.woff2', 'font/woff2'],
-    ['.eot', 'application/vnd.ms-fontobject'],
-    // Documents
-    ['.pdf', 'application/pdf'],
-    ['.doc', 'application/msword'],
-    ['.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-    ['.xls', 'application/vnd.ms-excel'],
-    ['.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
-    ['.ppt', 'application/vnd.ms-powerpoint'],
-    ['.pptx', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'],
-    // Media
-    ['.mp3', 'audio/mpeg'],
-    ['.mp4', 'video/mp4'],
-    ['.wav', 'audio/wav'],
-    ['.ogg', 'audio/ogg'],
-    ['.webm', 'video/webm'],
-    ['.avi', 'video/x-msvideo'],
-    ['.mov', 'video/quicktime'],
-    // Archives
-    ['.zip', 'application/zip'],
-    ['.tar', 'application/x-tar'],
-    ['.gz', 'application/gzip'],
-    // Development
-    ['.map', 'application/json'],
-    ['.ts', 'application/typescript']
-  ]);
-
   // Cache configuration by file type
-  private static readonly CACHE_HEADERS = new Map([
+  private static readonly CACHE_HEADERS = new Map<string, CacheConfig>([
     // Long-term caching for immutable assets
     ['.css', { maxAge: 31536000, public: true, immutable: true }], // 1 year
     ['.js', { maxAge: 31536000, public: true, immutable: true }],
@@ -139,21 +93,24 @@ export class StaticFileHandler {
 
   /**
    * Create static file middleware with advanced features
+   * Unix Philosophy: Do one thing well - serve static files securely and efficiently
    */
   static createMiddleware(config: StaticFileConfig) {
-    return async (ctx: any, next: () => Promise<unknown>) => {
+    return async (ctx: Context, next: () => Promise<unknown>) => {
       const filePath = ctx.request.url.pathname;
       const extension = this.getFileExtension(filePath);
 
-      // Security validation
+      // Security validation - Unix Philosophy: Fail fast
       if (!this.ALLOWED_EXTENSIONS.has(extension)) {
         await next();
         return;
       }
+      
       if (!config.serveHidden && this.isHiddenFile(filePath)) {
         await next();
         return;
       }
+      
       if (this.hasDirectoryTraversal(filePath)) {
         console.warn(`🚨 Directory traversal attempt blocked: ${filePath}`);
         ctx.response.status = 403;
@@ -162,152 +119,327 @@ export class StaticFileHandler {
       }
 
       try {
-        const stats = await this.getFileStats(config.root, filePath);
+        // Handle index files if requesting a directory
+        const resolvedPath = await this.resolveFilePath(config.root, filePath, config.indexFiles);
+        if (!resolvedPath) {
+          // Check for fallback file (SPA support)
+          if (config.fallbackFile) {
+            const fallbackPath = await this.resolveFallbackFile(config.root, config.fallbackFile);
+            if (fallbackPath) {
+              await this.serveFile(ctx, fallbackPath, config);
+              return;
+            }
+          }
+          await next();
+          return;
+        }
 
-        if (config.maxFileSize && stats && stats.size > config.maxFileSize) {
+        const stats = await this.getFileStats(resolvedPath);
+        if (!stats) {
+          await next();
+          return;
+        }
+
+        // File size validation
+        if (config.maxFileSize && stats.size > config.maxFileSize) {
           console.warn(`📏 File too large: ${filePath} (${stats.size} bytes)`);
           ctx.response.status = 413;
           ctx.response.body = 'File too large';
           return;
         }
 
-        // MIME type and headers
-        const mimeType = this.MIME_TYPES.get(extension) || 'application/octet-stream';
-        ctx.response.headers.set('Content-Type', mimeType);
-
-        if (config.enableCaching) {
-          const cacheConfig = this.CACHE_HEADERS.get(extension) || { maxAge: config.maxAge || 3600, public: true };
-          const cacheControlParts = [];
-          if (cacheConfig.public) cacheControlParts.push('public');
-          if (cacheConfig.maxAge) cacheControlParts.push(`max-age=${cacheConfig.maxAge}`);
-          if (cacheConfig.immutable) cacheControlParts.push('immutable');
-          ctx.response.headers.set('Cache-Control', cacheControlParts.join(', '));
-
-          if (config.enableEtag !== false && stats) {
-            const etag = await this.generateETag(stats, filePath);
-            ctx.response.headers.set('ETag', etag);
-            const ifNoneMatch = ctx.request.headers.get('If-None-Match');
-            if (ifNoneMatch === etag) {
-              ctx.response.status = 304;
-              return;
-            }
-          }
-
-          if (stats && stats.mtime) {
-            const lastModified = stats.mtime.toUTCString();
-            ctx.response.headers.set('Last-Modified', lastModified);
-            const ifModifiedSince = ctx.request.headers.get('If-Modified-Since');
-            if (ifModifiedSince && new Date(ifModifiedSince) >= stats.mtime) {
-              ctx.response.status = 304;
-              return;
-            }
-          }
-        } else {
-          ctx.response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-          ctx.response.headers.set('Pragma', 'no-cache');
-          ctx.response.headers.set('Expires', '0');
+        // Check conditional requests before reading file
+        if (await this.handleConditionalRequest(ctx, stats, resolvedPath, config)) {
+          return; // 304 Not Modified response sent
         }
 
-        if (this.shouldCompress(extension, config)) {
-          const acceptEncoding = ctx.request.headers.get('Accept-Encoding') || '';
-          if (config.enableBrotli && acceptEncoding.includes('br')) {
-            ctx.response.headers.set('Content-Encoding', 'br');
-            ctx.response.headers.set('Vary', 'Accept-Encoding');
-          } else if (config.enableGzip !== false && acceptEncoding.includes('gzip')) {
-            ctx.response.headers.set('Content-Encoding', 'gzip');
-            ctx.response.headers.set('Vary', 'Accept-Encoding');
-          }
-        }
-
-        // Security headers
-        ctx.response.headers.set('X-Content-Type-Options', 'nosniff');
-        if (extension === '.html' || extension === '.htm') {
-          ctx.response.headers.set('X-Frame-Options', 'SAMEORIGIN');
-          ctx.response.headers.set('X-XSS-Protection', '1; mode=block');
-        }
-        if (['.pdf', '.doc', '.docx', '.xls', '.xlsx'].includes(extension)) {
-          ctx.response.headers.set('X-Download-Options', 'noopen');
-          ctx.response.headers.set('Content-Disposition', 'attachment');
-        }
-
-        // File delivery
-        await send(ctx, filePath, {
-          root: config.root,
-          index: config.indexFiles || ["index.html"],
-          hidden: config.serveHidden || false
-        });
-
-        if (ctx.state?.environment === 'development') {
-          console.log(`📁 Served static file: ${filePath} (${mimeType})`);
-        }
-        StaticFileAnalytics.trackRequest(filePath, stats?.size || 0);
-        return;
+        // Serve the file
+        await this.serveFile(ctx, resolvedPath, config, stats);
 
       } catch (error) {
-        if (error.name === 'NotFound' && config.fallbackFile) {
-          try {
-            await send(ctx, config.fallbackFile, { root: config.root });
-            ctx.response.headers.set('Content-Type', 'text/html; charset=utf-8');
-            ctx.response.headers.set('Cache-Control', 'no-cache');
-            return;
-          } catch (fallbackError) {
-            console.error(`❌ Fallback file serving failed: ${fallbackError.message}`);
-          }
-        }
-
-        // Only call next if response is still writable
-        if (ctx.response.writable) {
-          await next();
-        } else {
-          console.warn(`⚠️ Response not writable for ${filePath}, skipping to next handler`);
-        }
+        console.error(`❌ Static file error for ${filePath}:`, error);
+        ctx.response.status = 500;
+        ctx.response.body = 'Internal Server Error';
       }
     };
   }
 
-  // ================================================================================
-  // 🛠️ UTILITY METHODS
-  // ================================================================================
+  /**
+   * Serve a file with proper headers and optimization
+   */
+  private static async serveFile(
+    ctx: Context, 
+    filePath: string, 
+    config: StaticFileConfig, 
+    stats?: Deno.FileInfo
+  ) {
+    const extension = this.getFileExtension(filePath);
+    
+    // Set MIME type using centralized mime-types utility
+    const mimeType = DEFAULT_MIME_TYPES[extension] || 'application/octet-stream';
+    ctx.response.headers.set('Content-Type', mimeType);
 
-  private static getFileExtension(path: string): string {
-    const lastDot = path.lastIndexOf('.');
-    return lastDot === -1 ? '' : path.substring(lastDot).toLowerCase();
+    // Set caching headers
+    this.setCacheHeaders(ctx, extension, config);
+
+    // Set ETag if enabled
+    if (config.enableEtag !== false && stats) {
+      const etag = await this.generateETag(stats, filePath);
+      ctx.response.headers.set('ETag', etag);
+    }
+
+    // Set Last-Modified header
+    if (stats && stats.mtime) {
+      ctx.response.headers.set('Last-Modified', stats.mtime.toUTCString());
+    }
+
+    // Handle compression
+    if (this.shouldCompress(extension, config)) {
+      this.setCompressionHeaders(ctx, config);
+    }
+
+    // Security headers
+    this.setSecurityHeaders(ctx, extension);
+
+    // Read and send file
+    const fileContent = await Deno.readFile(filePath);
+    
+    // Apply compression if needed
+    const compressedContent = await this.compressContent(fileContent, ctx, config);
+    
+    ctx.response.body = compressedContent;
+    ctx.response.status = 200;
+
+    // Analytics tracking
+    StaticFileAnalytics.recordRequest(filePath, fileContent.length);
   }
 
-  private static isHiddenFile(path: string): boolean {
-    return path.split('/').some(part => part.startsWith('.') && part !== '.');
+  /**
+   * Handle conditional requests (304 Not Modified)
+   */
+  private static async handleConditionalRequest(
+    ctx: Context, 
+    stats: Deno.FileInfo, 
+    filePath: string, 
+    config: StaticFileConfig
+  ): Promise<boolean> {
+    // Check If-None-Match (ETag)
+    if (config.enableEtag !== false) {
+      const ifNoneMatch = ctx.request.headers.get('If-None-Match');
+      if (ifNoneMatch) {
+        const etag = await this.generateETag(stats, filePath);
+        if (ifNoneMatch === etag) {
+          ctx.response.status = 304;
+          ctx.response.headers.set('ETag', etag);
+          return true;
+        }
+      }
+    }
+
+    // Check If-Modified-Since
+    const ifModifiedSince = ctx.request.headers.get('If-Modified-Since');
+    if (ifModifiedSince && stats.mtime) {
+      const requestTime = new Date(ifModifiedSince);
+      if (requestTime >= stats.mtime) {
+        ctx.response.status = 304;
+        ctx.response.headers.set('Last-Modified', stats.mtime.toUTCString());
+        return true;
+      }
+    }
+
+    return false;
   }
 
-  private static hasDirectoryTraversal(path: string): boolean {
-    const normalizedPath = path.replace(/\\/g, '/');
-    return normalizedPath.includes('../') || 
-           normalizedPath.includes('..\\') ||
-           normalizedPath.includes('%2e%2e') ||
-           normalizedPath.includes('%2E%2E');
-  }
-
-  private static async getFileStats(root: string, filePath: string): Promise<Deno.FileInfo | null> {
-    try {
-      const fullPath = `${root}${filePath}`;
-      return await Deno.stat(fullPath);
-    } catch {
-      return null;
+  /**
+   * Set appropriate cache headers based on file type and configuration
+   */
+  private static setCacheHeaders(ctx: Context, extension: string, config: StaticFileConfig) {
+    if (config.enableCaching) {
+      const cacheConfig = this.CACHE_HEADERS.get(extension) || { 
+        maxAge: config.maxAge || 3600, 
+        public: true 
+      };
+      
+      const cacheControlParts = [];
+      if (cacheConfig.public) cacheControlParts.push('public');
+      if (cacheConfig.maxAge) cacheControlParts.push(`max-age=${cacheConfig.maxAge}`);
+      if (cacheConfig.immutable) cacheControlParts.push('immutable');
+      
+      ctx.response.headers.set('Cache-Control', cacheControlParts.join(', '));
+    } else {
+      // Disable caching
+      ctx.response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      ctx.response.headers.set('Pragma', 'no-cache');
+      ctx.response.headers.set('Expires', '0');
     }
   }
 
-  private static async generateETag(stats: Deno.FileInfo, filePath: string): Promise<string> {
-    const mtime = stats.mtime?.getTime() || Date.now();
-    const size = stats.size;
-    const hash = await this.simpleHash(`${filePath}-${mtime}-${size}`);
-    return `"${hash}"`;
+  /**
+   * Set compression headers based on client capabilities
+   */
+  private static setCompressionHeaders(ctx: Context, config: StaticFileConfig) {
+    const acceptEncoding = ctx.request.headers.get('Accept-Encoding') || '';
+    
+    if (config.enableBrotli && acceptEncoding.includes('br')) {
+      ctx.response.headers.set('Content-Encoding', 'br');
+      ctx.response.headers.set('Vary', 'Accept-Encoding');
+    } else if (config.enableGzip !== false && acceptEncoding.includes('gzip')) {
+      ctx.response.headers.set('Content-Encoding', 'gzip');
+      ctx.response.headers.set('Vary', 'Accept-Encoding');
+    }
   }
 
-  private static async simpleHash(input: string): Promise<string> {
+  /**
+   * Set security headers for static files
+   */
+  private static setSecurityHeaders(ctx: Context, extension: string) {
+    // Prevent content-type sniffing
+    ctx.response.headers.set('X-Content-Type-Options', 'nosniff');
+    
+    // Specific security for executable content
+    if (['.js', '.mjs'].includes(extension)) {
+      ctx.response.headers.set('X-Frame-Options', 'DENY');
+    }
+    
+    // SVG security
+    if (extension === '.svg') {
+      ctx.response.headers.set('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'");
+    }
+  }
+
+  /**
+   * Compress content based on configuration and client capabilities
+   */
+  private static async compressContent(
+    content: Uint8Array, 
+    ctx: Context, 
+    config: StaticFileConfig
+  ): Promise<Uint8Array> {
+    const acceptEncoding = ctx.request.headers.get('Accept-Encoding') || '';
+    
+    // Check if compression is requested and supported
+    if (config.enableBrotli && acceptEncoding.includes('br')) {
+      // Note: Brotli compression would require additional dependency
+      // For now, fall back to gzip
+      return this.gzipCompress(content, config.compressionLevel || 6);
+    } else if (config.enableGzip !== false && acceptEncoding.includes('gzip')) {
+      return this.gzipCompress(content, config.compressionLevel || 6);
+    }
+    
+    return content;
+  }
+
+  /**
+   * GZIP compression utility
+   */
+  private static gzipCompress(content: Uint8Array, level: number): Uint8Array {
+    // Note: This is a simplified implementation
+    // In a production environment, you'd use proper compression libraries
+    // For Deno, you could use: https://deno.land/x/compress
+    
+    // For now, return uncompressed content with a warning
+    console.warn('⚠️ GZIP compression not implemented - add compression library');
+    return content;
+  }
+
+  /**
+   * Generate ETag for file caching
+   */
+  private static async generateETag(stats: Deno.FileInfo, filePath: string): Promise<string> {
+    const data = `${stats.size}-${stats.mtime?.getTime() || 0}-${filePath}`;
     const encoder = new TextEncoder();
-    const data = encoder.encode(input);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(data));
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16);
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return `"${hashHex.substring(0, 16)}"`;
+  }
+
+  /**
+   * Resolve file path, handling index files and directories
+   */
+  private static async resolveFilePath(
+    root: string, 
+    requestPath: string, 
+    indexFiles?: string[]
+  ): Promise<string | null> {
+    const fullPath = this.joinPaths(root, requestPath);
+    
+    try {
+      const stats = await Deno.stat(fullPath);
+      
+      if (stats.isFile) {
+        return fullPath;
+      }
+      
+      if (stats.isDirectory && indexFiles) {
+        for (const indexFile of indexFiles) {
+          const indexPath = this.joinPaths(fullPath, indexFile);
+          try {
+            const indexStats = await Deno.stat(indexPath);
+            if (indexStats.isFile) {
+              return indexPath;
+            }
+          } catch {
+            // Continue to next index file
+          }
+        }
+      }
+    } catch {
+      // File doesn't exist
+    }
+    
+    return null;
+  }
+
+  /**
+   * Resolve fallback file for SPA applications
+   */
+  private static async resolveFallbackFile(root: string, fallbackFile: string): Promise<string | null> {
+    const fallbackPath = this.joinPaths(root, fallbackFile);
+    
+    try {
+      const stats = await Deno.stat(fallbackPath);
+      if (stats.isFile) {
+        return fallbackPath;
+      }
+    } catch {
+      // Fallback file doesn't exist
+    }
+    
+    return null;
+  }
+
+  // ================================================================================
+  // 🔧 UTILITY METHODS
+  // ================================================================================
+
+  private static getFileExtension(filePath: string): string {
+    const lastDot = filePath.lastIndexOf('.');
+    return lastDot > 0 ? filePath.substring(lastDot).toLowerCase() : '';
+  }
+
+  private static isHiddenFile(filePath: string): boolean {
+    return filePath.split('/').some(part => part.startsWith('.') && part !== '.');
+  }
+
+  private static hasDirectoryTraversal(filePath: string): boolean {
+    const normalized = filePath.replace(/\\/g, '/');
+    return normalized.includes('../') || normalized.includes('..\\') || normalized.includes('..%2F');
+  }
+
+  private static joinPaths(root: string, path: string): string {
+    // Normalize paths and join them safely
+    const normalizedRoot = root.replace(/\\/g, '/').replace(/\/+$/, '');
+    const normalizedPath = path.replace(/\\/g, '/').replace(/^\/+/, '');
+    return `${normalizedRoot}/${normalizedPath}`;
+  }
+
+  private static async getFileStats(filePath: string): Promise<Deno.FileInfo | null> {
+    try {
+      return await Deno.stat(filePath);
+    } catch {
+      return null;
+    }
   }
 
   private static shouldCompress(extension: string, config: StaticFileConfig): boolean {
@@ -317,53 +449,34 @@ export class StaticFileHandler {
 }
 
 // ================================================================================
-// 📊 STATIC FILE ANALYTICS
+// 📊 ANALYTICS AND MONITORING
 // ================================================================================
 
 export class StaticFileAnalytics {
-  private static requestCounts: Map<string, number> = new Map();
-  private static bandwidthUsed: Map<string, number> = new Map();
-  private static lastAccess: Map<string, number> = new Map();
+  private static requestCounts = new Map<string, number>();
+  private static bandwidthUsed = new Map<string, number>();
+  private static lastAccess = new Map<string, number>();
 
-  static trackRequest(path: string, size: number = 0): void {
-    const currentCount = this.requestCounts.get(path) || 0;
-    this.requestCounts.set(path, currentCount + 1);
-    const currentBandwidth = this.bandwidthUsed.get(path) || 0;
-    this.bandwidthUsed.set(path, currentBandwidth + size);
-    this.lastAccess.set(path, Date.now());
-  }
-
-  static getPopularFiles(limit: number = 10) {
-    return Array.from(this.requestCounts.entries())
-      .sort(([,a], [,b]) => b - a)
-      .slice(0, limit)
-      .map(([path, count]) => ({
-        path,
-        requests: count,
-        bandwidth: this.formatBytes(this.bandwidthUsed.get(path) || 0),
-        lastAccess: new Date(this.lastAccess.get(path) || 0).toISOString()
-      }));
+  static recordRequest(filePath: string, bytes: number) {
+    this.requestCounts.set(filePath, (this.requestCounts.get(filePath) || 0) + 1);
+    this.bandwidthUsed.set(filePath, (this.bandwidthUsed.get(filePath) || 0) + bytes);
+    this.lastAccess.set(filePath, Date.now());
   }
 
   static getTotalStats() {
     const totalRequests = Array.from(this.requestCounts.values()).reduce((a, b) => a + b, 0);
     const totalBandwidth = Array.from(this.bandwidthUsed.values()).reduce((a, b) => a + b, 0);
-    return {
-      totalRequests,
-      totalBandwidth: this.formatBytes(totalBandwidth),
-      uniqueFiles: this.requestCounts.size,
-      averageRequestsPerFile: totalRequests / this.requestCounts.size || 0
-    };
+    return { totalRequests, totalBandwidth };
   }
 
-  private static formatBytes(bytes: number): string {
-    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-    if (bytes === 0) return '0 B';
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+  static getPopularFiles(limit = 10) {
+    return Array.from(this.requestCounts.entries())
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, limit)
+      .map(([path, count]) => ({ path, requests: count, bandwidth: this.bandwidthUsed.get(path) || 0 }));
   }
 
-  static reset(): void {
+  static reset() {
     this.requestCounts.clear();
     this.bandwidthUsed.clear();
     this.lastAccess.clear();
@@ -371,7 +484,50 @@ export class StaticFileAnalytics {
 }
 
 // ================================================================================
-// 🔧 STATIC FILE UTILITIES (assumed complete based on context)
+// 🎯 CONFIGURATION PRESETS
+// ================================================================================
+
+export const StaticFilePresets = {
+  development: {
+    root: "./public",
+    enableCaching: false,
+    enableEtag: false,
+    enableGzip: false,
+    enableBrotli: false,
+    maxAge: 0,
+    serveHidden: true,
+    maxFileSize: 10 * 1024 * 1024, // 10MB
+    indexFiles: ['index.html', 'index.htm']
+  } as StaticFileConfig,
+
+  production: {
+    root: "./public",
+    enableCaching: true,
+    enableEtag: true,
+    enableGzip: true,
+    enableBrotli: true,
+    maxAge: 31536000, // 1 year
+    serveHidden: false,
+    maxFileSize: 50 * 1024 * 1024, // 50MB
+    indexFiles: ['index.html', 'index.htm']
+  } as StaticFileConfig,
+
+  spa: {
+    root: "./dist",
+    enableCaching: true,
+    enableEtag: true,
+    enableGzip: true,
+    enableBrotli: false,
+    maxAge: 3600, // 1 hour for HTML, longer for assets
+    serveHidden: false,
+    maxFileSize: 25 * 1024 * 1024, // 25MB
+    indexFiles: ['index.html'],
+    fallbackFile: 'index.html' // SPA fallback
+  } as StaticFileConfig
+};
+
+// ================================================================================
+// 🔧 UTILITY FUNCTIONS
 // ================================================================================
 
 export class StaticFileUtils {
@@ -383,7 +539,6 @@ export class StaticFileUtils {
       popularFiles: StaticFileAnalytics.getPopularFiles(),
       systemInfo: {
         supportedExtensions: Array.from(StaticFileHandler['ALLOWED_EXTENSIONS']),
-        mimeTypes: Object.fromEntries(StaticFileHandler['MIME_TYPES']),
         compressibleTypes: Array.from(StaticFileHandler['COMPRESSIBLE_TYPES'])
       }
     };
@@ -392,10 +547,14 @@ export class StaticFileUtils {
 
   static validateConfig(config: StaticFileConfig): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
+    
     if (!config.root) errors.push('Root path is required');
     if (config.maxFileSize && config.maxFileSize < 0) errors.push('Max file size must be positive');
     if (config.indexFiles && config.indexFiles.length === 0) errors.push('Index files array cannot be empty');
-    if (config.compressionLevel && (config.compressionLevel < 1 || config.compressionLevel > 9)) errors.push('Compression level must be between 1-9');
+    if (config.compressionLevel && (config.compressionLevel < 1 || config.compressionLevel > 9)) {
+      errors.push('Compression level must be between 1-9');
+    }
+    
     return { valid: errors.length === 0, errors };
   }
 
@@ -403,7 +562,9 @@ export class StaticFileUtils {
     return {
       requests: StaticFileAnalytics['requestCounts'].get(path) || 0,
       bandwidth: StaticFileAnalytics['bandwidthUsed'].get(path) || 0,
-      lastAccess: StaticFileAnalytics['lastAccess'].get(path) ? new Date(StaticFileAnalytics['lastAccess'].get(path)!).toISOString() : null
+      lastAccess: StaticFileAnalytics['lastAccess'].get(path) 
+        ? new Date(StaticFileAnalytics['lastAccess'].get(path)!).toISOString() 
+        : null
     };
   }
 
@@ -412,7 +573,7 @@ export class StaticFileUtils {
   }
 
   static getMimeType(extension: string): string {
-    return StaticFileHandler['MIME_TYPES'].get(extension.toLowerCase()) || 'application/octet-stream';
+    return DEFAULT_MIME_TYPES[extension.toLowerCase()] || 'application/octet-stream';
   }
 
   static isCompressible(extension: string): boolean {
@@ -421,26 +582,73 @@ export class StaticFileUtils {
 }
 
 // ================================================================================
-// 🎯 STATIC FILE CONFIGURATION PRESETS (assumed complete)
+// 🌟 EXPORTS
 // ================================================================================
 
-export const StaticFilePresets = {
-  development: {
-    enableCaching: false,
-    enableEtag: false,
-    enableGzip: false,
-    enableBrotli: false,
-    maxAge: 0,
-    serveHidden: true,
-    maxFileSize: 10 * 1024 * 1024 // 10MB
-  },
-  production: {
-    enableCaching: true,
-    enableEtag: true,
-    enableGzip: true,
-    enableBrotli: true,
-    maxAge: 31536000, // 1 year
-    serveHidden: false,
-    maxFileSize: 50 * 1024 * 1024 // 50MB
-  }
-};
+export default StaticFileHandler;
+
+// ================================================================================
+// 🔧 MIDDLEWARE INDEX INTEGRATION
+// ================================================================================
+
+/**
+ * Integration instructions for middleware/index.ts:
+ * 
+ * 1. Uncomment the StaticFileHandler import:
+ *    import { StaticFileHandler, type StaticFileConfig } from "./staticFiles.ts";
+ * 
+ * 2. Add StaticFileConfig to the MiddlewareConfig interface (already present)
+ * 
+ * 3. Uncomment the static file middleware in createMiddlewareStack:
+ *    // Add after health check middleware (position 7)
+ *    StaticFileHandler.createMiddleware({
+ *      root: config.staticFiles.root,
+ *      enableCaching: config.staticFiles.enableCaching,
+ *      maxAge: config.staticFiles.maxAge,
+ *      enableGzip: config.staticFiles.enableGzip,
+ *      enableBrotli: config.staticFiles.enableBrotli,
+ *      serveHidden: false, // Security: never serve hidden files in production
+ *      maxFileSize: 50 * 1024 * 1024, // 50MB limit
+ *      indexFiles: ['index.html', 'index.htm']
+ *    })
+ * 
+ * 4. Update the middleware stack logging:
+ *    '7. Static File Serving' // UNCOMMENTED
+ * 
+ * 5. Export the StaticFileHandler and type:
+ *    export { StaticFileHandler, type StaticFileConfig };
+ * 
+ * Example complete integration:
+ */
+
+/*
+// In middleware/index.ts - Complete integration example:
+
+import { StaticFileHandler, type StaticFileConfig } from "./staticFiles.ts";
+
+export { StaticFileHandler, type StaticFileConfig };
+
+// In createMiddlewareStack function, add after health check:
+StaticFileHandler.createMiddleware({
+  root: config.staticFiles.root,
+  enableCaching: config.staticFiles.enableCaching,
+  maxAge: config.staticFiles.maxAge,
+  enableGzip: true,
+  enableBrotli: false, // Can be enabled when compression library is added
+  serveHidden: false,
+  maxFileSize: 50 * 1024 * 1024, // 50MB
+  indexFiles: ['index.html', 'index.htm'],
+  fallbackFile: config.staticFiles.fallbackFile // For SPA support
+})
+
+// Update middleware names array:
+const middlewareNames = [
+  '1. Performance Monitoring',
+  '2. Error Handling', 
+  '3. Request Logging',
+  '4. Security Headers',
+  '5. CORS Configuration (Simple)',
+  '6. Health Check',
+  '7. Static File Serving' // ENABLED
+];
+*/

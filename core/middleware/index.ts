@@ -7,7 +7,7 @@
 // Import PerformanceMonitor and createPerformanceMiddleware first
 import { PerformanceMonitor, createPerformanceMiddleware } from "./performanceMonitor.ts";
 import { createSecurityMiddleware, type SecurityConfig } from "./security.ts";
-// import { StaticFileHandler, type StaticFileConfig } from "./staticFiles.ts"; // COMMENTED OUT - USING SIMPLE STATIC HANDLER
+ import { StaticFileHandler, type StaticFileConfig } from "./staticFiles.ts"; // COMMENTED OUT - USING SIMPLE STATIC HANDLER
 // import { createCorsMiddleware, type CorsConfig } from "./cors.ts"; // COMMENTED OUT - USING SIMPLE CORS
 import { Logger, createLoggingMiddleware, type LoggingConfig } from "./logging.ts";
 import { ErrorHandler, createErrorMiddleware, type ErrorConfig } from "./errorHandler.ts";
