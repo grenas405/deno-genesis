@@ -53,6 +53,12 @@ interface PackageManager {
   serviceName: string;
 }
 
+interface AuthMethod {
+  method: string;
+  success: boolean;
+  rootPassword: boolean;
+}
+
 // Default configuration - follows principle of sensible defaults
 const DEFAULT_CONFIG: DatabaseConfig = {
   name: "universal_db",
@@ -167,6 +173,85 @@ function logHeader(message: string): void {
   console.log(`${border}${Colors.RESET}\n`);
 }
 
+function logPasswordPrompt(promptType: "root" | "webadmin"): void {
+  const userInfo = promptType === "root" 
+    ? "MariaDB root user (root@localhost)"
+    : "Database user (webadmin)";
+  
+  console.log(`\n${Colors.YELLOW}[PASSWORD REQUIRED]${Colors.RESET} ${Colors.BOLD}${userInfo}${Colors.RESET}`);
+  console.log(`${Colors.CYAN}You will be prompted for the ${promptType === "root" ? "MariaDB root" : "webadmin"} password.${Colors.RESET}`);
+  
+  if (promptType === "root") {
+    console.log(`${Colors.YELLOW}Note: This is the MariaDB root@localhost database password${Colors.RESET}`);
+    console.log(`${Colors.YELLOW}      (not your system user password)${Colors.RESET}`);
+  } else {
+    console.log(`${Colors.YELLOW}Note: This is the webadmin database user password${Colors.RESET}`);
+    console.log(`${Colors.YELLOW}      Default: Password123! (if just installed)${Colors.RESET}`);
+  }
+  console.log("");
+}
+
+// Test different MariaDB authentication methods
+async function testMariaDBConnection(): Promise<AuthMethod> {
+  logHeader("Testing MariaDB Root Access");
+  
+  // Method 1: Unix socket authentication (most common on fresh installs)
+  logInfo("Testing Unix socket authentication...");
+  try {
+    const socketCmd = new Deno.Command("sudo", {
+      args: ["mysql", "-u", "root", "--execute", "SELECT 1;"],
+      stdout: "piped",
+      stderr: "piped",
+    });
+    const { success } = await socketCmd.output();
+    
+    if (success) {
+      logSuccess("Unix socket authentication successful");
+      return { method: "socket", success: true, rootPassword: false };
+    }
+  } catch (error) {
+    logWarning(`Unix socket failed: ${(error as Error).message}`);
+  }
+  
+  // Method 2: No password authentication
+  logInfo("Testing no-password authentication...");
+  try {
+    const noPassCmd = new Deno.Command("mysql", {
+      args: ["-u", "root", "--execute", "SELECT 1;"],
+      stdout: "piped",
+      stderr: "piped",
+    });
+    const { success } = await noPassCmd.output();
+    
+    if (success) {
+      logSuccess("No-password authentication successful");
+      return { method: "no-password", success: true, rootPassword: false };
+    }
+  } catch (error) {
+    logWarning(`No-password authentication failed: ${(error as Error).message}`);
+  }
+  
+  // Method 3: Interactive password prompt with clear messaging
+  logPasswordPrompt("root");
+  try {
+    const passCmd = new Deno.Command("mysql", {
+      args: ["-u", "root", "-p", "--execute", "SELECT 1;"],
+      stdout: "inherit",
+      stderr: "inherit",
+    });
+    const { success } = await passCmd.output();
+    
+    if (success) {
+      logSuccess("Root password authentication successful");
+      return { method: "password", success: true, rootPassword: true };
+    }
+  } catch (error) {
+    logWarning(`Password authentication failed: ${(error as Error).message}`);
+  }
+  
+  return { method: "none", success: false, rootPassword: false };
+}
+
 // Detect available package manager
 async function detectPackageManager(): Promise<PackageManager | null> {
   logInfo("Detecting package manager...");
@@ -234,7 +319,7 @@ async function checkRootPrivileges(): Promise<boolean> {
 
     return false;
   } catch (error) {
-    logError(`Failed to check privileges: ${error.message}`);
+    logError(`Failed to check privileges: ${(error as Error).message}`);
     return false;
   }
 }
@@ -398,7 +483,7 @@ async function installMariaDB(
     logSuccess("MariaDB installation completed");
     return true;
   } catch (error) {
-    logError(`Installation failed: ${error.message}`);
+    logError(`Installation failed: ${(error as Error).message}`);
     return false;
   }
 }
@@ -407,31 +492,47 @@ async function executeSQL(
   sql: string,
   config: DatabaseConfig,
   useDatabase = false,
+  authMethod?: AuthMethod
 ): Promise<boolean> {
   try {
-    const mysqlArgs = [
-      "-h",
-      config.host,
-      "-P",
-      config.port.toString(),
-      "-u",
-      "root",
-      "-p",
-      "--execute",
-      sql,
-    ];
+    // Determine the best authentication method based on previous testing
+    let mysqlArgs: string[] = [];
+    let command: string = "mysql";
+    let useSudo = false;
+
+    if (authMethod?.method === "socket") {
+      // Use Unix socket with sudo
+      useSudo = true;
+      mysqlArgs = ["-u", "root", "--execute", sql];
+    } else if (authMethod?.method === "no-password") {
+      // Use direct connection without password
+      mysqlArgs = [
+        "-h", config.host,
+        "-P", config.port.toString(),
+        "-u", "root",
+        "--execute", sql,
+      ];
+    } else {
+      // Use password authentication with clear prompt
+      logPasswordPrompt("root");
+      mysqlArgs = [
+        "-h", config.host,
+        "-P", config.port.toString(),
+        "-u", "root",
+        "-p",
+        "--execute", sql,
+      ];
+    }
 
     if (useDatabase) {
       mysqlArgs.splice(-2, 0, "-D", config.name);
     }
 
-    const command = new Deno.Command("mysql", {
-      args: mysqlArgs,
-      stdout: "null",
-      stderr: "piped",
-    });
+    const cmd = useSudo 
+      ? new Deno.Command("sudo", { args: ["mysql", ...mysqlArgs], stdout: "null", stderr: "piped" })
+      : new Deno.Command(command, { args: mysqlArgs, stdout: "null", stderr: "piped" });
 
-    const { success, stderr } = await command.output();
+    const { success, stderr } = await cmd.output();
 
     if (!success) {
       const errorText = new TextDecoder().decode(stderr);
@@ -441,12 +542,12 @@ async function executeSQL(
 
     return true;
   } catch (error) {
-    logError(`SQL execution error: ${error.message}`);
+    logError(`SQL execution error: ${(error as Error).message}`);
     return false;
   }
 }
 
-async function createDatabase(config: DatabaseConfig): Promise<boolean> {
+async function createDatabase(config: DatabaseConfig, authMethod: AuthMethod): Promise<boolean> {
   logHeader("Creating Database and Tables");
 
   // Create database
@@ -457,7 +558,7 @@ async function createDatabase(config: DatabaseConfig): Promise<boolean> {
     COLLATE utf8mb4_unicode_ci;
   `;
 
-  if (!await executeSQL(createDbSQL, config)) {
+  if (!await executeSQL(createDbSQL, config, false, authMethod)) {
     return false;
   }
 
@@ -558,7 +659,7 @@ async function createDatabase(config: DatabaseConfig): Promise<boolean> {
     ) ENGINE=InnoDB;
   `;
 
-  if (!await executeSQL(createTablesSQL, config)) {
+  if (!await executeSQL(createTablesSQL, config, false, authMethod)) {
     return false;
   }
 
@@ -566,7 +667,7 @@ async function createDatabase(config: DatabaseConfig): Promise<boolean> {
   return true;
 }
 
-async function createDatabaseUser(config: DatabaseConfig): Promise<boolean> {
+async function createDatabaseUser(config: DatabaseConfig, authMethod: AuthMethod): Promise<boolean> {
   logHeader("Creating Database User");
 
   const createUserSQL = `
@@ -575,7 +676,7 @@ async function createDatabaseUser(config: DatabaseConfig): Promise<boolean> {
     FLUSH PRIVILEGES;
   `;
 
-  if (!await executeSQL(createUserSQL, config)) {
+  if (!await executeSQL(createUserSQL, config, false, authMethod)) {
     return false;
   }
 
@@ -587,19 +688,16 @@ async function testConnection(config: DatabaseConfig): Promise<boolean> {
   logHeader("Testing Database Connection");
 
   try {
+    logPasswordPrompt("webadmin");
+    
     const testCmd = new Deno.Command("mysql", {
       args: [
-        "-h",
-        config.host,
-        "-P",
-        config.port.toString(),
-        "-u",
-        config.user,
+        "-h", config.host,
+        "-P", config.port.toString(),
+        "-u", config.user,
         "-p",
-        "-D",
-        config.name,
-        "--execute",
-        "SELECT 1 as test_connection;",
+        "-D", config.name,
+        "--execute", "SELECT 1 as test_connection;",
       ],
       stdout: "piped",
       stderr: "piped",
@@ -616,12 +714,12 @@ async function testConnection(config: DatabaseConfig): Promise<boolean> {
       return false;
     }
   } catch (error) {
-    logError(`Connection test error: ${error.message}`);
+    logError(`Connection test error: ${(error as Error).message}`);
     return false;
   }
 }
 
-async function createSampleData(config: DatabaseConfig): Promise<boolean> {
+async function createSampleData(config: DatabaseConfig, authMethod: AuthMethod): Promise<boolean> {
   logHeader("Creating Sample Data");
 
   const sampleDataSQL = `
@@ -640,7 +738,7 @@ async function createSampleData(config: DatabaseConfig): Promise<boolean> {
     ('portfolio', 'MariaDB Setup Tool', 'mariadb-setup', 'Universal database setup utility', 'completed', false);
   `;
 
-  if (!await executeSQL(sampleDataSQL, config, true)) {
+  if (!await executeSQL(sampleDataSQL, config, true, authMethod)) {
     return false;
   }
 
@@ -734,6 +832,10 @@ PRIVILEGE REQUIREMENTS:
   • Service management requires root/sudo privileges
   • Database operations can run as regular user
   • Test-only mode does not require elevated privileges
+
+PASSWORD PROMPTS:
+  • First prompts ask for MariaDB 'root'@'localhost' password
+  • Final prompt asks for 'webadmin' database user password
     `);
     Deno.exit(0);
   }
@@ -757,7 +859,7 @@ PRIVILEGE REQUIREMENTS:
       logInfo(`Loaded configuration from ${options.configPath}`);
     } catch (error) {
       logWarning(
-        `Failed to load config file, using defaults: ${error.message}`,
+        `Failed to load config file, using defaults: ${(error as Error).message}`,
       );
     }
   }
@@ -770,6 +872,13 @@ PRIVILEGE REQUIREMENTS:
   config.port = parseInt(Deno.env.get("DB_PORT") || config.port.toString());
 
   logHeader("Universal Deno Genesis Framework - MariaDB Setup");
+
+  // Test-only mode
+  if (options.testOnly) {
+    logInfo("Running in test-only mode");
+    const connectionOk = await testConnection(config);
+    Deno.exit(connectionOk ? 0 : 1);
+  }
 
   // Check for root/sudo privileges first - required for package installation
   logInfo("Checking system privileges...");
@@ -785,13 +894,6 @@ PRIVILEGE REQUIREMENTS:
     );
     logError("  Or ensure your user is in the sudo group");
     Deno.exit(1);
-  }
-
-  // Test-only mode
-  if (options.testOnly) {
-    logInfo("Running in test-only mode");
-    const connectionOk = await testConnection(config);
-    Deno.exit(connectionOk ? 0 : 1);
   }
 
   // Detect package manager
@@ -833,24 +935,34 @@ PRIVILEGE REQUIREMENTS:
         Deno.exit(1);
       }
     } catch (error) {
-      logError(`Failed to start MariaDB: ${error.message}`);
+      logError(`Failed to start MariaDB: ${(error as Error).message}`);
       Deno.exit(1);
     }
   }
 
+  // Test MariaDB connection and determine authentication method
+  const authMethod = await testMariaDBConnection();
+  if (!authMethod.success) {
+    logError("Cannot establish connection to MariaDB. Please check:");
+    logError("  • MariaDB service is running");
+    logError("  • Root user authentication is configured");
+    logError("  • Try running: sudo mysql_secure_installation");
+    Deno.exit(1);
+  }
+
   // Create database and tables
-  if (!await createDatabase(config)) {
+  if (!await createDatabase(config, authMethod)) {
     logError("Database creation failed. Exiting.");
     Deno.exit(1);
   }
 
   // Create database user
-  if (!await createDatabaseUser(config)) {
+  if (!await createDatabaseUser(config, authMethod)) {
     logError("User creation failed. Exiting.");
     Deno.exit(1);
   }
 
-  // Test the connection
+  // Test the connection with the new user
   if (!await testConnection(config)) {
     logError("Connection test failed. Exiting.");
     Deno.exit(1);
@@ -858,7 +970,7 @@ PRIVILEGE REQUIREMENTS:
 
   // Create sample data if requested
   if (options.sampleData) {
-    if (!await createSampleData(config)) {
+    if (!await createSampleData(config, authMethod)) {
       logWarning(
         "Sample data creation failed, but setup completed successfully",
       );
@@ -879,9 +991,9 @@ if (import.meta.main) {
   try {
     await main();
   } catch (error) {
-    logError(`Setup failed: ${error.message}`);
+    logError(`Setup failed: ${(error as Error).message}`);
     if (Deno.args.includes("--verbose")) {
-      console.error(error.stack);
+      console.error((error as Error).stack);
     }
     Deno.exit(1);
   }
