@@ -1,0 +1,756 @@
+/* 
+==============================================================================
+🌊 DenoGenesis Framework - Main CSS Entry Point
+==============================================================================
+Professional Dark Blue Theme for Business Applications
+Author: Pedro M. Dominguez - DenoGenesis Framework Team
+Version: 2.0
+Last Updated: September 2025
+
+Philosophy: Professional Warmth + Local-First Business Trust
+==============================================================================
+*/
+
+
+/* ===== CSS CUSTOM PROPERTIES FOUNDATION ===== */
+:root {
+  /* 🎨 DENO GENESIS DARK BLUE COLOR SYSTEM */
+  
+  /* Primary Blue Scale - Deep ocean to accessible sky */
+  --primary-950: #0c1426;      /* Deepest professional base */
+  --primary-900: #1e293b;      /* Rich foundation */
+  --primary-800: #334155;      /* Accessible dark */
+  --primary-700: #475569;      /* Subtle contrast */
+  --primary-600: #64748b;      /* Balanced mid-tone */
+  --primary-500: #94a3b8;      /* Readable text */
+  --primary-400: #cbd5e1;      /* Secondary text */
+  --primary-300: #e2e8f0;      /* Light text */
+  --primary-200: #f1f5f9;      /* Bright highlights */
+  --primary-100: #f8fafc;      /* Pure contrast */
+
+  /* 🔥 ACCENT COLOR SYSTEM - Trust Building */
+  
+  /* Gold/Amber - Premium & Trust */
+  --accent-gold-900: #78350f;
+  --accent-gold-600: #d97706;
+  --accent-gold-500: #f59e0b;
+  --accent-gold-400: #fbbf24;
+  --accent-gold-300: #fcd34d;
+
+  /* Electric Blue - Action & Technology */
+  --accent-blue-600: #2563eb;
+  --accent-blue-500: #3b82f6;
+  --accent-blue-400: #60a5fa;
+
+  /* Success Green - Positive Actions */
+  --accent-green-600: #16a34a;
+  --accent-green-500: #22c55e;
+  --accent-green-400: #4ade80;
+
+  /* Warning Orange - Urgent Actions */
+  --accent-orange-600: #ea580c;
+  --accent-orange-500: #f97316;
+  --accent-orange-400: #fb923c;
+
+  /* Error Red - Critical Actions */
+  --accent-red-600: #dc2626;
+  --accent-red-500: #ef4444;
+  --accent-red-400: #f87171;
+
+  /* 📐 SEMANTIC COLOR ASSIGNMENTS */
+  
+  /* Backgrounds */
+  --bg-primary: var(--primary-950);
+  --bg-secondary: var(--primary-900);
+  --bg-tertiary: var(--primary-800);
+  --bg-elevated: var(--primary-700);
+  --bg-glass: rgba(30, 41, 59, 0.85);
+  --bg-overlay: rgba(12, 20, 38, 0.95);
+
+  /* Text Colors */
+  --text-primary: var(--primary-100);
+  --text-secondary: var(--primary-300);
+  --text-tertiary: var(--primary-400);
+  --text-muted: var(--primary-500);
+  --text-inverse: var(--primary-950);
+
+  /* Border Colors */
+  --border-primary: var(--primary-700);
+  --border-secondary: var(--primary-600);
+  --border-accent: var(--accent-gold-500);
+  --border-focus: var(--accent-blue-400);
+
+  /* 🎯 BUSINESS TRUST ACCENTS */
+  --accent-primary: var(--accent-gold-500);
+  --accent-primary-hover: var(--accent-gold-400);
+  --accent-primary-active: var(--accent-gold-600);
+  --accent-cta: var(--accent-blue-500);
+  --accent-cta-hover: var(--accent-blue-400);
+
+  /* 📏 DESIGN SYSTEM SCALE */
+  
+  /* Spacing Scale - Consistent rhythm */
+  --space-xs: 0.25rem;    /* 4px */
+  --space-sm: 0.5rem;     /* 8px */
+  --space-md: 1rem;       /* 16px */
+  --space-lg: 1.5rem;     /* 24px */
+  --space-xl: 2rem;       /* 32px */
+  --space-2xl: 3rem;      /* 48px */
+  --space-3xl: 4rem;      /* 64px */
+  --space-4xl: 6rem;      /* 96px */
+  --space-5xl: 8rem;      /* 128px */
+
+  /* Border Radius Scale - Modern curves */
+  --radius-xs: 0.125rem;  /* 2px */
+  --radius-sm: 0.25rem;   /* 4px */
+  --radius-md: 0.5rem;    /* 8px */
+  --radius-lg: 0.75rem;   /* 12px */
+  --radius-xl: 1rem;      /* 16px */
+  --radius-2xl: 1.5rem;   /* 24px */
+  --radius-3xl: 2rem;     /* 32px */
+  --radius-full: 9999px;
+
+  /* Typography Scale - Professional hierarchy */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  --text-4xl: 2.25rem;    /* 36px */
+  --text-5xl: 3rem;       /* 48px */
+  --text-6xl: 4rem;       /* 64px */
+
+  /* Font Weight Scale */
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-black: 900;
+
+  /* Line Height Scale */
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+
+  /* Shadow System - Depth perception */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-glow: 0 0 20px rgba(245, 158, 11, 0.3);
+  --shadow-glow-blue: 0 0 20px rgba(59, 130, 246, 0.3);
+
+  /* Transitions - Smooth interactions */
+  --transition-fast: 0.15s ease-out;
+  --transition-medium: 0.3s ease-out;
+  --transition-slow: 0.5s ease-out;
+  --transition-bounce: 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* Z-Index Scale - Layering system */
+  --z-behind: -1;
+  --z-base: 0;
+  --z-raised: 10;
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal: 1040;
+  --z-popover: 1050;
+  --z-tooltip: 1060;
+  --z-toast: 1070;
+
+  /* ⚡ PERFORMANCE VARIABLES */
+  --scroll-behavior: smooth;
+  --font-display: swap;
+  --backface-visibility: hidden;
+  --transform-style: preserve-3d;
+}
+
+/* ===== GLOBAL FOUNDATION STYLES ===== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: var(--scroll-behavior);
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--leading-normal);
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== PROFESSIONAL TYPOGRAPHY SYSTEM ===== */
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: var(--font-weight-bold);
+  line-height: var(--leading-tight);
+  color: var(--text-primary);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+h1 {
+  font-size: var(--text-5xl);
+  font-weight: var(--font-weight-black);
+  margin-bottom: var(--space-xl);
+  background: linear-gradient(135deg, var(--text-primary), var(--accent-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+h2 {
+  font-size: var(--text-4xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-lg);
+}
+
+h3 {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-md);
+}
+
+h4 {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-md);
+}
+
+h5 {
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--space-sm);
+}
+
+h6 {
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--space-sm);
+  color: var(--text-secondary);
+}
+
+p {
+  margin-bottom: var(--space-md);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+a {
+  color: var(--accent-primary);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+a:hover {
+  color: var(--accent-primary-hover);
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+}
+
+a:focus {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ===== LAYOUT CONTAINERS ===== */
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-lg);
+}
+
+.container-wide {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 var(--space-lg);
+}
+
+.container-narrow {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 var(--space-lg);
+}
+
+/* ===== BUTTON SYSTEM - TRUST BUILDING ===== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xl);
+  font-size: var(--text-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  text-decoration: none;
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-medium);
+  position: relative;
+  overflow: hidden;
+  backface-visibility: var(--backface-visibility);
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left var(--transition-slow);
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+/* Primary CTA Button - Gold accent for trust */
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-gold-600));
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+  border: 1px solid var(--accent-gold-600);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--accent-primary-hover), var(--accent-gold-500));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-xl), var(--shadow-glow);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-md);
+}
+
+/* Secondary Button - Professional blue */
+.btn-secondary {
+  background: linear-gradient(135deg, var(--accent-cta), var(--accent-blue-600));
+  color: var(--text-primary);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--accent-blue-600);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, var(--accent-cta-hover), var(--accent-blue-500));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-xl), var(--shadow-glow-blue);
+}
+
+/* Outline Button - Subtle professional */
+.btn-outline {
+  background: rgba(30, 41, 59, 0.5);
+  color: var(--accent-primary);
+  border: 2px solid var(--accent-primary);
+  backdrop-filter: blur(10px);
+}
+
+.btn-outline:hover {
+  background: var(--accent-primary);
+  color: var(--text-inverse);
+  border-color: var(--accent-primary-hover);
+  box-shadow: var(--shadow-glow);
+}
+
+/* Ghost Button - Minimal professional */
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-primary);
+}
+
+.btn-ghost:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-secondary);
+}
+
+/* Button sizes */
+.btn-sm {
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--text-sm);
+}
+
+.btn-lg {
+  padding: var(--space-lg) var(--space-2xl);
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-bold);
+}
+
+.btn-xl {
+  padding: var(--space-xl) var(--space-3xl);
+  font-size: var(--text-xl);
+  font-weight: var(--font-weight-bold);
+}
+
+/* ===== CARD SYSTEM - PROFESSIONAL DEPTH ===== */
+
+.card {
+  background: linear-gradient(145deg, var(--bg-secondary), var(--bg-tertiary));
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-lg);
+  transition: all var(--transition-medium);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+  opacity: 0;
+  transition: opacity var(--transition-medium);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-2xl);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.card-elevated {
+  background: linear-gradient(145deg, var(--bg-elevated), var(--bg-secondary));
+  border-color: var(--border-secondary);
+}
+
+.card-glass {
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ===== FORM SYSTEM - PROFESSIONAL TRUST ===== */
+
+.form-group {
+  margin-bottom: var(--space-lg);
+}
+
+.form-label {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  width: 100%;
+  padding: var(--space-md);
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-medium);
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  background: var(--bg-secondary);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* ===== UTILITY CLASSES ===== */
+
+/* Text utilities */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+.text-accent { color: var(--accent-primary); }
+
+/* Background utilities */
+.bg-primary { background: var(--bg-primary); }
+.bg-secondary { background: var(--bg-secondary); }
+.bg-tertiary { background: var(--bg-tertiary); }
+
+/* Spacing utilities */
+.mt-auto { margin-top: auto; }
+.mb-auto { margin-bottom: auto; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+
+/* Display utilities */
+.hidden { display: none; }
+.block { display: block; }
+.inline-block { display: inline-block; }
+.flex { display: flex; }
+.inline-flex { display: inline-flex; }
+.grid { display: grid; }
+
+/* Flexbox utilities */
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+
+/* Position utilities */
+.relative { position: relative; }
+.absolute { position: absolute; }
+.fixed { position: fixed; }
+
+/* ===== RESPONSIVE DESIGN SYSTEM ===== */
+
+/* Mobile First Breakpoints */
+@media (min-width: 640px) {
+  .container {
+    padding: 0 var(--space-xl);
+  }
+  
+  h1 { font-size: var(--text-6xl); }
+  h2 { font-size: var(--text-5xl); }
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 0 var(--space-2xl);
+  }
+  
+  .btn-lg {
+    padding: var(--space-xl) var(--space-3xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 var(--space-3xl);
+  }
+  
+  .card:hover {
+    transform: translateY(-6px);
+  }
+}
+
+/* ===== ACCESSIBILITY ENHANCEMENTS ===== */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --border-primary: var(--primary-400);
+    --border-secondary: var(--primary-300);
+  }
+  
+  .btn {
+    border-width: 2px;
+  }
+}
+
+/* Dark mode support (already dark, but for system preferences) */
+@media (prefers-color-scheme: light) {
+  /* If user specifically prefers light mode, we could add overrides */
+  /* For now, maintaining professional dark theme */
+}
+
+/* ===== PRINT STYLES ===== */
+
+@media print {
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+  
+  .btn {
+    border: 2px solid black;
+    background: white;
+    color: black;
+  }
+}
+
+/* ===== ANIMATION KEYFRAMES ===== */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(30px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes slideInDown {
+  from { 
+    opacity: 0; 
+    transform: translateY(-30px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes scaleIn {
+  from { 
+    opacity: 0; 
+    transform: scale(0.9); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+}
+
+@keyframes glow {
+  0% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.6); }
+  100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.3); }
+}
+
+/* ===== ANIMATION UTILITY CLASSES ===== */
+
+.animate-fade-in {
+  animation: fadeIn var(--transition-medium) ease-out;
+}
+
+.animate-slide-up {
+  animation: slideInUp var(--transition-medium) ease-out;
+}
+
+.animate-slide-down {
+  animation: slideInDown var(--transition-medium) ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn var(--transition-medium) ease-out;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* ===== COMPONENT LOADING STATES ===== */
+
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+  position: relative;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid var(--border-primary);
+  border-top: 2px solid var(--accent-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===== SUCCESS STATES & FEEDBACK ===== */
+
+.success {
+  border-color: var(--accent-green-500);
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
+}
+
+.warning {
+  border-color: var(--accent-orange-500);
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.2);
+}
+
+.error {
+  border-color: var(--accent-red-500);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+}
+
+/* 
+==============================================================================
+🎯 END OF DENODENESIS MAIN CSS
+==============================================================================
+This comprehensive CSS foundation provides:
+
+✅ Professional dark blue color system optimized for business trust
+✅ Complete design token system for consistent scaling
+✅ Accessible typography with proper contrast ratios
+✅ Modern button system with hover effects and animations
+✅ Professional card components with glass morphism effects
+✅ Comprehensive form styling for business applications
+✅ Responsive design system with mobile-first approach
+✅ Accessibility enhancements including reduced motion support
+✅ Animation system with performance considerations
+✅ Loading states and user feedback patterns
+
+Perfect for professional business websites built with DenoGenesis Framework.
+==============================================================================
+*/
