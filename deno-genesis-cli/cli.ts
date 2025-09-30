@@ -24,8 +24,9 @@
 import { parseArgs } from "https://deno.land/std@0.224.0/cli/parse_args.ts";
 import { exists } from "https://deno.land/std@0.224.0/fs/exists.ts";
 import { join, dirname } from "https://deno.land/std@0.224.0/path/mod.ts";
+import { distance } from "https://deno.land/x/levenshtein/mod.ts";
 
-// Import subcommand modules following Unix principle of modularity
+// Import subcommand modules
 import { initCommand } from "./commands/init.ts";
 import { newCommand } from "./commands/new.ts";
 import { devCommand } from "./commands/dev.ts";
@@ -37,13 +38,13 @@ import { aiCommand } from "./commands/ai.ts";
 import { securityCommand } from "./commands/security.ts";
 import { updateCommand } from "./commands/update.ts";
 
-// Types for better developer experience and AI collaboration
+// Types
 interface CLIContext {
   cwd: string;
   configPath: string;
   verbose: boolean;
   dryRun: boolean;
-  format: 'text' | 'json' | 'yaml';
+  format: "text" | "json" | "yaml";
 }
 
 interface CommandDefinition {
@@ -55,7 +56,7 @@ interface CommandDefinition {
   permissions: string[];
 }
 
-// Command registry - following Unix principle of modularity
+// Command registry
 const COMMANDS: Record<string, CommandDefinition> = {
   init: {
     name: "init",
@@ -64,12 +65,11 @@ const COMMANDS: Record<string, CommandDefinition> = {
     examples: [
       "genesis init my-project",
       "genesis init enterprise-app --template=enterprise",
-      "genesis init . --template=basic"
+      "genesis init . --template=basic",
     ],
     handler: initCommand,
-    permissions: ["--allow-read", "--allow-write", "--allow-net"]
+    permissions: ["--allow-read", "--allow-write", "--allow-net"],
   },
-  
   new: {
     name: "new",
     description: "Create new site in existing Genesis hub-and-spoke project",
@@ -77,12 +77,11 @@ const COMMANDS: Record<string, CommandDefinition> = {
     examples: [
       "genesis new api-service --template=api",
       "genesis new marketing-site --template=static",
-      "genesis new admin-dashboard --template=webapp"
+      "genesis new admin-dashboard --template=webapp",
     ],
     handler: newCommand,
-    permissions: ["--allow-read", "--allow-write"]
+    permissions: ["--allow-read", "--allow-write"],
   },
-
   dev: {
     name: "dev",
     description: "Start development server with hot reload",
@@ -90,12 +89,11 @@ const COMMANDS: Record<string, CommandDefinition> = {
     examples: [
       "genesis dev",
       "genesis dev api-service --port=8080",
-      "genesis dev frontend --watch"
+      "genesis dev frontend --watch",
     ],
     handler: devCommand,
-    permissions: ["--allow-read", "--allow-net", "--allow-run", "--allow-env"]
+    permissions: ["--allow-read", "--allow-net", "--allow-run", "--allow-env"],
   },
-
   deploy: {
     name: "deploy",
     description: "Deploy to staging or production environment",
@@ -103,12 +101,17 @@ const COMMANDS: Record<string, CommandDefinition> = {
     examples: [
       "genesis deploy staging",
       "genesis deploy production --site=api-service",
-      "genesis deploy staging --dry-run"
+      "genesis deploy staging --dry-run",
     ],
     handler: deployCommand,
-    permissions: ["--allow-read", "--allow-write", "--allow-run", "--allow-net", "--allow-env"]
+    permissions: [
+      "--allow-read",
+      "--allow-write",
+      "--allow-run",
+      "--allow-net",
+      "--allow-env",
+    ],
   },
-
   db: {
     name: "db",
     description: "Database operations for multi-tenant architecture",
@@ -117,12 +120,11 @@ const COMMANDS: Record<string, CommandDefinition> = {
       "genesis db setup",
       "genesis db migrate site1",
       "genesis db backup --all",
-      "genesis db restore backup-2024-01-15.sql"
+      "genesis db restore backup-2024-01-15.sql",
     ],
     handler: dbCommand,
-    permissions: ["--allow-read", "--allow-write", "--allow-run", "--allow-net"]
+    permissions: ["--allow-read", "--allow-write", "--allow-run", "--allow-net"],
   },
-
   env: {
     name: "env",
     description: "Environment configuration management",
@@ -130,12 +132,11 @@ const COMMANDS: Record<string, CommandDefinition> = {
     examples: [
       "genesis env setup",
       "genesis env validate --environment=production",
-      "genesis env sync"
+      "genesis env sync",
     ],
     handler: envCommand,
-    permissions: ["--allow-read", "--allow-write", "--allow-env"]
+    permissions: ["--allow-read", "--allow-write", "--allow-env"],
   },
-
   status: {
     name: "status",
     description: "Show status of all services and sites",
@@ -143,12 +144,11 @@ const COMMANDS: Record<string, CommandDefinition> = {
     examples: [
       "genesis status",
       "genesis status --format=json",
-      "genesis status --site=api-service"
+      "genesis status --site=api-service",
     ],
     handler: statusCommand,
-    permissions: ["--allow-read", "--allow-run", "--allow-net"]
+    permissions: ["--allow-read", "--allow-run", "--allow-net"],
   },
-
   ai: {
     name: "ai",
     description: "AI-augmented development operations",
@@ -157,12 +157,11 @@ const COMMANDS: Record<string, CommandDefinition> = {
       "genesis ai generate component Button",
       "genesis ai review src/components/",
       "genesis ai docs src/api/",
-      "genesis ai migrate v1.0 v2.0"
+      "genesis ai migrate v1.0 v2.0",
     ],
     handler: aiCommand,
-    permissions: ["--allow-read", "--allow-write", "--allow-net"]
+    permissions: ["--allow-read", "--allow-write", "--allow-net"],
   },
-
   security: {
     name: "security",
     description: "Security analysis and permission auditing",
@@ -170,12 +169,11 @@ const COMMANDS: Record<string, CommandDefinition> = {
     examples: [
       "genesis security audit",
       "genesis security scan --deep",
-      "genesis security certs setup"
+      "genesis security certs setup",
     ],
     handler: securityCommand,
-    permissions: ["--allow-read", "--allow-run", "--allow-net"]
+    permissions: ["--allow-read", "--allow-run", "--allow-net"],
   },
-
   update: {
     name: "update",
     description: "Update framework core and sync all sites",
@@ -183,21 +181,55 @@ const COMMANDS: Record<string, CommandDefinition> = {
     examples: [
       "genesis update",
       "genesis update --check-only",
-      "genesis update --backup"
+      "genesis update --backup",
     ],
     handler: updateCommand,
-    permissions: ["--allow-read", "--allow-write", "--allow-run", "--allow-net"]
-  }
+    permissions: [
+      "--allow-read",
+      "--allow-write",
+      "--allow-run",
+      "--allow-net",
+    ],
+  },
 };
 
-// Utility functions following Unix principles
+// === Utility: Suggest closest command ===
+function suggestCommand(input: string): string | null {
+  const candidates = Object.keys(COMMANDS);
+  const closest = candidates.reduce(
+    (best, candidate) => {
+      const score = distance(input, candidate);
+      return score < best.score ? { name: candidate, score } : best;
+    },
+    { name: "", score: Infinity },
+  );
+  return closest.score <= 3 ? closest.name : null;
+}
+
+// === Utility: Dry-run wrapper ===
+async function runWithDryRun(
+  fn: (args: string[], ctx: CLIContext) => Promise<number>,
+  args: string[],
+  ctx: CLIContext,
+): Promise<number> {
+  if (ctx.dryRun) {
+    console.log(
+      `💡 Dry run: Would execute '${fn.name}' with args:`,
+      args,
+    );
+    return 0;
+  }
+  return fn(args, ctx);
+}
+
+// Help + version
 function showHelp(command?: string): void {
   if (command && COMMANDS[command]) {
     const cmd = COMMANDS[command];
     console.log(`\n${cmd.name} - ${cmd.description}\n`);
     console.log(`Usage: ${cmd.usage}\n`);
     console.log("Examples:");
-    cmd.examples.forEach(example => console.log(`  ${example}`));
+    cmd.examples.forEach((example) => console.log(`  ${example}`));
     console.log(`\nRequired permissions: ${cmd.permissions.join(" ")}\n`);
     return;
   }
@@ -268,7 +300,7 @@ Built with Unix Philosophy principles:
 
 async function detectGenesisProject(): Promise<string | null> {
   let currentDir = Deno.cwd();
-  
+
   while (currentDir !== dirname(currentDir)) {
     const configPath = join(currentDir, "genesis.config.ts");
     if (await exists(configPath)) {
@@ -276,24 +308,26 @@ async function detectGenesisProject(): Promise<string | null> {
     }
     currentDir = dirname(currentDir);
   }
-  
+
   return null;
 }
 
-async function createCLIContext(args: ReturnType<typeof parseArgs>): Promise<CLIContext> {
+async function createCLIContext(
+  args: ReturnType<typeof parseArgs>,
+): Promise<CLIContext> {
   const projectRoot = await detectGenesisProject();
   const cwd = projectRoot || Deno.cwd();
-  
+
   return {
     cwd,
     configPath: join(cwd, "genesis.config.ts"),
     verbose: Boolean(args.verbose),
     dryRun: Boolean(args["dry-run"]),
-    format: (args.format as 'text' | 'json' | 'yaml') || 'text'
+    format: (args.format as "text" | "json" | "yaml") || "text",
   };
 }
 
-// Main CLI entry point
+// === Main CLI entry point ===
 async function main(): Promise<number> {
   const args = parseArgs(Deno.args, {
     boolean: ["help", "version", "verbose", "dry-run"],
@@ -305,10 +339,9 @@ async function main(): Promise<number> {
         return false;
       }
       return true;
-    }
+    },
   });
 
-  // Handle global flags
   if (args.help) {
     const command = args._[0] as string;
     showHelp(command);
@@ -320,7 +353,6 @@ async function main(): Promise<number> {
     return 0;
   }
 
-  // Extract command and remaining arguments
   const command = args._[0] as string;
   const commandArgs = args._.slice(1) as string[];
 
@@ -329,47 +361,47 @@ async function main(): Promise<number> {
     return 1;
   }
 
-  // Handle special help case
   if (command === "help") {
     const helpCommand = commandArgs[0];
     showHelp(helpCommand);
     return 0;
   }
 
-  // Validate command exists
   if (!COMMANDS[command]) {
     console.error(`❌ Unknown command: ${command}`);
+    const suggestion = suggestCommand(command);
+    if (suggestion) {
+      console.error(`🤔 Did you mean '${suggestion}'?`);
+    }
     console.error(`Run 'genesis help' for available commands.`);
     return 1;
   }
 
   try {
-    // Create CLI context
     const context = await createCLIContext(args);
-    
-    // Log permissions being used (Unix principle: explicit and auditable)
+
     if (context.verbose) {
-      console.log(`🔒 Required permissions: ${COMMANDS[command].permissions.join(" ")}`);
+      console.log(
+        `🔒 Required permissions: ${COMMANDS[command].permissions.join(" ")}`,
+      );
       console.log(`📁 Working directory: ${context.cwd}`);
       console.log(`⚙️  Configuration: ${context.configPath}`);
     }
 
-    // Execute command
-    const exitCode = await COMMANDS[command].handler(commandArgs, context);
+    const exitCode = await runWithDryRun(
+      COMMANDS[command].handler,
+      commandArgs,
+      context,
+    );
     return exitCode;
-
   } catch (error) {
     console.error(`❌ Error executing '${command}':`, error.message);
-    
-    if (args.verbose) {
-      console.error(error.stack);
-    }
-    
+    if (args.verbose) console.error(error.stack);
     return 1;
   }
 }
 
-// Unix principle: Clear exit codes
+// Clear exit codes
 if (import.meta.main) {
   const exitCode = await main();
   Deno.exit(exitCode);
