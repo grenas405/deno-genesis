@@ -1,11 +1,11 @@
 [Unit]
-Description=Deno App Service
+Description=Deno Genesis Framework 
 After=network.target
 
 [Service]
 User=admin
-WorkingDirectory=/home/admin/deno-genesis/sites/deno-genesis/
-ExecStart=/home/admin/.deno/bin/deno run --allow-all main.ts
+WorkingDirectory=$HOME/deno-genesis/sites/deno-genesis/
+ExecStart=$HOME/.deno/bin/deno run --allow-all main.ts
 Restart=always
 RestartSec=3
 Environment=PORT=3000
