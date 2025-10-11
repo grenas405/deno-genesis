@@ -1,4 +1,4 @@
-# new-site
+# ctown
 
 > Created with Deno Genesis Framework  
 > **Unix Philosophy + Modern Runtime = Revolutionary Development**
@@ -16,7 +16,7 @@ deno run --allow-read --allow-write --allow-net --allow-env main.ts
 ## 📁 Project Structure
 
 ```
-new-site/
+ctown/
 ├── public/                 # Static assets and pages
 │   ├── pages/             # HTML pages
 │   │   └── home/
@@ -45,7 +45,7 @@ new-site/
 ## ⚙️ Configuration
 
 ### Site Settings
-- **Name**: new-site
+- **Name**: ctown
 - **Port**: 3001
 - **Template**: basic
 - **Description**: Deno Genesis Site
