@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Login | Pedro M. Dominguez</title>
+  <meta name="description" content="Secure admin access portal for Pedro M. Dominguez's sovereign tech framework and portfolio systems." />
+  <meta name="author" content="Pedro M. Dominguez" />
+  <link rel="stylesheet" href="../../assets/css/style.css" />
+  <script type="module" src="../../assets/js/script.js"></script>
+  <script type="module" src="../../assets/js/login.js"></script>
+</head>
+<body>
+  <!-- ✅ Navigation -->
+  <nav class="navbar"></nav>
+
+  <!-- ✅ Login Section -->
+  <section class="login-section">
+    <div class="login-container">
+      <h1 class="login-title" data-typed>Admin Login 🔐</h1>
+      <p class="login-subtext" data-typed>
+        This section is restricted to authorized personnel only.<br />
+        Sovereign systems require sovereign credentials.
+      </p>
+
+      <form id="loginForm" class="login-form">
+        <div class="form-group">
+          <label for="username" class="form-label">👤 Username</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            class="form-input"
+            required
+            placeholder="Enter your username"
+            autocomplete="username"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">🔒 Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="form-input"
+            required
+            placeholder="Enter your password"
+            autocomplete="current-password"
+          />
+        </div>
+
+        <button type="submit" class="btn btn-primary cta-button">
+          Login
+        </button>
+
+        <div id="loginMessage" class="login-message"></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ✅ Footer -->
+  <footer id="footer"></footer>
+</body>
+</html>
