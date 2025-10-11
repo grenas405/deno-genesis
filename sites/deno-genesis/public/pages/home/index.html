@@ -84,7 +84,7 @@
       padding: 60px 20px;
     }
 
-    /* Network effect background */
+    /* Immersive network effect background */
     .network-background {
       position: absolute;
       top: 0;
@@ -92,106 +92,213 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
+      opacity: 0.6;
+    }
+
+    /* Layered background gradients for depth */
+    .network-background::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(212, 175, 55, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(30, 58, 95, 0.3) 0%, transparent 60%);
+      animation: gradientShift 20s ease-in-out infinite;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+      50% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+    }
+
+    /* Large network nodes - primary */
+    .network-node {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--accent-gold) 0%, transparent 70%);
+      box-shadow: 
+        0 0 20px rgba(212, 175, 55, 0.6),
+        0 0 40px rgba(212, 175, 55, 0.4),
+        inset 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+
+    .network-node.large {
+      width: 12px;
+      height: 12px;
+    }
+
+    .network-node.medium {
+      width: 8px;
+      height: 8px;
+    }
+
+    .network-node.small {
+      width: 5px;
+      height: 5px;
+    }
+
+    /* Particle system */
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: var(--accent-gold);
+      border-radius: 50%;
       opacity: 0.4;
     }
 
-    .network-node {
-      position: absolute;
-      width: 4px;
-      height: 4px;
-      background: var(--accent-gold);
-      border-radius: 50%;
-      box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+    /* Individual node animations with varied depths */
+    .network-node:nth-child(1) { top: 10%; left: 8%; animation: pulse1 5s ease-in-out infinite; }
+    .network-node:nth-child(2) { top: 20%; left: 88%; animation: pulse3 6s ease-in-out infinite 0.5s; }
+    .network-node:nth-child(3) { top: 55%; left: 15%; animation: pulse2 7s ease-in-out infinite 1s; }
+    .network-node:nth-child(4) { top: 75%; left: 78%; animation: pulse1 5.5s ease-in-out infinite 1.5s; }
+    .network-node:nth-child(5) { top: 35%; left: 52%; animation: pulse3 6.5s ease-in-out infinite 0.8s; }
+    .network-node:nth-child(6) { top: 85%; left: 35%; animation: pulse2 8s ease-in-out infinite 2s; }
+    .network-node:nth-child(7) { top: 15%; left: 65%; animation: pulse1 5.8s ease-in-out infinite 2.5s; }
+    .network-node:nth-child(8) { top: 48%; left: 12%; animation: pulse3 7.2s ease-in-out infinite 3s; }
+    .network-node:nth-child(9) { top: 65%; left: 92%; animation: pulse2 6.8s ease-in-out infinite 0.3s; }
+    .network-node:nth-child(10) { top: 28%; left: 45%; animation: pulse1 6.2s ease-in-out infinite 1.8s; }
+    .network-node:nth-child(11) { top: 90%; left: 62%; animation: pulse3 7.5s ease-in-out infinite 2.3s; }
+    .network-node:nth-child(12) { top: 42%; left: 82%; animation: pulse2 5.3s ease-in-out infinite 1.2s; }
+    .network-node:nth-child(13) { top: 5%; left: 38%; animation: pulse1 6.9s ease-in-out infinite 0.9s; }
+    .network-node:nth-child(14) { top: 72%; left: 25%; animation: pulse3 5.7s ease-in-out infinite 2.7s; }
+    .network-node:nth-child(15) { top: 52%; left: 70%; animation: pulse2 7.8s ease-in-out infinite 1.4s; }
+
+    /* Particle animations - floating effect */
+    .particle:nth-child(n+16):nth-child(-n+25) {
+      animation: float 15s linear infinite;
     }
 
-    /* Animated network lines */
-    .network-background::before,
-    .network-background::after {
-      content: '';
-      position: absolute;
-      width: 1px;
-      height: 100%;
-      background: linear-gradient(180deg, 
-        transparent 0%, 
-        rgba(212, 175, 55, 0.3) 50%, 
-        transparent 100%);
-      animation: networkScan 8s linear infinite;
-    }
+    .particle:nth-child(16) { top: 12%; left: 22%; animation-delay: 0s; }
+    .particle:nth-child(17) { top: 45%; left: 67%; animation-delay: 2s; }
+    .particle:nth-child(18) { top: 78%; left: 44%; animation-delay: 4s; }
+    .particle:nth-child(19) { top: 33%; left: 88%; animation-delay: 1s; }
+    .particle:nth-child(20) { top: 61%; left: 15%; animation-delay: 3s; }
+    .particle:nth-child(21) { top: 88%; left: 71%; animation-delay: 5s; }
+    .particle:nth-child(22) { top: 25%; left: 33%; animation-delay: 1.5s; }
+    .particle:nth-child(23) { top: 54%; left: 90%; animation-delay: 3.5s; }
+    .particle:nth-child(24) { top: 18%; left: 77%; animation-delay: 2.5s; }
+    .particle:nth-child(25) { top: 82%; left: 8%; animation-delay: 4.5s; }
 
-    .network-background::before {
-      left: 20%;
-      animation-delay: 0s;
+    @keyframes float {
+      0% { transform: translate(0, 0) scale(1); opacity: 0; }
+      10% { opacity: 0.6; }
+      90% { opacity: 0.6; }
+      100% { transform: translate(30px, -100px) scale(1.5); opacity: 0; }
     }
-
-    .network-background::after {
-      left: 80%;
-      animation-delay: 4s;
-    }
-
-    @keyframes networkScan {
-      0% { transform: translateY(-100%); opacity: 0; }
-      50% { opacity: 1; }
-      100% { transform: translateY(100%); opacity: 0; }
-    }
-
-    /* Individual node animations */
-    .network-node:nth-child(1) { top: 15%; left: 10%; animation: pulse1 4s ease-in-out infinite; }
-    .network-node:nth-child(2) { top: 25%; left: 85%; animation: pulse2 5s ease-in-out infinite; }
-    .network-node:nth-child(3) { top: 60%; left: 20%; animation: pulse1 6s ease-in-out infinite 1s; }
-    .network-node:nth-child(4) { top: 70%; left: 75%; animation: pulse2 4.5s ease-in-out infinite 2s; }
-    .network-node:nth-child(5) { top: 40%; left: 50%; animation: pulse1 5.5s ease-in-out infinite 0.5s; }
-    .network-node:nth-child(6) { top: 80%; left: 40%; animation: pulse2 6.5s ease-in-out infinite 1.5s; }
-    .network-node:nth-child(7) { top: 20%; left: 60%; animation: pulse1 5s ease-in-out infinite 2.5s; }
-    .network-node:nth-child(8) { top: 50%; left: 15%; animation: pulse2 7s ease-in-out infinite 3s; }
 
     @keyframes pulse1 {
       0%, 100% { 
         transform: scale(1); 
-        opacity: 0.6;
-        box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        opacity: 0.7;
+        box-shadow: 
+          0 0 20px rgba(212, 175, 55, 0.6),
+          0 0 40px rgba(212, 175, 55, 0.3);
       }
       50% { 
-        transform: scale(2); 
+        transform: scale(2.5); 
         opacity: 1;
-        box-shadow: 0 0 20px rgba(212, 175, 55, 0.8);
+        box-shadow: 
+          0 0 30px rgba(212, 175, 55, 0.9),
+          0 0 60px rgba(212, 175, 55, 0.6),
+          0 0 90px rgba(212, 175, 55, 0.3);
       }
     }
 
     @keyframes pulse2 {
       0%, 100% { 
         transform: scale(1) rotate(0deg); 
-        opacity: 0.5;
-        box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+        opacity: 0.6;
+        box-shadow: 
+          0 0 15px rgba(212, 175, 55, 0.5),
+          0 0 30px rgba(212, 175, 55, 0.3);
       }
       50% { 
-        transform: scale(2.5) rotate(180deg); 
+        transform: scale(3) rotate(180deg); 
         opacity: 1;
-        box-shadow: 0 0 25px rgba(212, 175, 55, 0.9);
+        box-shadow: 
+          0 0 40px rgba(212, 175, 55, 0.9),
+          0 0 80px rgba(212, 175, 55, 0.6);
       }
     }
 
-    /* Connection lines between nodes */
+    @keyframes pulse3 {
+      0%, 100% { 
+        transform: scale(1) translate(0, 0); 
+        opacity: 0.65;
+        box-shadow: 
+          0 0 18px rgba(212, 175, 55, 0.55),
+          0 0 35px rgba(212, 175, 55, 0.35);
+      }
+      33% { 
+        transform: scale(2) translate(5px, -5px); 
+        opacity: 0.9;
+      }
+      66% { 
+        transform: scale(2.8) translate(-5px, 5px); 
+        opacity: 1;
+        box-shadow: 
+          0 0 35px rgba(212, 175, 55, 0.85),
+          0 0 70px rgba(212, 175, 55, 0.5);
+      }
+    }
+
+    /* Enhanced connection lines with data flow effect */
     .network-line {
       position: absolute;
-      height: 1px;
+      height: 2px;
       background: linear-gradient(90deg, 
         transparent 0%, 
-        rgba(212, 175, 55, 0.2) 50%, 
+        rgba(212, 175, 55, 0.4) 50%, 
         transparent 100%);
       transform-origin: left center;
-      animation: lineFlow 3s ease-in-out infinite;
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
     }
 
-    @keyframes lineFlow {
-      0%, 100% { opacity: 0.2; }
-      50% { opacity: 0.6; }
+    .network-line::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 30%;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(244, 208, 63, 0.8) 50%, 
+        transparent 100%);
+      animation: dataFlow 3s linear infinite;
     }
 
-    .network-line:nth-child(9) { top: 15%; left: 10%; width: 75%; transform: rotate(5deg); animation-delay: 0s; }
-    .network-line:nth-child(10) { top: 40%; left: 15%; width: 35%; transform: rotate(-10deg); animation-delay: 1s; }
-    .network-line:nth-child(11) { top: 60%; left: 20%; width: 55%; transform: rotate(15deg); animation-delay: 2s; }
-    .network-line:nth-child(12) { top: 70%; left: 40%; width: 35%; transform: rotate(-5deg); animation-delay: 1.5s; }
-    .network-line:nth-child(13) { top: 25%; left: 50%; width: 35%; transform: rotate(20deg); animation-delay: 0.5s; }
+    @keyframes dataFlow {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(400%); }
+    }
+
+    .network-line:nth-child(26) { top: 10%; left: 8%; width: 80%; transform: rotate(8deg); }
+    .network-line:nth-child(27) { top: 35%; left: 12%; width: 40%; transform: rotate(-15deg); }
+    .network-line:nth-child(28) { top: 55%; left: 15%; width: 77%; transform: rotate(18deg); }
+    .network-line:nth-child(29) { top: 75%; left: 35%; width: 43%; transform: rotate(-8deg); }
+    .network-line:nth-child(30) { top: 20%; left: 65%; width: 23%; transform: rotate(25deg); }
+    .network-line:nth-child(31) { top: 48%; left: 52%; width: 30%; transform: rotate(-20deg); }
+    .network-line:nth-child(32) { top: 85%; left: 62%; width: 16%; transform: rotate(12deg); }
+    .network-line:nth-child(33) { top: 28%; left: 45%; width: 37%; transform: rotate(-18deg); }
+    .network-line:nth-child(34) { top: 65%; left: 25%; width: 67%; transform: rotate(10deg); }
+    .network-line:nth-child(35) { top: 42%; left: 70%; width: 22%; transform: rotate(-25deg); }
+
+    .network-line:nth-child(26)::after { animation-delay: 0s; }
+    .network-line:nth-child(27)::after { animation-delay: 0.3s; }
+    .network-line:nth-child(28)::after { animation-delay: 0.6s; }
+    .network-line:nth-child(29)::after { animation-delay: 0.9s; }
+    .network-line:nth-child(30)::after { animation-delay: 1.2s; }
+    .network-line:nth-child(31)::after { animation-delay: 1.5s; }
+    .network-line:nth-child(32)::after { animation-delay: 1.8s; }
+    .network-line:nth-child(33)::after { animation-delay: 2.1s; }
+    .network-line:nth-child(34)::after { animation-delay: 2.4s; }
+    .network-line:nth-child(35)::after { animation-delay: 2.7s; }
 
     .hero-content {
       max-width: 1200px;
@@ -548,18 +655,43 @@
 
   <!-- HERO SECTION -->
   <section class="hero" role="banner">
-    <!-- Network effect background -->
+    <!-- Immersive network effect background -->
     <div class="network-background">
-      <!-- Network nodes -->
-      <div class="network-node"></div>
-      <div class="network-node"></div>
-      <div class="network-node"></div>
-      <div class="network-node"></div>
-      <div class="network-node"></div>
-      <div class="network-node"></div>
-      <div class="network-node"></div>
-      <div class="network-node"></div>
-      <!-- Network connection lines -->
+      <!-- Large network nodes -->
+      <div class="network-node large"></div>
+      <div class="network-node large"></div>
+      <div class="network-node large"></div>
+      <div class="network-node medium"></div>
+      <div class="network-node medium"></div>
+      <div class="network-node medium"></div>
+      <div class="network-node medium"></div>
+      <div class="network-node small"></div>
+      <div class="network-node small"></div>
+      <div class="network-node small"></div>
+      <div class="network-node small"></div>
+      <div class="network-node small"></div>
+      <div class="network-node small"></div>
+      <div class="network-node small"></div>
+      <div class="network-node small"></div>
+      
+      <!-- Floating particles -->
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      
+      <!-- Network connection lines with data flow -->
+      <div class="network-line"></div>
+      <div class="network-line"></div>
+      <div class="network-line"></div>
+      <div class="network-line"></div>
+      <div class="network-line"></div>
       <div class="network-line"></div>
       <div class="network-line"></div>
       <div class="network-line"></div>
@@ -687,7 +819,7 @@
       <nav class="footer-links" aria-label="Footer navigation">
         <a href="https://github.com/grenas405/deno-genesis" class="footer-link" target="_blank" rel="noopener">GitHub</a>
         <a href="https://www.pedromdominguez.com" class="footer-link" target="_blank" rel="noopener">Portfolio</a>
-        <a href="https://www.domingueztechsolutions.com" class="footer-link" target="_blank" rel="noopener">Dominguez Tech Solutions</a>
+        <a href="https://www.domingueztechsolutions.com" class="footer-link" target="_blank" rel="noopener">Tech Solutions</a>
         <a href="mailto:info@domingueztechsolutions.com" class="footer-link">Contact</a>
       </nav>
     </div>
@@ -704,7 +836,7 @@
       },
       { 
         title: 'Deno Génesis', 
-        subtitle: 'Un Web Framework para la Soberanía Digital',
+        subtitle: 'Un Marco Web para la Soberanía Digital',
         lang: 'es' 
       },
       { 
