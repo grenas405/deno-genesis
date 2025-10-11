@@ -7,7 +7,7 @@
 
 ```bash
 # Start development server
-genesis dev --port=3003
+genesis dev --port=3001
 
 # Or run directly with Deno
 deno run --allow-read --allow-write --allow-net --allow-env main.ts
@@ -46,7 +46,7 @@ new-site/
 
 ### Site Settings
 - **Name**: new-site
-- **Port**: 3003
+- **Port**: 3001
 - **Template**: basic
 - **Description**: Deno Genesis Site
 

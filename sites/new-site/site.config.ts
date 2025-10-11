@@ -19,7 +19,7 @@ export interface SiteConfig {
 
 export const siteConfig: SiteConfig = {
   name: "new-site",
-  port: 3003,
+  port: 3001,
   description: "Deno Genesis Site",
   template: "basic",
   features: [
