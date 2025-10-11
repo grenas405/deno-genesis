@@ -69,6 +69,7 @@ const CORE_SYMLINK_TARGETS = [
   "main.ts",
   "VERSION",
   "meta.ts"
+  "mod.ts"
 ];
 
 /**
