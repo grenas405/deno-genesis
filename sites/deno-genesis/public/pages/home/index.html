@@ -422,6 +422,234 @@
     }
 
     /* ===================================
+       BADGES SECTION
+       =================================== */
+    .badges-section {
+      background: rgba(10, 22, 40, 0.95);
+      padding: 2rem 1rem;
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    .badges-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      height: 32px;
+      border-radius: 6px;
+      overflow: hidden;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .badge:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .badge-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .badge-icon svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    .badge-label {
+      padding: 0 12px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-value {
+      padding: 0 12px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      font-weight: 700;
+    }
+
+    /* Badge color schemes */
+    .badge-stars {
+      background: #4a5568;
+      color: white;
+    }
+
+    .badge-stars .badge-value {
+      background: #2d3748;
+    }
+
+    .badge-issues {
+      background: #4a5568;
+      color: white;
+    }
+
+    .badge-issues .badge-value {
+      background: #e53e3e;
+    }
+
+    .badge-forks {
+      background: #4a5568;
+      color: white;
+    }
+
+    .badge-forks .badge-value {
+      background: #84cc16;
+    }
+
+    .badge-license {
+      background: #4a5568;
+      color: white;
+    }
+
+    .badge-license .badge-value {
+      background: #0ea5e9;
+    }
+
+    .badge-deno {
+      background: #4a5568;
+      color: white;
+    }
+
+    .badge-deno .badge-value {
+      background: #2d3748;
+    }
+
+    .badge-typescript {
+      background: #4a5568;
+      color: white;
+    }
+
+    .badge-typescript .badge-value {
+      background: #3178c6;
+    }
+
+    .badge-philosophy {
+      background: #4a5568;
+      color: white;
+    }
+
+    .badge-philosophy .badge-value {
+      background: #84cc16;
+    }
+
+    .badge-architecture {
+      background: #4a5568;
+      color: white;
+    }
+
+    .badge-local-first {
+      background: #f97316;
+      color: white;
+    }
+
+    .badge-development {
+      background: #4a5568;
+      color: white;
+    }
+
+    .badge-ai-augmented {
+      background: #9333ea;
+      color: white;
+    }
+
+    .badge-contributors {
+      background: #4a5568;
+      color: white;
+    }
+
+    .badge-contributors .badge-value {
+      background: #9333ea;
+    }
+
+    .badge-last-commit {
+      background: #4a5568;
+      color: white;
+    }
+
+    .badge-last-commit .badge-value {
+      background: #f97316;
+    }
+
+    .badge-release {
+      background: #4a5568;
+      color: white;
+    }
+
+    .badge-release .badge-value {
+      background: #10b981;
+    }
+
+    .badge-languages {
+      background: #4a5568;
+      color: white;
+    }
+
+    .badge-languages .badge-value {
+      background: #eab308;
+      color: #1e293b;
+    }
+
+    /* Responsive badges */
+    @media (max-width: 768px) {
+      .badges-section {
+        padding: 1.5rem 0.75rem;
+      }
+
+      .badge-row {
+        gap: 0.5rem;
+      }
+
+      .badge {
+        font-size: 11px;
+        height: 28px;
+      }
+
+      .badge-icon {
+        padding: 0 8px;
+      }
+
+      .badge-icon svg {
+        width: 14px;
+        height: 14px;
+      }
+
+      .badge-label,
+      .badge-value {
+        padding: 0 10px;
+      }
+    }
+
+    /* ===================================
        INTRODUCTION SECTION
        =================================== */
     .introduction {
@@ -718,6 +946,145 @@
         <a href="#main-content" class="btn btn-secondary">
           Learn More
         </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- BADGES SECTION -->
+  <section class="badges-section">
+    <div class="badges-container">
+      <!-- First row of badges -->
+      <div class="badge-row">
+        <a href="https://github.com/grenas405/deno-genesis" class="badge badge-stars" target="_blank" rel="noopener">
+          <span class="badge-icon">
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/>
+            </svg>
+          </span>
+          <span class="badge-label">Stars</span>
+          <span class="badge-value">2</span>
+        </a>
+
+        <a href="https://github.com/grenas405/deno-genesis/issues" class="badge badge-issues" target="_blank" rel="noopener">
+          <span class="badge-icon">
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/>
+              <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/>
+            </svg>
+          </span>
+          <span class="badge-label">Issues</span>
+          <span class="badge-value">0 Open</span>
+        </a>
+
+        <a href="https://github.com/grenas405/deno-genesis/network" class="badge badge-forks" target="_blank" rel="noopener">
+          <span class="badge-icon">
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+              <path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"/>
+            </svg>
+          </span>
+          <span class="badge-label">Forks</span>
+          <span class="badge-value">0</span>
+        </a>
+
+        <span class="badge badge-license">
+          <span class="badge-icon">
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8.75.75V2h.985c.304 0 .603.08.867.231l1.29.736c.038.022.08.033.124.033h2.234a.75.75 0 0 1 0 1.5h-.427l2.111 4.692a.75.75 0 0 1-.154.838l-.53-.53.529.531-.001.002-.002.002-.006.006-.006.005-.01.01-.045.04c-.21.176-.441.327-.686.45C14.556 10.78 13.88 11 13 11a4.498 4.498 0 0 1-2.023-.454 3.544 3.544 0 0 1-.686-.45l-.045-.04-.016-.015-.006-.006-.004-.004v-.001a.75.75 0 0 1-.154-.838L12.178 4.5h-.162c-.305 0-.604-.079-.868-.231l-1.29-.736a.245.245 0 0 0-.124-.033H8.75V13h2.5a.75.75 0 0 1 0 1.5h-6.5a.75.75 0 0 1 0-1.5h2.5V3.5h-.984a.245.245 0 0 0-.124.033l-1.289.737c-.265.15-.564.23-.869.23h-.162l2.112 4.692a.75.75 0 0 1-.154.838l-.53-.53.529.531-.001.002-.002.002-.006.006-.016.015-.045.04c-.21.176-.441.327-.686.45C4.556 10.78 3.88 11 3 11a4.498 4.498 0 0 1-2.023-.454 3.544 3.544 0 0 1-.686-.45l-.045-.04-.016-.015-.006-.006-.004-.004v-.001a.75.75 0 0 1-.154-.838L2.178 4.5H1.75a.75.75 0 0 1 0-1.5h2.234a.249.249 0 0 0 .125-.033l1.288-.737c.265-.15.564-.23.869-.23h.984V.75a.75.75 0 0 1 1.5 0Zm2.945 8.477c.285.135.718.273 1.305.273s1.02-.138 1.305-.273L13 6.327Zm-10 0c.285.135.718.273 1.305.273s1.02-.138 1.305-.273L3 6.327Z"/>
+            </svg>
+          </span>
+          <span class="badge-label">License</span>
+          <span class="badge-value">AGPL-3.0</span>
+        </span>
+      </div>
+
+      <!-- Second row of badges -->
+      <div class="badge-row">
+        <span class="badge badge-deno">
+          <span class="badge-icon">
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0Zm3.669 11.538a1 1 0 0 1-1.339.408l-1.852-1.032c-.074-.04-.133-.11-.161-.193l-.382-1.022a.75.75 0 0 1 1.406-.528l.303.807.978.545a1 1 0 0 1 .408 1.338c.237.028.46-.084.632-.276.17-.192.243-.452.195-.708l-.203-1.084a.75.75 0 0 1 1.477-.277l.203 1.084c.096.512-.05 1.032-.387 1.428a1.75 1.75 0 0 1-.678.446Z"/>
+            </svg>
+          </span>
+          <span class="badge-label">Deno</span>
+          <span class="badge-value">^2.0.0</span>
+        </span>
+
+        <span class="badge badge-typescript">
+          <span class="badge-icon">
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1.5 0h13A1.5 1.5 0 0 1 16 1.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0ZM6.75 11.5V8H5.25v3.5a.75.75 0 0 1-1.5 0V7.75A.75.75 0 0 1 4.5 7h3a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0Zm4.5-4.75a.75.75 0 0 0-.75.75v3.75a.75.75 0 0 0 1.5 0V8h1.25a.75.75 0 0 0 0-1.5h-2a.75.75 0 0 0-.75.75V6.5Z"/>
+            </svg>
+          </span>
+          <span class="badge-label">TypeScript</span>
+          <span class="badge-value">5.0+</span>
+        </span>
+
+        <span class="badge badge-philosophy">
+          <span class="badge-icon">🔔</span>
+          <span class="badge-label">Philosophy</span>
+          <span class="badge-value">Unix</span>
+        </span>
+
+        <span class="badge badge-architecture">
+          <span class="badge-icon">⚪</span>
+          <span class="badge-label">Architecture</span>
+        </span>
+
+        <span class="badge badge-local-first">
+          <span class="badge-label">Local First</span>
+        </span>
+
+        <span class="badge badge-development">
+          <span class="badge-icon">⚙️</span>
+          <span class="badge-label">Development</span>
+        </span>
+
+        <span class="badge badge-ai-augmented">
+          <span class="badge-label">AI Augmented</span>
+        </span>
+      </div>
+
+      <!-- Third row of badges -->
+      <div class="badge-row">
+        <a href="https://github.com/grenas405/deno-genesis/graphs/contributors" class="badge badge-contributors" target="_blank" rel="noopener">
+          <span class="badge-icon">
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 5.5a3.5 3.5 0 1 1 5.898 2.549 5.508 5.508 0 0 1 3.034 4.084.75.75 0 1 1-1.482.235 4 4 0 0 0-7.9 0 .75.75 0 0 1-1.482-.236A5.507 5.507 0 0 1 3.102 8.05 3.493 3.493 0 0 1 2 5.5ZM11 4a3.001 3.001 0 0 1 2.22 5.018 5.01 5.01 0 0 1 2.56 3.012.75.75 0 0 1-1.442.428 3.509 3.509 0 0 0-5.327-1.628.75.75 0 0 1-1.013-.063 4.996 4.996 0 0 1-.94-1.274 3.5 3.5 0 1 1 4.916-5.493.75.75 0 1 1-.977 1.139A3.5 3.5 0 0 1 11 4Z"/>
+            </svg>
+          </span>
+          <span class="badge-label">Contributors</span>
+          <span class="badge-value">1</span>
+        </a>
+
+        <span class="badge badge-last-commit">
+          <span class="badge-icon">
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm7-3.25v2.992l2.028.812a.75.75 0 0 1-.557 1.392l-2.5-1A.751.751 0 0 1 7 8.25v-3.5a.75.75 0 0 1 1.5 0Z"/>
+            </svg>
+          </span>
+          <span class="badge-label">Last Commit</span>
+          <span class="badge-value">Today</span>
+        </span>
+
+        <a href="https://github.com/grenas405/deno-genesis/releases" class="badge badge-release" target="_blank" rel="noopener">
+          <span class="badge-icon">
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+              <path d="M1 7.775V2.75C1 1.784 1.784 1 2.75 1h5.025c.464 0 .91.184 1.238.513l6.25 6.25a1.75 1.75 0 0 1 0 2.474l-5.026 5.026a1.75 1.75 0 0 1-2.474 0l-6.25-6.25A1.752 1.752 0 0 1 1 7.775Zm1.5 0c0 .066.026.13.073.177l6.25 6.25a.25.25 0 0 0 .354 0l5.025-5.025a.25.25 0 0 0 0-.354l-6.25-6.25a.25.25 0 0 0-.177-.073H2.75a.25.25 0 0 0-.25.25ZM6 5a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/>
+            </svg>
+          </span>
+          <span class="badge-label">Release</span>
+          <span class="badge-value">v1.0.0</span>
+        </a>
+
+        <span class="badge badge-languages">
+          <span class="badge-icon">
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545ZM5.091 5.5h1.125L5.545 3.1h-.018l-.436 2.4ZM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2Zm14.5 0a.5.5 0 0 0-.5-.5H2a.5.5 0 0 0-.5.5v12a.5.5 0 0 0 .5.5h12a.5.5 0 0 0 .5-.5V2ZM9.25 8h1.5L9 11h1.5l-1.75 3h-1.5L9 11H7.5l1.75-3Z"/>
+            </svg>
+          </span>
+          <span class="badge-label">Languages</span>
+          <span class="badge-value">5</span>
+        </span>
       </div>
     </div>
   </section>
