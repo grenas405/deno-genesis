@@ -164,6 +164,7 @@ function showFullText() {
  * Initialize typing animation
  * Main exported function
  */
+
 export function initAnimations() {
   console.log('Initializing typing animations...');
 
