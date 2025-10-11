@@ -28,6 +28,7 @@ import { join, dirname } from "https://deno.land/std@0.224.0/path/mod.ts";
 // Import subcommand modules
 import { initCommand } from "./commands/init.ts";
 import { devCommand, showDevHelp } from "./commands/dev.ts";
+import { dbCommand, showDbHelp } from "./commands/db.ts";
 
 // Types
 interface CLIContext {
@@ -74,6 +75,19 @@ const COMMANDS: Record<string, CommandDefinition> = {
     handler: devCommand,
     permissions: ["--allow-read", "--allow-write"],
   },
+  db: {
+    name: "db",
+    description: "Setup MariaDB database with multi-tenant architecture",
+    usage: "genesis db [options]",
+    examples: [
+      "genesis db",
+      "genesis db --name my_database",
+      "genesis db --user myuser --password mypassword",
+      "genesis db --test-only",
+    ],
+    handler: dbCommand,
+    permissions: ["--allow-read", "--allow-write", "--allow-run", "--allow-env"],
+  },
 };
 
 // === Utility: Dry-run wrapper ===
@@ -101,6 +115,11 @@ function showHelp(command?: string): void {
       return;
     }
     
+    if (command === "db") {
+      showDbHelp();
+      return;
+    }
+    
     const cmd = COMMANDS[command];
     console.log(`\n${cmd.name} - ${cmd.description}\n`);
     console.log(`Usage: ${cmd.usage}\n`);
@@ -119,6 +138,7 @@ USAGE:
 CORE COMMANDS:
   init       Initialize new Genesis project with hub-and-spoke architecture
   dev        Generate nginx and systemd configuration files for deployment
+  db         Setup MariaDB database with multi-tenant architecture
 
 OPTIONS:
   --help, -h     Show this help message
@@ -132,6 +152,8 @@ EXAMPLES:
   genesis init enterprise-app --template=enterprise
   genesis dev example.com
   genesis dev example.com --port 3005
+  genesis db
+  genesis db --test-only
 
 For detailed help on any command:
   genesis help <command>
