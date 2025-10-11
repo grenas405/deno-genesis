@@ -27,6 +27,7 @@ import { join, dirname } from "https://deno.land/std@0.224.0/path/mod.ts";
 
 // Import subcommand modules
 import { initCommand } from "./commands/init.ts";
+import { devCommand, showDevHelp } from "./commands/dev.ts";
 
 // Types
 interface CLIContext {
@@ -60,6 +61,19 @@ const COMMANDS: Record<string, CommandDefinition> = {
     handler: initCommand,
     permissions: ["--allow-read", "--allow-write", "--allow-net"],
   },
+  dev: {
+    name: "dev",
+    description: "Generate nginx and systemd configuration files for site deployment",
+    usage: "genesis dev [domain] [options]",
+    examples: [
+      "genesis dev example.com",
+      "genesis dev example.com --port 3005",
+      "genesis dev example.com --nginx-only",
+      "genesis dev example.com --systemd-only --port 3003",
+    ],
+    handler: devCommand,
+    permissions: ["--allow-read", "--allow-write"],
+  },
 };
 
 // === Utility: Dry-run wrapper ===
@@ -81,6 +95,12 @@ async function runWithDryRun(
 // Help + version
 function showHelp(command?: string): void {
   if (command && COMMANDS[command]) {
+    // Show command-specific help
+    if (command === "dev") {
+      showDevHelp();
+      return;
+    }
+    
     const cmd = COMMANDS[command];
     console.log(`\n${cmd.name} - ${cmd.description}\n`);
     console.log(`Usage: ${cmd.usage}\n`);
@@ -97,7 +117,8 @@ USAGE:
   genesis <command> [options]
 
 CORE COMMANDS:
-  init       Initialize new Genesis project
+  init       Initialize new Genesis project with hub-and-spoke architecture
+  dev        Generate nginx and systemd configuration files for deployment
 
 OPTIONS:
   --help, -h     Show this help message
@@ -109,7 +130,8 @@ OPTIONS:
 EXAMPLES:
   genesis init my-project
   genesis init enterprise-app --template=enterprise
-  genesis init . --template=basic
+  genesis dev example.com
+  genesis dev example.com --port 3005
 
 For detailed help on any command:
   genesis help <command>
