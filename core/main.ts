@@ -29,55 +29,44 @@
 import {
   // Core Oak Framework - HTTP server functionality
   Application,
-  // Remove send import - no longer using simple static handler
-  // send,
-
-  // Environment Management - Configuration loading
-  loadEnv,
-
-  // DenoGenesis Framework Components - Request processing
-  router,
-  createMiddlewareStack,
-  MiddlewareManager,
-  createStaticFileTestHelper, // ✅ NEW UTILITY
-  type MiddlewareConfig,
- 
-  StaticFileAnalytics,
-  StaticFileHandler,
-  StaticFileUtils,
-
-  // Database Layer - Data persistence
-  db,
-  getDatabaseStatus,
-  closeDatabaseConnection,
-
-  // Environment Configuration - Runtime settings
-  PORT,
-  DENO_ENV,
-  SITE_KEY,
-  DB_HOST,
-  CORS_ORIGINS,
-  VERSION,
   BUILD_DATE,
   BUILD_HASH,
-
+  closeDatabaseConnection,
+  // Console Utilities - Professional logging
+  ConsoleStyler,
+  CORS_ORIGINS,
+  createMiddlewareStack,
+  createStaticFileTestHelper, // ✅ NEW UTILITY
+  // Database Layer - Data persistence
+  db,
+  DB_HOST,
   // MIME Type Configuration - Static file serving
   DEFAULT_MIME_TYPES,
+  DENO_ENV,
+  getDatabaseStatus,
+  getFrameworkVersion,
   getMimeType,
   getSupportedExtensions,
   isExtensionSupported,
-
-  // Framework Utilities
-  validateFrameworkIntegrity,
-  getFrameworkVersion,
-
+  // Environment Management - Configuration loading
+  loadEnv,
+  type MiddlewareConfig,
+  MiddlewareManager,
+  // Environment Configuration - Runtime settings
+  PORT,
+  registerErrorHandlers,
   // Process Handler Utilities - Process lifecycle management
   registerSignalHandlers,
-  registerErrorHandlers,
+  // DenoGenesis Framework Components - Request processing
+  router,
+  SITE_KEY,
+  StaticFileAnalytics,
+  StaticFileHandler,
+  StaticFileUtils,
+  // Framework Utilities
+  validateFrameworkIntegrity,
   validateHandlerSetup,
-
-  // Console Utilities - Professional logging
-  ConsoleStyler,
+  VERSION,
 } from "./mod.ts";
 
 // ============================================================================
@@ -113,7 +102,7 @@ interface AppMetrics {
 interface DependencyInfo {
   name: string;
   version: string;
-  status: 'loaded' | 'error' | 'missing';
+  status: "loaded" | "error" | "missing";
   optional?: boolean;
 }
 
@@ -140,7 +129,7 @@ const bootstrapConfig: AppBootstrapConfig = {
   environment: DENO_ENV,
   enableFrameworkIntegrity: true,
   enableDatabaseConnection: true,
-  enableAdvancedLogging: DENO_ENV === 'development',
+  enableAdvancedLogging: DENO_ENV === "development",
 };
 
 // ============================================================================
@@ -168,13 +157,13 @@ function generateAppConfig(): any {
       "Database Integration",
       "Security Hardened",
       "Performance Monitoring",
-      "Static File Analytics"
+      "Static File Analytics",
     ],
     database: "SQLite with Enterprise Extensions",
     ai: {
       enabled: false,
-      models: []
-    }
+      models: [],
+    },
   };
 }
 
@@ -201,13 +190,13 @@ function collectDependencyInfo(): DependencyInfo[] {
       dependencies.push({
         name: "Database Connection",
         version: "SQLite",
-        status: dbStatus ? "loaded" : "error"
+        status: dbStatus ? "loaded" : "error",
       });
     } catch {
       dependencies.push({
         name: "Database Connection",
         version: "SQLite",
-        status: "error"
+        status: "error",
       });
     }
   }
@@ -224,14 +213,16 @@ async function initializeDatabase(): Promise<boolean> {
     return true;
   }
 
-  const spinner = ConsoleStyler.createSpinner("Establishing database connection...");
+  const spinner = ConsoleStyler.createSpinner(
+    "Establishing database connection...",
+  );
   const startTime = performance.now();
 
   try {
     spinner.start();
 
     // Simulate connection time for demonstration
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     const dbStatus = getDatabaseStatus();
     const duration = performance.now() - startTime;
@@ -250,7 +241,7 @@ async function initializeDatabase(): Promise<boolean> {
     spinner.stop();
     ConsoleStyler.logError("Database initialization error", {
       error: error.message,
-      duration: performance.now() - startTime
+      duration: performance.now() - startTime,
     });
     return false;
   }
@@ -265,7 +256,9 @@ async function validateFramework(): Promise<boolean> {
     return true;
   }
 
-  const spinner = ConsoleStyler.createSpinner("Validating framework integrity...");
+  const spinner = ConsoleStyler.createSpinner(
+    "Validating framework integrity...",
+  );
   const startTime = performance.now();
 
   try {
@@ -279,7 +272,7 @@ async function validateFramework(): Promise<boolean> {
       spinner.stop("Framework integrity validated successfully");
       ConsoleStyler.logSuccess(`Framework v${VERSION} integrity check passed`, {
         duration: `${duration.toFixed(2)}ms`,
-        buildHash: BUILD_HASH
+        buildHash: BUILD_HASH,
       });
       return true;
     } else {
@@ -291,7 +284,7 @@ async function validateFramework(): Promise<boolean> {
     spinner.stop();
     ConsoleStyler.logError("Framework validation error", {
       error: error.message,
-      duration: performance.now() - startTime
+      duration: performance.now() - startTime,
     });
     return false;
   }
@@ -321,15 +314,16 @@ function createRequestLogger() {
 function displayPerformanceMetrics() {
   const uptime = Date.now() - appMetrics.startTime;
   const successRate = appMetrics.totalRequests > 0
-    ? ((appMetrics.totalRequests - appMetrics.totalErrors) / appMetrics.totalRequests * 100).toFixed(2)
+    ? ((appMetrics.totalRequests - appMetrics.totalErrors) /
+      appMetrics.totalRequests * 100).toFixed(2)
     : "100.00";
 
   const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return '0 B';
+    if (bytes === 0) return "0 B";
     const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const sizes = ["B", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
   const metrics = [
@@ -337,21 +331,27 @@ function displayPerformanceMetrics() {
     { label: "Total Requests", value: appMetrics.totalRequests.toString() },
     { label: "Errors", value: appMetrics.totalErrors.toString() },
     { label: "Success Rate", value: `${successRate}%` },
-    { label: "DB Connections", value: appMetrics.dbConnections.toString() }
+    { label: "DB Connections", value: appMetrics.dbConnections.toString() },
   ];
 
   // Add static file analytics
   const staticStats = StaticFileAnalytics.getTotalStats();
   metrics.push(
-    { label: "Static Files Served", value: staticStats.totalRequests.toString() },
-    { label: "Static Bandwidth", value: formatBytes(staticStats.totalBandwidth) }
+    {
+      label: "Static Files Served",
+      value: staticStats.totalRequests.toString(),
+    },
+    {
+      label: "Static Bandwidth",
+      value: formatBytes(staticStats.totalBandwidth),
+    },
   );
 
   try {
     const memUsage = Deno.memoryUsage();
     metrics.push(
       { label: "Heap Used", value: formatBytes(memUsage.heapUsed) },
-      { label: "Heap Total", value: formatBytes(memUsage.heapTotal) }
+      { label: "Heap Total", value: formatBytes(memUsage.heapTotal) },
     );
   } catch {
     metrics.push({ label: "Memory", value: "N/A" });
@@ -362,9 +362,9 @@ function displayPerformanceMetrics() {
   // Display popular static files if any
   const popularFiles = StaticFileAnalytics.getPopularFiles(3);
   if (popularFiles.length > 0) {
-    const staticMetrics = popularFiles.map(file => ({
-      label: file.path.replace(`${Deno.cwd()}/public`, ''),
-      value: `${file.requests} requests`
+    const staticMetrics = popularFiles.map((file) => ({
+      label: file.path.replace(`${Deno.cwd()}/public`, ""),
+      value: `${file.requests} requests`,
     }));
     ConsoleStyler.printTable(staticMetrics, "Popular Static Files");
   }
@@ -375,7 +375,9 @@ function displayPerformanceMetrics() {
  */
 function setupGracefulShutdown(app: Application) {
   const shutdownHandler = async (signal: string) => {
-    ConsoleStyler.logWarning(`Received ${signal}, initiating graceful shutdown...`);
+    ConsoleStyler.logWarning(
+      `Received ${signal}, initiating graceful shutdown...`,
+    );
 
     const spinner = ConsoleStyler.createSpinner("Shutting down application...");
     spinner.start();
@@ -385,16 +387,20 @@ function setupGracefulShutdown(app: Application) {
       displayPerformanceMetrics();
 
       // Generate static file report if development
-      if (DENO_ENV === 'development') {
+      if (DENO_ENV === "development") {
         try {
-          const report = await StaticFileUtils.generateReport(`${Deno.cwd()}/public`);
+          const report = await StaticFileUtils.generateReport(
+            `${Deno.cwd()}/public`,
+          );
           ConsoleStyler.logInfo("Static File Analytics Report Generated", {
             totalRequests: report.analytics.totalRequests,
             popularFiles: report.popularFiles.length,
-            supportedExtensions: report.systemInfo.supportedExtensions.length
+            supportedExtensions: report.systemInfo.supportedExtensions.length,
           });
         } catch (error) {
-          ConsoleStyler.logWarning("Could not generate static file report", { error: error.message });
+          ConsoleStyler.logWarning("Could not generate static file report", {
+            error: error.message,
+          });
         }
       }
 
@@ -420,7 +426,7 @@ function setupGracefulShutdown(app: Application) {
   registerErrorHandlers((error) => {
     ConsoleStyler.logCritical("Unhandled application error", {
       error: error.message,
-      stack: error.stack
+      stack: error.stack,
     });
   });
 }
@@ -437,9 +443,9 @@ async function validateStaticSetup(staticRoot: string): Promise<boolean> {
     }
 
     // Check for index files
-    const indexFiles = ['index.html', 'index.htm'];
+    const indexFiles = ["index.html", "index.htm"];
     const homeDir = `${staticRoot}/pages/home`;
-    
+
     let hasIndex = false;
     for (const indexFile of indexFiles) {
       try {
@@ -463,7 +469,7 @@ async function validateStaticSetup(staticRoot: string): Promise<boolean> {
   } catch (error) {
     ConsoleStyler.logError("Static file directory validation failed", {
       error: error.message,
-      path: staticRoot
+      path: staticRoot,
     });
     return false;
   }
@@ -494,7 +500,7 @@ async function main(): Promise<void> {
     ConsoleStyler.logSuccess("Environment configuration loaded", {
       port: PORT,
       host: DB_HOST,
-      environment: DENO_ENV
+      environment: DENO_ENV,
     });
 
     // ========================================================================
@@ -504,7 +510,9 @@ async function main(): Promise<void> {
     // Validate framework integrity
     const frameworkValid = await validateFramework();
     if (!frameworkValid) {
-      ConsoleStyler.logCritical("Framework validation failed - aborting startup");
+      ConsoleStyler.logCritical(
+        "Framework validation failed - aborting startup",
+      );
       Deno.exit(1);
     }
 
@@ -518,7 +526,9 @@ async function main(): Promise<void> {
 
     const dbInitialized = await initializeDatabase();
     if (!dbInitialized && bootstrapConfig.enableDatabaseConnection) {
-      ConsoleStyler.logWarning("Database initialization failed - continuing without database");
+      ConsoleStyler.logWarning(
+        "Database initialization failed - continuing without database",
+      );
     }
 
     // ========================================================================
@@ -528,7 +538,9 @@ async function main(): Promise<void> {
     const staticRoot = `${Deno.cwd()}/public`;
     const staticSetupValid = await validateStaticSetup(staticRoot);
     if (!staticSetupValid) {
-      ConsoleStyler.logWarning("Static file setup validation failed - static serving may not work properly");
+      ConsoleStyler.logWarning(
+        "Static file setup validation failed - static serving may not work properly",
+      );
     }
 
     // ========================================================================
@@ -547,46 +559,68 @@ async function main(): Promise<void> {
       port: PORT,
       staticFiles: {
         root: staticRoot,
-        enableCaching: DENO_ENV === 'production',
-        maxAge: DENO_ENV === 'production' ? 86400 : 300,
-        extensions: ['.html', '.htm', '.css', '.js', '.mjs', '.json', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.ico', '.woff', '.woff2', '.ttf', '.otf'],
-        index: 'index.html',
-        dotFiles: 'deny' // Security: deny hidden files
+        enableCaching: DENO_ENV === "production",
+        maxAge: DENO_ENV === "production" ? 86400 : 300,
+        extensions: [
+          ".html",
+          ".htm",
+          ".css",
+          ".js",
+          ".mjs",
+          ".json",
+          ".png",
+          ".jpg",
+          ".jpeg",
+          ".gif",
+          ".webp",
+          ".svg",
+          ".ico",
+          ".woff",
+          ".woff2",
+          ".ttf",
+          ".otf",
+        ],
+        index: "index.html",
+        dotFiles: "deny", // Security: deny hidden files
       },
       cors: {
         allowedOrigins: CORS_ORIGINS,
-        developmentOrigins: CORS_ORIGINS.filter(origin => origin.includes('localhost')),
+        developmentOrigins: CORS_ORIGINS.filter((origin) =>
+          origin.includes("localhost")
+        ),
         credentials: true,
-        maxAge: DENO_ENV === 'production' ? 86400 : 300,
+        maxAge: DENO_ENV === "production" ? 86400 : 300,
       },
       security: {
-        enableHSTS: DENO_ENV === 'production',
-        contentSecurityPolicy: DENO_ENV === 'production'
+        enableHSTS: DENO_ENV === "production",
+        contentSecurityPolicy: DENO_ENV === "production"
           ? "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
           : "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
-        frameOptions: 'SAMEORIGIN',
+        frameOptions: "SAMEORIGIN",
       },
       logging: {
-        logLevel: DENO_ENV === 'development' ? 'debug' : 'info',
+        logLevel: DENO_ENV === "development" ? "debug" : "info",
         logRequests: true,
-        logResponses: DENO_ENV === 'development',
+        logResponses: DENO_ENV === "development",
       },
       healthCheck: {
-        endpoint: '/health',
+        endpoint: "/health",
         includeMetrics: true,
-        includeEnvironment: DENO_ENV === 'development',
+        includeEnvironment: DENO_ENV === "development",
       },
     };
 
     // Create middleware stack (now includes advanced static file handling)
-    const { middlewares, monitor } = await createMiddlewareStack(middlewareConfig);
+    const { middlewares, monitor } = await createMiddlewareStack(
+      middlewareConfig,
+    );
 
     ConsoleStyler.logSuccess("Advanced middleware stack configured", {
       middlewareCount: middlewares.length,
       staticFileHandling: "Advanced (with caching, compression, analytics)",
       cors: middlewareConfig.cors.allowedOrigins.length > 0,
       security: middlewareConfig.security.enableHSTS,
-      caching: middlewareConfig.staticFiles.enableCaching
+      caching: middlewareConfig.staticFiles.enableCaching,
     });
 
     // Add simple request counter (metrics only - let middleware handle logging)
@@ -597,7 +631,9 @@ async function main(): Promise<void> {
       app.use(middleware);
     });
 
-    ConsoleStyler.logSuccess(`Complete middleware stack applied (${middlewares.length} components + request counter)`);
+    ConsoleStyler.logSuccess(
+      `Complete middleware stack applied (${middlewares.length} components + request counter)`,
+    );
 
     // Add router
     app.use(router.routes());
@@ -618,9 +654,9 @@ async function main(): Promise<void> {
       supportedExtensions: supportedExtensions.length,
       mimeTypes: Object.keys(DEFAULT_MIME_TYPES).length,
       caching: middlewareConfig.staticFiles.enableCaching,
-      compression: DENO_ENV === 'production' ? "gzip" : "disabled",
+      compression: DENO_ENV === "production" ? "gzip" : "disabled",
       analytics: "enabled",
-      securityHeaders: "enabled"
+      securityHeaders: "enabled",
     });
 
     // ========================================================================
@@ -642,36 +678,44 @@ async function main(): Promise<void> {
     };
 
     // Display startup summary
-    ConsoleStyler.logBox([
-      `Server starting on ${bootstrapConfig.host}:${bootstrapConfig.port}`,
-      `Environment: ${DENO_ENV}`,
-      `Framework: DenoGenesis v${VERSION}`,
-      `Static Files: Advanced Middleware`,
-      `Analytics: Enabled`
-    ], "Server Configuration", "green");
+    ConsoleStyler.logBox(
+      [
+        `Server starting on ${bootstrapConfig.host}:${bootstrapConfig.port}`,
+        `Environment: ${DENO_ENV}`,
+        `Framework: DenoGenesis v${VERSION}`,
+        `Static Files: Advanced Middleware`,
+        `Analytics: Enabled`,
+      ],
+      "Server Configuration",
+      "green",
+    );
 
-    ConsoleStyler.asciiArt('DENOGENESIS');
-    ConsoleStyler.asciiArt('READY');
-    
+    ConsoleStyler.asciiArt("DENOGENESIS");
+    ConsoleStyler.asciiArt("READY");
+
     // Start the server
-    ConsoleStyler.logSuccess(`🚀 Server listening on http://${bootstrapConfig.host}:${bootstrapConfig.port}`);
+    ConsoleStyler.logSuccess(
+      `🚀 Server listening on http://${bootstrapConfig.host}:${bootstrapConfig.port}`,
+    );
     ConsoleStyler.logInfo("Press Ctrl+C to gracefully shutdown the server");
 
     // Start metrics display interval in development
-    if (DENO_ENV === 'development') {
+    if (DENO_ENV === "development") {
       setInterval(() => {
-        if (appMetrics.totalRequests > 0 || StaticFileAnalytics.getTotalStats().totalRequests > 0) {
+        if (
+          appMetrics.totalRequests > 0 ||
+          StaticFileAnalytics.getTotalStats().totalRequests > 0
+        ) {
           displayPerformanceMetrics();
         }
       }, 30000); // Display metrics every 30 seconds
     }
 
     await app.listen(serverOptions);
-
   } catch (error) {
     ConsoleStyler.logCritical("Fatal error during application startup", {
       error: error.message,
-      stack: error.stack
+      stack: error.stack,
     });
 
     // Ensure cleanup on fatal error
@@ -681,7 +725,7 @@ async function main(): Promise<void> {
       }
     } catch (cleanupError) {
       ConsoleStyler.logError("Error during cleanup", {
-        error: cleanupError.message
+        error: cleanupError.message,
       });
     }
 
@@ -700,7 +744,7 @@ if (import.meta.main) {
   main().catch((error) => {
     ConsoleStyler.logCritical("Unhandled error in main", {
       error: error.message,
-      stack: error.stack
+      stack: error.stack,
     });
     Deno.exit(1);
   });
