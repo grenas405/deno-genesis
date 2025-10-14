@@ -1,20 +1,20 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write --allow-run --allow-net --allow-env
 
 /**
- * Deno Genesis Dev Command
- * 
+ * Deno Genesis Deploy Command
+ *
  * Unix Philosophy Implementation:
  * - Do one thing well: Generate infrastructure configuration files
  * - Accept text input: Domain names and configuration parameters
  * - Produce text output: Nginx and SystemD configuration files
  * - Filter and transform: Take user intent → create deployment configs
  * - Composable: Can be piped, scripted, automated
- * 
+ *
  * Security-First Approach:
  * - Explicit permissions for file operations
  * - Safe directory creation with validation
  * - Auditable configuration generation
- * 
+ *
  * Zero-Configuration Philosophy:
  * - Sensible defaults for all options
  * - Interactive prompts with smart defaults
@@ -30,10 +30,10 @@ interface CLIContext {
   configPath: string;
   verbose: boolean;
   dryRun: boolean;
-  format: 'text' | 'json' | 'yaml';
+  format: "text" | "json" | "yaml";
 }
 
-interface DevConfig {
+interface DeployConfig {
   domain: string;
   siteName: string;
   siteKey: string;
@@ -43,7 +43,7 @@ interface DevConfig {
   restartDelay: number;
 }
 
-interface DevOptions {
+interface DeployOptions {
   domain?: string;
   port?: number;
   skipPrompts?: boolean;
@@ -59,77 +59,89 @@ const DEFAULT_CONFIG = {
   dbHost: "localhost",
   dbUser: "webadmin",
   dbPassword: "Password123!",
-  dbName: "universal_db"
+  dbName: "universal_db",
 };
 
 // Port range for Deno Genesis services
 const PORT_RANGE = {
   min: 3000,
-  max: 3010
+  max: 3010,
 };
 
 /**
- * Main dev command handler
+ * Main deploy command handler
  * Follows Unix principle: Clear interface, predictable behavior
  */
-export async function devCommand(args: string[], context: CLIContext): Promise<number> {
+export async function deployCommand(
+  args: string[],
+  context: CLIContext,
+): Promise<number> {
   try {
     console.log(`
-🔧 Deno Genesis Dev Configuration Generator
+🚀 Deno Genesis Deploy Configuration Generator
 
 Unix Philosophy + Infrastructure as Code = Reliable Deployments
-Generating nginx and systemd configuration files...
+Generating nginx and systemd configuration files for deployment...
 `);
 
     // Parse command line arguments
-    const options = parseDevArgs(args);
-    
+    const options = parseDeployArgs(args);
+
     // Interactive prompts for missing configuration
-    const devConfig = await gatherDevConfiguration(options, context);
-    
+    const deployConfig = await gatherDeployConfiguration(options, context);
+
     // Validate configuration
-    const validationResult = validateDevConfig(devConfig, context);
+    const validationResult = validateDeployConfig(deployConfig, context);
     if (!validationResult.valid) {
-      console.error(`❌ Configuration validation failed: ${validationResult.error}`);
+      console.error(
+        `❌ Configuration validation failed: ${validationResult.error}`,
+      );
       return 1;
     }
 
     // Execute configuration generation
-    await executeConfigGeneration(devConfig, options, context);
-    
+    await executeConfigGeneration(deployConfig, options, context);
+
     // Success output following Unix principles
     console.log(`
-✅ Infrastructure configuration generated successfully!
+✅ Deployment configuration generated successfully!
 
 Configuration Details:
-  🌐 Domain: ${devConfig.domain}
-  📁 Site Name: ${devConfig.siteName}
-  🔑 Site Key: ${devConfig.siteKey}
-  🚪 Port: ${devConfig.port}
-  📂 Working Directory: ${devConfig.workingDirectory}
+  🌐 Domain: ${deployConfig.domain}
+  📁 Site Name: ${deployConfig.siteName}
+  🔑 Site Key: ${deployConfig.siteKey}
+  🚪 Port: ${deployConfig.port}
+  📂 Working Directory: ${deployConfig.workingDirectory}
 
 Generated Files:
-  ${!options.systemdOnly ? `📄 Nginx: config/nginx/sites-available/${devConfig.siteName}.conf` : ''}
-  ${!options.nginxOnly ? `📄 SystemD: config/systemd/active/${devConfig.siteName}.service` : ''}
+  ${
+      !options.systemdOnly
+        ? `📄 Nginx: config/nginx/sites-available/${deployConfig.siteName}.conf`
+        : ""
+    }
+  ${
+      !options.nginxOnly
+        ? `📄 SystemD: config/systemd/active/${deployConfig.siteName}.service`
+        : ""
+    }
 
 Next Steps:
   1. Review generated configuration files
-  2. Copy nginx config: sudo cp config/nginx/sites-available/${devConfig.siteName}.conf /etc/nginx/sites-available/
-  3. Enable nginx site: sudo ln -s /etc/nginx/sites-available/${devConfig.siteName}.conf /etc/nginx/sites-enabled/
+  2. Copy nginx config: sudo cp config/nginx/sites-available/${deployConfig.siteName}.conf /etc/nginx/sites-available/
+  3. Enable nginx site: sudo ln -s /etc/nginx/sites-available/${deployConfig.siteName}.conf /etc/nginx/sites-enabled/
   4. Test nginx: sudo nginx -t
   5. Reload nginx: sudo systemctl reload nginx
-  6. Copy systemd service: sudo cp config/systemd/active/${devConfig.siteName}.service /etc/systemd/system/
-  7. Enable service: sudo systemctl enable ${devConfig.siteName}.service
-  8. Start service: sudo systemctl start ${devConfig.siteName}.service
+  6. Copy systemd service: sudo cp config/systemd/active/${deployConfig.siteName}.service /etc/systemd/system/
+  7. Enable service: sudo systemctl enable ${deployConfig.siteName}.service
+  8. Start service: sudo systemctl start ${deployConfig.siteName}.service
   
 🔒 Security: All configurations follow DenoGenesis security patterns
 📖 Docs: See docs/07-deployment/ for deployment guides
 `);
 
     return 0;
-
   } catch (error) {
-    console.error(`❌ Dev command failed: ${error.message}`);
+    console.error(`❌ Deploy command failed: ${error.message}`);
     if (context.verbose) {
       console.error(error.stack);
     }
@@ -140,39 +152,39 @@ Next Steps:
 /**
  * Parse command line arguments with sensible defaults
  */
-function parseDevArgs(args: string[]): DevOptions {
-  const options: DevOptions = {};
-  
+function parseDeployArgs(args: string[]): DeployOptions {
+  const options: DeployOptions = {};
+
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    
+
     switch (arg) {
-      case '--domain':
-      case '-d':
+      case "--domain":
+      case "-d":
         options.domain = args[++i];
         break;
-      case '--port':
-      case '-p':
+      case "--port":
+      case "-p":
         options.port = parseInt(args[++i]) || DEFAULT_CONFIG.basePort;
         break;
-      case '--skip-prompts':
-      case '-y':
+      case "--skip-prompts":
+      case "-y":
         options.skipPrompts = true;
         break;
-      case '--nginx-only':
+      case "--nginx-only":
         options.nginxOnly = true;
         break;
-      case '--systemd-only':
+      case "--systemd-only":
         options.systemdOnly = true;
         break;
     }
   }
-  
+
   // Use first positional argument as domain if provided
-  if (args[0] && !args[0].startsWith('--') && !args[0].startsWith('-')) {
+  if (args[0] && !args[0].startsWith("--") && !args[0].startsWith("-")) {
     options.domain = args[0];
   }
-  
+
   return options;
 }
 
@@ -180,21 +192,26 @@ function parseDevArgs(args: string[]): DevOptions {
  * Interactive configuration gathering
  * Unix principle: Accept input from user, provide sensible defaults
  */
-async function gatherDevConfiguration(options: DevOptions, context: CLIContext): Promise<DevConfig> {
+async function gatherDeployConfiguration(
+  options: DeployOptions,
+  context: CLIContext,
+): Promise<DeployConfig> {
   const domain = options.domain || await promptForDomain();
   const siteName = deriveSiteName(domain);
   const siteKey = deriveSiteKey(siteName);
-  
-  const config: DevConfig = {
+
+  const config: DeployConfig = {
     domain: domain,
     siteName: siteName,
     siteKey: siteKey,
     port: options.port || await promptForPort(),
     workingDirectory: join(DEFAULT_CONFIG.workingDirBase, siteName),
     businessDescription: await promptForDescription(domain),
-    restartDelay: calculateRestartDelay(options.port || DEFAULT_CONFIG.basePort)
+    restartDelay: calculateRestartDelay(
+      options.port || DEFAULT_CONFIG.basePort,
+    ),
   };
-  
+
   return config;
 }
 
@@ -204,15 +221,16 @@ async function gatherDevConfiguration(options: DevOptions, context: CLIContext):
 async function promptForDomain(): Promise<string> {
   console.log("\n📝 Enter the domain name for this site:");
   console.log("   Example: example.com or subdomain.example.com");
-  
+
   const input = prompt("Domain:") || "";
-  const cleaned = input.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '');
-  
+  const cleaned = input.trim().toLowerCase().replace(/^https?:\/\//, "")
+    .replace(/\/$/, "");
+
   if (!cleaned || !isValidDomain(cleaned)) {
-    console.error("❌ Invalid domain name. Please use format: example.com");
+    console.error("❌ Invalid domain name. Please try again.");
     return await promptForDomain();
   }
-  
+
   return cleaned;
 }
 
@@ -220,22 +238,26 @@ async function promptForDomain(): Promise<string> {
  * Prompt for port number with validation
  */
 async function promptForPort(): Promise<number> {
-  console.log(`\n🚪 Enter the port number (${PORT_RANGE.min}-${PORT_RANGE.max}):`);
+  console.log(
+    `\n🚪 Enter the port number (${PORT_RANGE.min}-${PORT_RANGE.max}):`,
+  );
   console.log(`   Default: ${DEFAULT_CONFIG.basePort}`);
-  
-  const input = prompt(`Port [${DEFAULT_CONFIG.basePort}]:`) || "";
-  
-  if (!input.trim()) {
+
+  const input = prompt(`Port [${DEFAULT_CONFIG.basePort}]:`);
+
+  if (!input || input.trim() === "") {
     return DEFAULT_CONFIG.basePort;
   }
-  
-  const port = parseInt(input);
-  
+
+  const port = parseInt(input.trim());
+
   if (isNaN(port) || port < PORT_RANGE.min || port > PORT_RANGE.max) {
-    console.error(`❌ Invalid port. Must be between ${PORT_RANGE.min} and ${PORT_RANGE.max}`);
+    console.error(
+      `❌ Port must be between ${PORT_RANGE.min} and ${PORT_RANGE.max}. Please try again.`,
+    );
     return await promptForPort();
   }
-  
+
   return port;
 }
 
@@ -243,76 +265,75 @@ async function promptForPort(): Promise<number> {
  * Prompt for business description
  */
 async function promptForDescription(domain: string): Promise<string> {
-  console.log("\n📝 Enter a brief business description:");
-  console.log(`   This will appear in systemd service metadata`);
-  
-  const input = prompt("Description:") || "";
-  
-  if (!input.trim()) {
-    return `${domain} - Deno Genesis Site`;
+  console.log("\n📝 Enter a brief description for this service:");
+  console.log(`   This will appear in the systemd service file`);
+
+  const input = prompt(`Description [Genesis site for ${domain}]:`);
+
+  if (!input || input.trim() === "") {
+    return `Genesis site for ${domain}`;
   }
-  
+
   return input.trim();
 }
 
 /**
- * Validate domain format
+ * Domain validation following RFC standards
  */
 function isValidDomain(domain: string): boolean {
-  const domainRegex = /^([a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}$/;
-  return domainRegex.test(domain);
+  if (!domain || domain.length > 253) return false;
+
+  const domainRegex =
+    /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+  return domainRegex.test(domain) && !domain.includes("..");
 }
 
 /**
- * Derive site name from domain
- * example.com -> example-com
- * subdomain.example.com -> subdomain-example-com
+ * Derive site name from domain (filesystem-safe)
  */
 function deriveSiteName(domain: string): string {
-  return domain.replace(/\./g, '-');
+  return domain
+    .replace(/[^a-zA-Z0-9.-]/g, "")
+    .replace(/\./g, "-")
+    .toLowerCase();
 }
 
 /**
- * Derive site key from site name
- * example-com -> example
- * subdomain-example-com -> subdomain-example
+ * Derive site key from site name (database-safe)
  */
 function deriveSiteKey(siteName: string): string {
-  // Remove common TLD suffixes
-  return siteName
-    .replace(/-com$/, '')
-    .replace(/-org$/, '')
-    .replace(/-net$/, '')
-    .replace(/-xyz$/, '')
-    .replace(/-io$/, '')
-    .replace(/-dev$/, '');
+  return siteName.replace(/-/g, "_");
 }
 
 /**
- * Calculate staggered restart delay based on port
- * Prevents all services from restarting simultaneously
+ * Calculate restart delay based on port (higher port = longer delay)
  */
 function calculateRestartDelay(port: number): number {
-  const offset = port - PORT_RANGE.min;
-  return DEFAULT_CONFIG.restartDelayBase + (offset * 3);
+  return DEFAULT_CONFIG.restartDelayBase + (port - PORT_RANGE.min);
 }
 
 /**
- * Validate configuration
+ * Validate deployment configuration
  */
-function validateDevConfig(config: DevConfig, context: CLIContext): { valid: boolean; error?: string } {
+function validateDeployConfig(
+  config: DeployConfig,
+  context: CLIContext,
+): { valid: boolean; error?: string } {
   if (!config.domain) {
     return { valid: false, error: "Domain is required" };
   }
-  
+
   if (!isValidDomain(config.domain)) {
     return { valid: false, error: "Invalid domain format" };
   }
-  
+
   if (config.port < PORT_RANGE.min || config.port > PORT_RANGE.max) {
-    return { valid: false, error: `Port must be between ${PORT_RANGE.min} and ${PORT_RANGE.max}` };
+    return {
+      valid: false,
+      error: `Port must be between ${PORT_RANGE.min} and ${PORT_RANGE.max}`,
+    };
   }
-  
+
   return { valid: true };
 }
 
@@ -320,22 +341,22 @@ function validateDevConfig(config: DevConfig, context: CLIContext): { valid: boo
  * Execute configuration generation
  */
 async function executeConfigGeneration(
-  config: DevConfig,
-  options: DevOptions,
-  context: CLIContext
+  config: DeployConfig,
+  options: DeployOptions,
+  context: CLIContext,
 ): Promise<void> {
   // Ensure output directories exist
   const nginxDir = join(context.cwd, "config", "nginx", "sites-available");
   const systemdDir = join(context.cwd, "config", "systemd", "active");
-  
+
   await ensureDir(nginxDir);
   await ensureDir(systemdDir);
-  
+
   // Generate nginx configuration
   if (!options.systemdOnly) {
     await generateNginxConfig(config, nginxDir, context);
   }
-  
+
   // Generate systemd service
   if (!options.nginxOnly) {
     await generateSystemdService(config, systemdDir, context);
@@ -346,182 +367,81 @@ async function executeConfigGeneration(
  * Generate nginx configuration file
  */
 async function generateNginxConfig(
-  config: DevConfig,
+  config: DeployConfig,
   outputDir: string,
-  context: CLIContext
+  context: CLIContext,
 ): Promise<void> {
-  const nginxConfig = `# =============================================================================
+  const nginxConfig =
+    `# =============================================================================
 # NGINX CONFIGURATION - ${config.domain.toUpperCase()}
 # =============================================================================
-# Generated by: Deno Genesis CLI (dev command)
+# Generated by: Deno Genesis CLI (deploy command)
 # Generated on: ${new Date().toISOString()}
 # Site: ${config.domain}
 # Backend Port: ${config.port}
 # =============================================================================
 
-# =============================================================================
-# Upstream Configuration
-# =============================================================================
-upstream ${config.siteKey}_backend {
-    server 127.0.0.1:${config.port};
-    keepalive 32;
-}
+# Rate limiting configuration
+limit_req_zone $binary_remote_addr zone=${config.siteKey}_limit:10m rate=10r/s;
 
-# =============================================================================
-# HTTPS Server Block
-# =============================================================================
+# Main server block for HTTPS
 server {
     listen 443 ssl http2;
     listen [::]:443 ssl http2;
+    server_name ${config.domain};
 
-    server_name www.${config.domain} ${config.domain};
-
-    # ==========================================================================
-    # SSL Configuration (Use Certbot to generate certificates)
-    # ==========================================================================
-    # ssl_certificate /etc/letsencrypt/live/${config.domain}/fullchain.pem;
-    # ssl_certificate_key /etc/letsencrypt/live/${config.domain}/privkey.pem;
-    # ssl_trusted_certificate /etc/letsencrypt/live/${config.domain}/chain.pem;
-
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_prefer_server_ciphers on;
-    ssl_ciphers 'ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384';
-    ssl_session_cache shared:SSL:10m;
-    ssl_session_timeout 10m;
-    ssl_stapling on;
-    ssl_stapling_verify on;
-
-    # ==========================================================================
-    # Security Headers
-    # ==========================================================================
-    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+    # SSL Configuration (Let's Encrypt)
+    ssl_certificate /etc/letsencrypt/live/${config.domain}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${config.domain}/privkey.pem;
+    
+    # Security headers
     add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
     add_header X-XSS-Protection "1; mode=block" always;
-    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "no-referrer-when-downgrade" always;
+    add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
 
-    # ==========================================================================
-    # Logging Configuration
-    # ==========================================================================
-    access_log /var/log/nginx/${config.siteName}_access.log;
-    error_log /var/log/nginx/${config.siteName}_error.log;
-
-    # ==========================================================================
-    # Root and Index
-    # ==========================================================================
-    root ${config.workingDirectory}/public;
-    index index.html;
-
-    # ==========================================================================
-    # Client Upload Limits
-    # ==========================================================================
-    client_max_body_size 10M;
-    client_body_timeout 60s;
-
-    # ==========================================================================
-    # Static File Serving with Caching
-    # ==========================================================================
-    location /public/ {
-        alias ${config.workingDirectory}/public/;
-        expires 30d;
-        add_header Cache-Control "public, immutable";
-        add_header X-Content-Type-Options "nosniff" always;
-        
-        # Security: Prevent script execution in upload directories
-        location ~* \\.(php|py|js|sh|pl|rb)$ {
-            deny all;
-        }
-    }
-
-    # ==========================================================================
-    # API and Dynamic Content - Reverse Proxy to Deno Backend
-    # ==========================================================================
+    # Genesis application proxy
     location / {
-        proxy_pass http://${config.siteKey}_backend;
+        limit_req zone=${config.siteKey}_limit burst=20 nodelay;
         
-        # Standard proxy headers
+        proxy_pass http://127.0.0.1:${config.port};
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-Host $host;
-        proxy_set_header X-Forwarded-Port $server_port;
+        proxy_cache_bypass $http_upgrade;
         
-        # WebSocket support (if needed)
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        
-        # Timeouts
+        # Timeout configuration
         proxy_connect_timeout 60s;
         proxy_send_timeout 60s;
         proxy_read_timeout 60s;
-        
-        # Buffering
-        proxy_buffering on;
-        proxy_buffer_size 4k;
-        proxy_buffers 8 4k;
-        proxy_busy_buffers_size 8k;
     }
 
-    # ==========================================================================
-    # Security: Deny Access to Sensitive Files
-    # ==========================================================================
-    location ~ /\\. {
-        deny all;
-        access_log off;
-        log_not_found off;
-    }
-
-    location ~ /(?:\\.git|\\.htaccess|\\.env|config\\.json|package\\.json|deno\\.lock)$ {
-        deny all;
-        access_log off;
-        log_not_found off;
-    }
-
-    # ==========================================================================
-    # Health Check Endpoint
-    # ==========================================================================
+    # Health check endpoint
     location /nginx-health {
         access_log off;
         return 200 "healthy\\n";
         add_header Content-Type text/plain;
     }
 
-    # ==========================================================================
-    # Framework Documentation (Optional - Remove in production)
-    # ==========================================================================
-    location /docs/ {
-        proxy_pass http://${config.siteKey}_backend;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        
-        # Optional: Add basic auth for documentation in production
-        # auth_basic "DenoGenesis Documentation";
-        # auth_basic_user_file /etc/nginx/.htpasswd;
-    }
+    # Logging
+    access_log /var/log/nginx/${config.siteName}_access.log;
+    error_log /var/log/nginx/${config.siteName}_error.log;
 }
 
-# =============================================================================
-# HTTP to HTTPS Redirect
-# =============================================================================
+# HTTP to HTTPS redirect
 server {
     listen 80;
     listen [::]:80;
-
-    server_name www.${config.domain} ${config.domain};
-
-    # Redirect all HTTP traffic to HTTPS
-    return 301 https://$host$request_uri;
+    server_name ${config.domain};
+    return 301 https://$server_name$request_uri;
 }
 
-# =============================================================================
-# WWW to Non-WWW Redirect (Optional)
-# =============================================================================
-# Uncomment if you want to enforce non-www
+# Optional: WWW to non-WWW redirect (uncomment if needed)
 # server {
 #     listen 443 ssl http2;
 #     listen [::]:443 ssl http2;
@@ -532,7 +452,7 @@ server {
 
   const outputPath = join(outputDir, `${config.siteName}.conf`);
   await Deno.writeTextFile(outputPath, nginxConfig);
-  
+
   if (context.verbose) {
     console.log(`✅ Generated nginx configuration: ${outputPath}`);
   }
@@ -542,14 +462,15 @@ server {
  * Generate systemd service file
  */
 async function generateSystemdService(
-  config: DevConfig,
+  config: DeployConfig,
   outputDir: string,
-  context: CLIContext
+  context: CLIContext,
 ): Promise<void> {
-  const systemdService = `# =============================================================================
+  const systemdService =
+    `# =============================================================================
 # ${config.siteName.toUpperCase()} - SYSTEMD SERVICE UNIT
 # =============================================================================
-# Generated by: Deno Genesis CLI (dev command)
+# Generated by: Deno Genesis CLI (deploy command)
 # Generated on: ${new Date().toISOString()}
 # Site: ${config.domain}
 # Port: ${config.port}
@@ -647,24 +568,24 @@ Alias=${config.siteName}.service
 
   const outputPath = join(outputDir, `${config.siteName}.service`);
   await Deno.writeTextFile(outputPath, systemdService);
-  
+
   if (context.verbose) {
     console.log(`✅ Generated systemd service: ${outputPath}`);
   }
 }
 
 /**
- * Show help for dev command
+ * Show help for deploy command
  */
-export function showDevHelp(): void {
+export function showDeployHelp(): void {
   console.log(`
-🔧 Deno Genesis Dev Command - Infrastructure Configuration Generator
+🚀 Deno Genesis Deploy Command - Infrastructure Configuration Generator
 
 USAGE:
-  genesis dev [domain] [options]
+  genesis deploy [domain] [options]
 
 DESCRIPTION:
-  Generate nginx and systemd configuration files for a Deno Genesis site.
+  Generate nginx and systemd configuration files for a Deno Genesis site deployment.
   Follows Unix Philosophy and DenoGenesis security patterns.
 
 ARGUMENTS:
@@ -681,22 +602,22 @@ OPTIONS:
 
 EXAMPLES:
   # Interactive mode
-  genesis dev
+  genesis deploy
   
   # Generate configs for specific domain
-  genesis dev example.com
+  genesis deploy example.com
   
   # Specify domain and port
-  genesis dev example.com --port 3005
+  genesis deploy example.com --port 3005
   
   # Generate only nginx config
-  genesis dev example.com --nginx-only
+  genesis deploy example.com --nginx-only
   
   # Generate only systemd service
-  genesis dev example.com --systemd-only --port 3003
+  genesis deploy example.com --systemd-only --port 3003
   
   # Skip prompts with defaults
-  genesis dev example.com --skip-prompts
+  genesis deploy example.com --skip-prompts
 
 OUTPUT:
   Generated files will be placed in:

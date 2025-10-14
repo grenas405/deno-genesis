@@ -2,19 +2,19 @@
 
 /**
  * Deno Genesis CLI Tool
- * 
+ *
  * Unix Philosophy Implementation:
  * - Do one thing well: Orchestrate Genesis framework operations
  * - Accept text input: Commands, configuration files, environment variables
  * - Produce text output: Structured logging, JSON output, status reports
  * - Filter and transform: Take user intent → execute framework operations
  * - Composable: Each subcommand can be piped, scripted, automated
- * 
+ *
  * Security-First Composition:
  * - Explicit permissions for each operation
  * - No hidden access rights
  * - Auditable command execution
- * 
+ *
  * Zero-Configuration Complexity:
  * - No build steps required
  * - Direct TypeScript execution
@@ -23,11 +23,11 @@
 
 import { parseArgs } from "https://deno.land/std@0.224.0/cli/parse_args.ts";
 import { exists } from "https://deno.land/std@0.224.0/fs/exists.ts";
-import { join, dirname } from "https://deno.land/std@0.224.0/path/mod.ts";
+import { dirname, join } from "https://deno.land/std@0.224.0/path/mod.ts";
 
 // Import subcommand modules
 import { initCommand } from "./commands/init.ts";
-import { devCommand, showDevHelp } from "./commands/dev.ts";
+import { deployCommand, showDeployHelp } from "./commands/deploy.ts";
 import { dbCommand, showDbHelp } from "./commands/db.ts";
 
 // Types
@@ -52,7 +52,8 @@ interface CommandDefinition {
 const COMMANDS: Record<string, CommandDefinition> = {
   init: {
     name: "init",
-    description: "Initialize new Genesis project with hub-and-spoke architecture",
+    description:
+      "Initialize new Genesis project with hub-and-spoke architecture",
     usage: "genesis init [project-name] [--template=basic|full|enterprise]",
     examples: [
       "genesis init my-project",
@@ -62,17 +63,18 @@ const COMMANDS: Record<string, CommandDefinition> = {
     handler: initCommand,
     permissions: ["--allow-read", "--allow-write", "--allow-net"],
   },
-  dev: {
-    name: "dev",
-    description: "Generate nginx and systemd configuration files for site deployment",
-    usage: "genesis dev [domain] [options]",
+  deploy: {
+    name: "deploy",
+    description:
+      "Generate nginx and systemd configuration files for site deployment",
+    usage: "genesis deploy [domain] [options]",
     examples: [
-      "genesis dev example.com",
-      "genesis dev example.com --port 3005",
-      "genesis dev example.com --nginx-only",
-      "genesis dev example.com --systemd-only --port 3003",
+      "genesis deploy example.com",
+      "genesis deploy example.com --port 3005",
+      "genesis deploy example.com --nginx-only",
+      "genesis deploy example.com --systemd-only --port 3003",
     ],
-    handler: devCommand,
+    handler: deployCommand,
     permissions: ["--allow-read", "--allow-write"],
   },
   db: {
@@ -86,7 +88,12 @@ const COMMANDS: Record<string, CommandDefinition> = {
       "genesis db --test-only",
     ],
     handler: dbCommand,
-    permissions: ["--allow-read", "--allow-write", "--allow-run", "--allow-env"],
+    permissions: [
+      "--allow-read",
+      "--allow-write",
+      "--allow-run",
+      "--allow-env",
+    ],
   },
 };
 
@@ -110,16 +117,16 @@ async function runWithDryRun(
 function showHelp(command?: string): void {
   if (command && COMMANDS[command]) {
     // Show command-specific help
-    if (command === "dev") {
-      showDevHelp();
+    if (command === "deploy") {
+      showDeployHelp();
       return;
     }
-    
+
     if (command === "db") {
       showDbHelp();
       return;
     }
-    
+
     const cmd = COMMANDS[command];
     console.log(`\n${cmd.name} - ${cmd.description}\n`);
     console.log(`Usage: ${cmd.usage}\n`);
@@ -137,7 +144,7 @@ USAGE:
 
 CORE COMMANDS:
   init       Initialize new Genesis project with hub-and-spoke architecture
-  dev        Generate nginx and systemd configuration files for deployment
+  deploy     Generate nginx and systemd configuration files for deployment
   db         Setup MariaDB database with multi-tenant architecture
 
 OPTIONS:
@@ -150,8 +157,8 @@ OPTIONS:
 EXAMPLES:
   genesis init my-project
   genesis init enterprise-app --template=enterprise
-  genesis dev example.com
-  genesis dev example.com --port 3005
+  genesis deploy example.com
+  genesis deploy example.com --port 3005
   genesis db
   genesis db --test-only
 
