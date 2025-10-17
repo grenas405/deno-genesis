@@ -3,329 +3,859 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Deno Genesis - A web framework for digital sovereignty. Unix Philosophy + Modern Runtime = Revolutionary Development Experience.">
+  <meta name="description" content="Deno Genesis - The next generation framework for digital sovereignty. Unix Philosophy + Modern Runtime = Revolutionary Development Experience.">
   <meta name="author" content="Pedro M. Dominguez">
-  <title>Deno Genesis - A Framework for Digital Sovereignty</title>
+  <title>Deno Genesis - Digital Sovereignty Framework</title>
   
-  <!-- External Stylesheet -->
-  <link rel="stylesheet" href="/assets/css/style.css">
+  <style>
+    /* ===================================
+       CRITICAL CSS - UNIVERSAL RESET
+       =================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    html, body {
+      overflow-x: hidden;
+      width: 100%;
+      scroll-behavior: smooth;
+    }
+
+    /* ===================================
+       COLOR SCHEME - DIGITAL SOVEREIGNTY
+       =================================== */
+    :root {
+      /* Primary dark blue palette */
+      --primary-dark: #0a1628;
+      --primary-medium: #1e3a5f;
+      --primary-light: #2d4a6e;
+      
+      /* Gold accent system */
+      --accent-gold: #d4af37;
+      --accent-gold-bright: #f4d03f;
+      --accent-gold-dark: #b8941f;
+      
+      /* Text hierarchy */
+      --text-primary: #f8f9fa;
+      --text-secondary: #cbd5e1;
+      --text-tertiary: #94a3b8;
+      
+      /* Gradients */
+      --gradient-primary: linear-gradient(135deg, #0a1628 0%, #1e3a5f 50%, #2d4a6e 100%);
+      --gradient-gold: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+      
+      /* Shadows */
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+      --shadow-gold: 0 4px 16px rgba(212, 175, 55, 0.3);
+    }
+
+    /* ===================================
+       TYPOGRAPHY - SYSTEM FONTS
+       =================================== */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 
+                   'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 
+                   'Helvetica Neue', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text-primary);
+      background: var(--primary-dark);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ===================================
+       HERO SECTION
+       =================================== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--gradient-primary);
+      position: relative;
+      overflow: hidden;
+      padding: 60px 20px;
+    }
+
+    /* Immersive network effect background */
+    .network-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      opacity: 0.6;
+    }
+
+    .network-background::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: 
+        radial-gradient(circle at 20% 20%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 60%, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
+      animation: networkPulse 20s ease-in-out infinite;
+    }
+
+    @keyframes networkPulse {
+      0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.6; }
+      50% { transform: scale(1.1) rotate(2deg); opacity: 0.8; }
+    }
+
+    /* Floating particles */
+    .particles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: var(--accent-gold);
+      border-radius: 50%;
+      opacity: 0.7;
+      animation: floatParticle 15s linear infinite;
+    }
+
+    @keyframes floatParticle {
+      0% {
+        transform: translateY(100vh) translateX(0px);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.7;
+      }
+      90% {
+        opacity: 0.7;
+      }
+      100% {
+        transform: translateY(-100px) translateX(100px);
+        opacity: 0;
+      }
+    }
+
+    /* Hero content */
+    .hero-content {
+      text-align: center;
+      z-index: 10;
+      position: relative;
+      max-width: 900px;
+    }
+
+    .typed-title {
+      font-size: clamp(2.5rem, 8vw, 4.5rem);
+      font-weight: 800;
+      margin-bottom: 1rem;
+      background: var(--gradient-gold);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      min-height: 1.2em;
+    }
+
+    .typed-subtitle {
+      font-size: clamp(1.1rem, 3vw, 1.5rem);
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      font-weight: 300;
+      letter-spacing: 0.5px;
+      min-height: 1.5em;
+    }
+
+    .cursor {
+      display: inline-block;
+      background-color: var(--accent-gold);
+      margin-left: 3px;
+      width: 3px;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    /* Language indicator */
+    .language-indicator {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 8px 16px;
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: var(--accent-gold);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Hero buttons */
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+
+    .btn {
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: var(--gradient-gold);
+      color: var(--primary-dark);
+      box-shadow: var(--shadow-gold);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-primary);
+      border: 2px solid var(--accent-gold);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 8px 32px rgba(212, 175, 55, 0.4);
+    }
+
+    /* ===================================
+       TECH STACK SECTION
+       =================================== */
+    .tech-stack {
+      padding: 4rem 2rem;
+      background: var(--primary-medium);
+      position: relative;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: clamp(2rem, 5vw, 3rem);
+      margin-bottom: 3rem;
+      color: var(--text-primary);
+      font-weight: 700;
+    }
+
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .tech-card {
+      background: linear-gradient(145deg, var(--primary-light), var(--primary-medium));
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tech-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .tech-card:hover::before {
+      left: 100%;
+    }
+
+    .tech-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(212, 175, 55, 0.4);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .tech-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: var(--accent-gold);
+    }
+
+    .tech-name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+    }
+
+    .tech-description {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ===================================
+       FEATURES SECTION
+       =================================== */
+    .features {
+      padding: 4rem 2rem;
+      background: var(--primary-dark);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .feature-card {
+      background: linear-gradient(145deg, var(--primary-medium), var(--primary-light));
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 12px;
+      padding: 2rem;
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(212, 175, 55, 0.4);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .feature-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: var(--accent-gold);
+    }
+
+    .feature-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+    }
+
+    .feature-description {
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ===================================
+       CTA SECTION
+       =================================== */
+    .cta {
+      padding: 4rem 2rem;
+      background: var(--gradient-primary);
+      text-align: center;
+    }
+
+    .cta-title {
+      font-size: clamp(2rem, 5vw, 3rem);
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+      font-weight: 700;
+    }
+
+    .cta-description {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ===================================
+       RESPONSIVE DESIGN
+       =================================== */
+    @media (max-width: 768px) {
+      .hero {
+        padding: 40px 20px;
+      }
+
+      .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .btn {
+        width: 100%;
+        max-width: 280px;
+      }
+
+      .tech-grid,
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .language-indicator {
+        top: 10px;
+        right: 10px;
+        font-size: 0.7rem;
+        padding: 6px 12px;
+      }
+    }
+
+    /* ===================================
+       ACCESSIBILITY
+       =================================== */
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Focus indicators */
+    .btn:focus,
+    .btn:focus-visible {
+      outline: 2px solid var(--accent-gold);
+      outline-offset: 2px;
+    }
+  </style>
 </head>
 <body>
-  <!-- Skip link for accessibility -->
-  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <!-- Language indicator -->
+  <div class="language-indicator" id="languageIndicator" aria-live="polite">
+    EN
+  </div>
 
-  <!-- HERO SECTION -->
+  <!-- Hero Section -->
   <section class="hero" role="banner">
-    <!-- Immersive network effect background -->
-    <div class="network-background">
-      <!-- Large network nodes -->
-      <div class="network-node large"></div>
-      <div class="network-node large"></div>
-      <div class="network-node large"></div>
-      <div class="network-node medium"></div>
-      <div class="network-node medium"></div>
-      <div class="network-node medium"></div>
-      <div class="network-node medium"></div>
-      <div class="network-node small"></div>
-      <div class="network-node small"></div>
-      <div class="network-node small"></div>
-      <div class="network-node small"></div>
-      <div class="network-node small"></div>
-      <div class="network-node small"></div>
-      <div class="network-node small"></div>
-      <div class="network-node small"></div>
-      
-      <!-- Floating particles -->
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      
-      <!-- Network connection lines with data flow -->
-      <div class="network-line"></div>
-      <div class="network-line"></div>
-      <div class="network-line"></div>
-      <div class="network-line"></div>
-      <div class="network-line"></div>
-      <div class="network-line"></div>
-      <div class="network-line"></div>
-      <div class="network-line"></div>
-      <div class="network-line"></div>
-      <div class="network-line"></div>
+    <div class="network-background" aria-hidden="true"></div>
+    
+    <!-- Floating particles -->
+    <div class="particles" aria-hidden="true">
+      <!-- Particles will be generated by JavaScript -->
     </div>
 
     <div class="hero-content">
-      <h1 class="hero-title">
-        <span class="typed-text" id="typed-title">Deno Genesis</span>
+      <h1 class="typed-title" id="typedTitle" aria-live="polite">
+        Deno Genesis<span class="cursor" aria-hidden="true">|</span>
       </h1>
-      <p class="hero-subtitle">
-        <span class="typed-subtitle" id="typed-subtitle">A Web Framework for Digital Sovereignty</span>
+      
+      <p class="typed-subtitle" id="typedSubtitle" aria-live="polite">
+        A Web Framework for Digital Sovereignty<span class="cursor" aria-hidden="true">|</span>
       </p>
-      <p class="hero-creator">
-        Created by <strong>Pedro M. Dominguez</strong><br>
-        Using AI-Augmented Development Workflow
+
+      <div class="hero-buttons">
+        <a href="#tech-stack" class="btn btn-primary">
+          Explore Technology
+        </a>
+        <a href="#features" class="btn btn-secondary">
+          Learn Features
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tech Stack Section -->
+  <section id="tech-stack" class="tech-stack">
+    <div class="container">
+      <h2 class="section-title">Built on Modern Foundations</h2>
+      
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tech-icon" aria-hidden="true">🦕</div>
+          <h3 class="tech-name">Deno Runtime</h3>
+          <p class="tech-description">
+            Secure by default with built-in TypeScript support and modern web APIs
+          </p>
+        </div>
+        
+        <div class="tech-card">
+          <div class="tech-icon" aria-hidden="true">📘</div>
+          <h3 class="tech-name">TypeScript</h3>
+          <p class="tech-description">
+            Type safety and enhanced developer experience out of the box
+          </p>
+        </div>
+        
+        <div class="tech-card">
+          <div class="tech-icon" aria-hidden="true">🌐</div>
+          <h3 class="tech-name">Nginx</h3>
+          <p class="tech-description">
+            High-performance reverse proxy and web server for production deployment
+          </p>
+        </div>
+        
+        <div class="tech-card">
+          <div class="tech-icon" aria-hidden="true">⚙️</div>
+          <h3 class="tech-name">SystemD</h3>
+          <p class="tech-description">
+            Reliable service management and process supervision for Linux systems
+          </p>
+        </div>
+        
+        <div class="tech-card">
+          <div class="tech-icon" aria-hidden="true">🎨</div>
+          <h3 class="tech-name">Modern CSS</h3>
+          <p class="tech-description">
+            CSS Grid, Flexbox, and custom properties for responsive, accessible design
+          </p>
+        </div>
+        
+        <div class="tech-card">
+          <div class="tech-icon" aria-hidden="true">⚡</div>
+          <h3 class="tech-name">Performance</h3>
+          <p class="tech-description">
+            Optimized for speed with minimal dependencies and efficient resource usage
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="features">
+    <div class="container">
+      <h2 class="section-title">Framework Features</h2>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon" aria-hidden="true">🛡️</div>
+          <h3 class="feature-title">Digital Sovereignty</h3>
+          <p class="feature-description">
+            Complete control over your digital infrastructure. No vendor lock-in, no external dependencies for core functionality. Your data, your rules.
+          </p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon" aria-hidden="true">🧭</div>
+          <h3 class="feature-title">Unix Philosophy</h3>
+          <p class="feature-description">
+            Do one thing well. Composable modules that work together seamlessly. Simple, predictable, and maintainable architecture.
+          </p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon" aria-hidden="true">🔒</div>
+          <h3 class="feature-title">Security First</h3>
+          <p class="feature-description">
+            Built-in security with Deno's permission system. Explicit security boundaries and defense-in-depth architecture patterns.
+          </p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon" aria-hidden="true">🚀</div>
+          <h3 class="feature-title">Production Ready</h3>
+          <p class="feature-description">
+            Battle-tested in real business environments. Proven scalability with hub-and-spoke architecture for multi-site deployment.
+          </p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon" aria-hidden="true">🤖</div>
+          <h3 class="feature-title">AI-Augmented Development</h3>
+          <p class="feature-description">
+            Built with AI collaboration in mind. Clear patterns and documentation that enable seamless human-AI development workflows.
+          </p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon" aria-hidden="true">🌍</div>
+          <h3 class="feature-title">Local-First Architecture</h3>
+          <p class="feature-description">
+            Work offline, sync when available. User agency and data sovereignty built into the core architecture principles.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action -->
+  <section class="cta">
+    <div class="container">
+      <h2 class="cta-title">Ready to Build the Future?</h2>
+      <p class="cta-description">
+        Join the revolution in web development. Experience true digital sovereignty with a framework built for the modern era.
       </p>
       
-      <div class="cta-container">
+      <div class="hero-buttons">
         <a href="https://github.com/grenas405/deno-genesis" class="btn btn-primary" target="_blank" rel="noopener">
           View on GitHub
         </a>
-        <a href="#main-content" class="btn btn-secondary">
-          Learn More
+        <a href="#" class="btn btn-secondary">
+          Read Documentation
         </a>
       </div>
     </div>
   </section>
 
-  <!-- BADGES SECTION -->
-  <section class="badges-section">
-    <div class="badges-container">
-      <!-- First row of badges -->
-      <div class="badge-row">
-        <a href="https://github.com/grenas405/deno-genesis" class="badge badge-stars" target="_blank" rel="noopener">
-          <span class="badge-icon">
-            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-              <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/>
-            </svg>
-          </span>
-          <span class="badge-label">Stars</span>
-          <span class="badge-value">2</span>
-        </a>
+  <script>
+    // ===================================
+    // MULTILINGUAL TYPING ANIMATION
+    // ===================================
 
-        <a href="https://github.com/grenas405/deno-genesis/issues" class="badge badge-issues" target="_blank" rel="noopener">
-          <span class="badge-icon">
-            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-              <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/>
-              <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"/>
-            </svg>
-          </span>
-          <span class="badge-label">Issues</span>
-          <span class="badge-value">0 Open</span>
-        </a>
+    // Languages: English, Spanish, German, French, Latin
+    const translations = [
+      { 
+        title: 'Deno Genesis', 
+        subtitle: 'A Web Framework for Digital Sovereignty',
+        lang: 'EN' 
+      },
+      { 
+        title: 'Deno Génesis', 
+        subtitle: 'Un Marco Web para la Soberanía Digital',
+        lang: 'ES' 
+      },
+      { 
+        title: 'Deno Genesis', 
+        subtitle: 'Ein Web-Framework für Digitale Souveränität',
+        lang: 'DE' 
+      },
+      { 
+        title: 'Deno Genèse', 
+        subtitle: 'Un Framework Web pour la Souveraineté Numérique',
+        lang: 'FR' 
+      },
+      { 
+        title: 'Deno Genesis', 
+        subtitle: 'Structura Interretialis pro Potestate Digitali',
+        lang: 'LA' 
+      }
+    ];
 
-        <a href="https://github.com/grenas405/deno-genesis/network" class="badge badge-forks" target="_blank" rel="noopener">
-          <span class="badge-icon">
-            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-              <path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-.878a2.25 2.25 0 1 1 1.5 0v.878a2.25 2.25 0 0 1-2.25 2.25h-1.5v2.128a2.251 2.251 0 1 1-1.5 0V8.5h-1.5A2.25 2.25 0 0 1 3.5 6.25v-.878a2.25 2.25 0 1 1 1.5 0ZM5 3.25a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Zm6.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm-3 8.75a.75.75 0 1 0-1.5 0 .75.75 0 0 0 1.5 0Z"/>
-            </svg>
-          </span>
-          <span class="badge-label">Forks</span>
-          <span class="badge-value">0</span>
-        </a>
+    // Typing animation configuration
+    const TYPING_CONFIG = {
+      typingSpeed: 80,
+      deletingSpeed: 40,
+      pauseAfterComplete: 2500,
+      pauseBetweenTitleAndSubtitle: 300,
+      initialDelay: 1000
+    };
 
-        <span class="badge badge-license">
-          <span class="badge-icon">
-            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-              <path d="M8.75.75V2h.985c.304 0 .603.08.867.231l1.29.736c.038.022.08.033.124.033h2.234a.75.75 0 0 1 0 1.5h-.427l2.111 4.692a.75.75 0 0 1-.154.838l-.53-.53.529.531-.001.002-.002.002-.006.006-.006.005-.01.01-.045.04c-.21.176-.441.327-.686.45C14.556 10.78 13.88 11 13 11a4.498 4.498 0 0 1-2.023-.454 3.544 3.544 0 0 1-.686-.45l-.045-.04-.016-.015-.006-.006-.004-.004v-.001a.75.75 0 0 1-.154-.838L12.178 4.5h-.162c-.305 0-.604-.079-.868-.231l-1.29-.736a.245.245 0 0 0-.124-.033H8.75V13h2.5a.75.75 0 0 1 0 1.5h-6.5a.75.75 0 0 1 0-1.5h2.5V3.5h-.984a.245.245 0 0 0-.124.033l-1.289.737c-.265.15-.564.23-.869.23h-.162l2.112 4.692a.75.75 0 0 1-.154.838l-.53-.53.529.531-.001.002-.002.002-.006.006-.016.015-.045.04c-.21.176-.441.327-.686.45C4.556 10.78 3.88 11 3 11a4.498 4.498 0 0 1-2.023-.454 3.544 3.544 0 0 1-.686-.45l-.045-.04-.016-.015-.006-.006-.004-.004v-.001a.75.75 0 0 1-.154-.838L2.178 4.5H1.75a.75.75 0 0 1 0-1.5h2.234a.249.249 0 0 0 .125-.033l1.288-.737c.265-.15.564-.23.869-.23h.984V.75a.75.75 0 0 1 1.5 0Zm2.945 8.477c.285.135.718.273 1.305.273s1.02-.138 1.305-.273L13 6.327Zm-10 0c.285.135.718.273 1.305.273s1.02-.138 1.305-.273L3 6.327Z"/>
-            </svg>
-          </span>
-          <span class="badge-label">License</span>
-          <span class="badge-value">AGPL-3.0</span>
-        </span>
-      </div>
+    // State management
+    let currentIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let isPaused = false;
+    let isTypingSubtitle = false;
 
-      <!-- Second row of badges -->
-      <div class="badge-row">
-        <span class="badge badge-deno">
-          <span class="badge-icon">
-            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-              <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0Zm3.669 11.538a1 1 0 0 1-1.339.408l-1.852-1.032c-.074-.04-.133-.11-.161-.193l-.382-1.022a.75.75 0 0 1 1.406-.528l.303.807.978.545a1 1 0 0 1 .408 1.338c.237.028.46-.084.632-.276.17-.192.243-.452.195-.708l-.203-1.084a.75.75 0 0 1 1.477-.277l.203 1.084c.096.512-.05 1.032-.387 1.428a1.75 1.75 0 0 1-.678.446Z"/>
-            </svg>
-          </span>
-          <span class="badge-label">Deno</span>
-          <span class="badge-value">^2.0.0</span>
-        </span>
+    // DOM elements
+    const typedTitleElement = document.getElementById('typedTitle');
+    const typedSubtitleElement = document.getElementById('typedSubtitle');
+    const languageIndicator = document.getElementById('languageIndicator');
 
-        <span class="badge badge-typescript">
-          <span class="badge-icon">
-            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-              <path d="M1.5 0h13A1.5 1.5 0 0 1 16 1.5v13a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0ZM6.75 11.5V8H5.25v3.5a.75.75 0 0 1-1.5 0V7.75A.75.75 0 0 1 4.5 7h3a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0Zm4.5-4.75a.75.75 0 0 0-.75.75v3.75a.75.75 0 0 0 1.5 0V8h1.25a.75.75 0 0 0 0-1.5h-2a.75.75 0 0 0-.75.75V6.5Z"/>
-            </svg>
-          </span>
-          <span class="badge-label">TypeScript</span>
-          <span class="badge-value">5.0+</span>
-        </span>
+    /**
+     * Main typing animation function
+     */
+    function typeAnimation() {
+      const currentTranslation = translations[currentIndex];
+      const currentText = isTypingSubtitle ? currentTranslation.subtitle : currentTranslation.title;
+      const currentElement = isTypingSubtitle ? typedSubtitleElement : typedTitleElement;
 
-        <span class="badge badge-philosophy">
-          <span class="badge-icon">🔔</span>
-          <span class="badge-label">Philosophy</span>
-          <span class="badge-value">Unix</span>
-        </span>
+      if (isPaused) {
+        setTimeout(typeAnimation, TYPING_CONFIG.pauseAfterComplete);
+        isPaused = false;
+        return;
+      }
 
-        <span class="badge badge-architecture">
-          <span class="badge-icon">⚪</span>
-          <span class="badge-label">Architecture</span>
-        </span>
+      if (!isDeleting && charIndex < currentText.length) {
+        // Typing forward
+        const displayText = currentText.substring(0, charIndex + 1);
+        currentElement.innerHTML = displayText + '<span class="cursor" aria-hidden="true">|</span>';
+        charIndex++;
+        setTimeout(typeAnimation, TYPING_CONFIG.typingSpeed + Math.random() * 50);
+      } else if (isDeleting && charIndex > 0) {
+        // Deleting backward
+        const displayText = currentText.substring(0, charIndex - 1);
+        currentElement.innerHTML = displayText + '<span class="cursor" aria-hidden="true">|</span>';
+        charIndex--;
+        setTimeout(typeAnimation, TYPING_CONFIG.deletingSpeed);
+      } else if (!isDeleting && charIndex === currentText.length) {
+        // Finished typing current text
+        if (!isTypingSubtitle) {
+          // Move to subtitle
+          isTypingSubtitle = true;
+          charIndex = 0;
+          setTimeout(typeAnimation, TYPING_CONFIG.pauseBetweenTitleAndSubtitle);
+        } else {
+          // Finished both title and subtitle, pause then start deleting
+          isPaused = true;
+          setTimeout(() => {
+            isDeleting = true;
+            typeAnimation();
+          }, TYPING_CONFIG.pauseAfterComplete);
+        }
+      } else if (isDeleting && charIndex === 0) {
+        // Finished deleting
+        if (isTypingSubtitle) {
+          // Move back to title
+          isTypingSubtitle = false;
+          isDeleting = true; // Continue deleting the title
+        } else {
+          // Finished deleting title, move to next language
+          isDeleting = false;
+          currentIndex = (currentIndex + 1) % translations.length;
+          
+          // Update language indicator
+          languageIndicator.textContent = translations[currentIndex].lang;
+        }
+        setTimeout(typeAnimation, TYPING_CONFIG.typingSpeed);
+      }
+    }
 
-        <span class="badge badge-local-first">
-          <span class="badge-label">Local First</span>
-        </span>
+    /**
+     * Generate floating particles
+     */
+    function createParticles() {
+      const particlesContainer = document.querySelector('.particles');
+      const particleCount = 15;
 
-        <span class="badge badge-development">
-          <span class="badge-icon">⚙️</span>
-          <span class="badge-label">Development</span>
-        </span>
-
-        <span class="badge badge-ai-augmented">
-          <span class="badge-label">AI Augmented</span>
-        </span>
-      </div>
-
-      <!-- Third row of badges -->
-      <div class="badge-row">
-        <a href="https://github.com/grenas405/deno-genesis/graphs/contributors" class="badge badge-contributors" target="_blank" rel="noopener">
-          <span class="badge-icon">
-            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-              <path d="M2 5.5a3.5 3.5 0 1 1 5.898 2.549 5.508 5.508 0 0 1 3.034 4.084.75.75 0 1 1-1.482.235 4 4 0 0 0-7.9 0 .75.75 0 0 1-1.482-.236A5.507 5.507 0 0 1 3.102 8.05 3.493 3.493 0 0 1 2 5.5ZM11 4a3.001 3.001 0 0 1 2.22 5.018 5.01 5.01 0 0 1 2.56 3.012.75.75 0 0 1-1.442.428 3.509 3.509 0 0 0-5.327-1.628.75.75 0 0 1-1.013-.063 4.996 4.996 0 0 1-.94-1.274 3.5 3.5 0 1 1 4.916-5.493.75.75 0 1 1-.977 1.139A3.5 3.5 0 0 1 11 4Z"/>
-            </svg>
-          </span>
-          <span class="badge-label">Contributors</span>
-          <span class="badge-value">1</span>
-        </a>
-
-        <span class="badge badge-last-commit">
-          <span class="badge-icon">
-            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-              <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Zm7-3.25v2.992l2.028.812a.75.75 0 0 1-.557 1.392l-2.5-1A.751.751 0 0 1 7 8.25v-3.5a.75.75 0 0 1 1.5 0Z"/>
-            </svg>
-          </span>
-          <span class="badge-label">Last Commit</span>
-          <span class="badge-value">Today</span>
-        </span>
-
-        <a href="https://github.com/grenas405/deno-genesis/releases" class="badge badge-release" target="_blank" rel="noopener">
-          <span class="badge-icon">
-            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-              <path d="M1 7.775V2.75C1 1.784 1.784 1 2.75 1h5.025c.464 0 .91.184 1.238.513l6.25 6.25a1.75 1.75 0 0 1 0 2.474l-5.026 5.026a1.75 1.75 0 0 1-2.474 0l-6.25-6.25A1.752 1.752 0 0 1 1 7.775Zm1.5 0c0 .066.026.13.073.177l6.25 6.25a.25.25 0 0 0 .354 0l5.025-5.025a.25.25 0 0 0 0-.354l-6.25-6.25a.25.25 0 0 0-.177-.073H2.75a.25.25 0 0 0-.25.25ZM6 5a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/>
-            </svg>
-          </span>
-          <span class="badge-label">Release</span>
-          <span class="badge-value">v1.0.0</span>
-        </a>
-
-        <span class="badge badge-languages">
-          <span class="badge-icon">
-            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4.545 6.714 4.11 8H3l1.862-5h1.284L8 8H6.833l-.435-1.286H4.545ZM5.091 5.5h1.125L5.545 3.1h-.018l-.436 2.4ZM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2Zm14.5 0a.5.5 0 0 0-.5-.5H2a.5.5 0 0 0-.5.5v12a.5.5 0 0 0 .5.5h12a.5.5 0 0 0 .5-.5V2ZM9.25 8h1.5L9 11h1.5l-1.75 3h-1.5L9 11H7.5l1.75-3Z"/>
-            </svg>
-          </span>
-          <span class="badge-label">Languages</span>
-          <span class="badge-value">5</span>
-        </span>
-      </div>
-    </div>
-  </section>
-
-  <!-- INTRODUCTION SECTION -->
-  <main id="main-content">
-    <section class="introduction">
-      <div class="container">
-        <div class="intro-content">
-          <h2 class="section-title">The Genesis Protocol</h2>
-          <p class="intro-text">
-            What happens when 10 years of computer science education gets compressed into 10 months 
-            of AI-augmented web development? You get <strong>Deno Genesis</strong> — a framework that 
-            didn't ask for permission to exist.
-          </p>
-          <p class="intro-text">
-            Built on the convergence of <em>Unix Philosophy</em> and <em>Modern Runtime</em>, 
-            Deno Genesis delivers enterprise-grade performance with complete digital sovereignty. 
-            No vendor lock-in. No dependency hell. Just pure, principled architecture that works.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- FEATURES SECTION -->
-    <section class="features">
-      <div class="container">
-        <h2 class="section-title">Why Deno Genesis?</h2>
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
         
-        <div class="features-grid">
-          <article class="feature-card">
-            <div class="feature-icon">🔧</div>
-            <h3 class="feature-title">Unix Philosophy</h3>
-            <p class="feature-description">
-              Do one thing well. Composable by design. Text-based configuration. 
-              Direct execution without build pipelines.
-            </p>
-          </article>
+        // Random horizontal position
+        particle.style.left = Math.random() * 100 + '%';
+        
+        // Random animation delay
+        particle.style.animationDelay = Math.random() * 15 + 's';
+        
+        // Random size variation
+        const size = 3 + Math.random() * 3;
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
+        
+        particlesContainer.appendChild(particle);
+      }
+    }
 
-          <article class="feature-card">
-            <div class="feature-icon">🛡️</div>
-            <h3 class="feature-title">Digital Sovereignty</h3>
-            <p class="feature-description">
-              Own your infrastructure. Control your data. No vendor lock-in. 
-              Complete independence from external services.
-            </p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon">⚡</div>
-            <h3 class="feature-title">Enterprise Performance</h3>
-            <p class="feature-description">
-              Sub-100ms response times. 99.9%+ uptime. Production-tested across 
-              multiple business-critical deployments.
-            </p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon">🤖</div>
-            <h3 class="feature-title">AI-Augmented Development</h3>
-            <p class="feature-description">
-              LLM-friendly architecture. Structured documentation. Type-safe composition. 
-              Designed for human-AI collaboration.
-            </p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon">💰</div>
-            <h3 class="feature-title">80% Cost Reduction</h3>
-            <p class="feature-description">
-              Proven in production. Real businesses achieving enterprise-grade results 
-              at a fraction of traditional cloud costs.
-            </p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon">🔒</div>
-            <h3 class="feature-title">Security First</h3>
-            <p class="feature-description">
-              Explicit permissions. Type-safe boundaries. Runtime security built into 
-              every layer of the framework.
-            </p>
-          </article>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="footer" role="contentinfo">
-    <div class="footer-content">
-      <p class="footer-text">
-        &copy; 2025 Pedro M. Dominguez - Dominguez Tech Solutions LLC
-      </p>
-      <p class="footer-text">
-        Built with determination in Oklahoma City. Deployed with confidence worldwide.
-      </p>
+    /**
+     * Initialize all animations
+     */
+    function initializeAnimations() {
+      // Start typing animation after initial delay
+      setTimeout(typeAnimation, TYPING_CONFIG.initialDelay);
       
-      <nav class="footer-links" aria-label="Footer navigation">
-        <a href="https://github.com/grenas405/deno-genesis" class="footer-link" target="_blank" rel="noopener">GitHub</a>
-        <a href="https://www.pedromdominguez.com" class="footer-link" target="_blank" rel="noopener">Portfolio</a>
-        <a href="https://www.domingueztechsolutions.com" class="footer-link" target="_blank" rel="noopener">Tech Solutions</a>
-        <a href="mailto:info@domingueztechsolutions.com" class="footer-link">Contact</a>
-      </nav>
-    </div>
-  </footer>
+      // Create floating particles
+      createParticles();
+      
+      // Update language indicator
+      languageIndicator.textContent = translations[currentIndex].lang;
+    }
 
-  <!-- External JavaScript -->
-  <script type="module" src="assets/js/script.js"></script>
+    /**
+     * Smooth scrolling for internal links
+     */
+    function initializeSmoothScrolling() {
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
+    }
+
+    /**
+     * Intersection Observer for reveal animations
+     */
+    function initializeScrollReveal() {
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }
+        });
+      }, observerOptions);
+
+      // Observe cards for reveal animation
+      document.querySelectorAll('.tech-card, .feature-card').forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+      });
+    }
+
+    /**
+     * Initialize all functionality when DOM is ready
+     */
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeAnimations();
+      initializeSmoothScrolling();
+      initializeScrollReveal();
+    });
+
+    // Performance optimization: Pause animations when page is not visible
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) {
+        // Page is hidden, pause animations if needed
+        document.querySelectorAll('.particle').forEach(particle => {
+          particle.style.animationPlayState = 'paused';
+        });
+      } else {
+        // Page is visible, resume animations
+        document.querySelectorAll('.particle').forEach(particle => {
+          particle.style.animationPlayState = 'running';
+        });
+      }
+    });
+  </script>
 </body>
 </html>
