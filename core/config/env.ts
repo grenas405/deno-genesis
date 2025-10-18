@@ -5,6 +5,7 @@
 // ================================================================================
 
 import { config as loadEnv } from "https://deno.land/x/dotenv@v3.2.2/mod.ts";
+import { exists } from "https://deno.land/std@0.224.0/fs/mod.ts";
 
 // Load environment variables from .env file
 const env = await loadEnv();
