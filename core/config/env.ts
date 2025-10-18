@@ -25,7 +25,7 @@ interface VersionInfo {
 async function getVersionInfo(): Promise<VersionInfo> {
   try {
     const versionContent = await Deno.readTextFile("./VERSION");
-    const lines = versionContent.trim().split('\n');
+    const lines = versionContent.trim().split("\n");
 
     // Parse VERSION file format
     // Expected format:
@@ -36,22 +36,22 @@ async function getVersionInfo(): Promise<VersionInfo> {
     const version = lines[0]?.trim() || "v1.0.0-development";
 
     // Extract build date (handle different formats)
-    let buildDate = new Date().toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    let buildDate = new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
 
-    const buildDateLine = lines.find(line => line.includes('Build Date:'));
+    const buildDateLine = lines.find((line) => line.includes("Build Date:"));
     if (buildDateLine) {
-      const extractedDate = buildDateLine.replace('Build Date:', '').trim();
+      const extractedDate = buildDateLine.replace("Build Date:", "").trim();
       // Convert to readable format
       try {
         const parsedDate = new Date(extractedDate);
-        buildDate = parsedDate.toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
+        buildDate = parsedDate.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
         });
       } catch {
         // Keep default if parsing fails
@@ -59,22 +59,21 @@ async function getVersionInfo(): Promise<VersionInfo> {
     }
 
     // Extract git hash if present
-    const hashLine = lines.find(line => line.includes('Git Hash:'));
-    const buildHash = hashLine?.replace('Git Hash:', '').trim() || undefined;
+    const hashLine = lines.find((line) => line.includes("Git Hash:"));
+    const buildHash = hashLine?.replace("Git Hash:", "").trim() || undefined;
 
     return { version, buildDate, buildHash };
-
   } catch (error) {
     console.warn("⚠️ Could not read VERSION file:", error.message);
     console.warn("   Using default version information");
 
     return {
       version: "v1.0.0-development",
-      buildDate: new Date().toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })
+      buildDate: new Date().toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }),
     };
   }
 }
@@ -88,9 +87,6 @@ const versionInfo = await getVersionInfo();
 // Prompts user for missing environment variables and persists them in .env
 // ================================================================================
 
-import { config as loadEnv } from "https://deno.land/x/dotenv@v3.2.2/mod.ts";
-import { exists } from "https://deno.land/std@0.224.0/fs/mod.ts";
-
 // Load or create .env file
 const envPath = ".env";
 if (!(await exists(envPath))) {
@@ -98,13 +94,17 @@ if (!(await exists(envPath))) {
   await Deno.writeTextFile(envPath, "");
 }
 
-let env = await loadEnv();
-
 // ================================================================================
 // 🔧 ENVIRONMENT VALIDATION (Interactive Prompt)
 // ================================================================================
 
-const requiredVars = ["SITE_KEY", "DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME"];
+const requiredVars = [
+  "SITE_KEY",
+  "DB_HOST",
+  "DB_USER",
+  "DB_PASSWORD",
+  "DB_NAME",
+];
 let newEntries: string[] = [];
 
 for (const varName of requiredVars) {
@@ -127,14 +127,14 @@ for (const varName of requiredVars) {
 // ================================================================================
 
 if (newEntries.length > 0) {
-  await Deno.writeTextFile(envPath, `\n${newEntries.join("\n")}\n`, { append: true });
+  await Deno.writeTextFile(envPath, `\n${newEntries.join("\n")}\n`, {
+    append: true,
+  });
   console.log(`✅ Added ${newEntries.length} new variable(s) to .env file.`);
 }
 
 // Re-load updated environment
 env = await loadEnv();
-
-
 
 // ================================================================================
 // 📊 CORE ENVIRONMENT EXPORTS
@@ -160,12 +160,13 @@ export const DB_PORT = parseInt(env.DB_PORT || "3306");
 // Server Configuration
 export const SERVER_HOST = env.SERVER_HOST || "localhost";
 export const SSL_ENABLED = env.SSL_ENABLED === "true";
-export const CORS_ORIGINS = env.CORS_ORIGINS?.split(',').map(origin => origin.trim()) || [
-  "http://localhost:3000",
-  "https://pedromdominguez.com",
-  "https://okdevs.xyz",
-  "https://domingueztechsolutions.com"
-];
+export const CORS_ORIGINS =
+  env.CORS_ORIGINS?.split(",").map((origin) => origin.trim()) || [
+    "http://localhost:3000",
+    "https://pedromdominguez.com",
+    "https://okdevs.xyz",
+    "https://domingueztechsolutions.com",
+  ];
 
 // Feature Flags
 export const ENABLE_WEBSOCKETS = env.ENABLE_WEBSOCKETS !== "false";
@@ -229,7 +230,7 @@ export const frameworkConfig: DenoGenesisConfig = {
   port: PORT,
   author: "Pedro M. Dominguez",
   repository: "https://github.com/xtcedro/deno-genesis",
-  description: "Local-First Digital Sovereignty Platform"
+  description: "Local-First Digital Sovereignty Platform",
 };
 
 // ================================================================================
@@ -253,7 +254,7 @@ export function getEnvironmentInfo() {
       host: DB_HOST,
       port: DB_PORT,
       name: DB_NAME,
-      user: DB_USER
+      user: DB_USER,
       // Password intentionally excluded for security
     },
 
@@ -263,7 +264,7 @@ export function getEnvironmentInfo() {
       realTimeSync: ENABLE_REALTIME_SYNC,
       multiTenant: ENABLE_MULTITENANT,
       analytics: ENABLE_ANALYTICS,
-      notifications: ENABLE_NOTIFICATIONS
+      notifications: ENABLE_NOTIFICATIONS,
     },
 
     // Deployment
@@ -271,15 +272,15 @@ export function getEnvironmentInfo() {
       deployedAt: DEPLOYED_AT,
       deploymentId: DEPLOYMENT_ID,
       gitBranch: GIT_BRANCH,
-      gitCommit: GIT_COMMIT
+      gitCommit: GIT_COMMIT,
     },
 
     // Server
     server: {
       host: SERVER_HOST,
       ssl: SSL_ENABLED,
-      cors: CORS_ORIGINS
-    }
+      cors: CORS_ORIGINS,
+    },
   };
 }
 
@@ -288,7 +289,7 @@ export function getEnvironmentInfo() {
 // ================================================================================
 
 export function logEnvironmentStatus() {
-  console.log('🌍 Environment Configuration Loaded:');
+  console.log("🌍 Environment Configuration Loaded:");
   console.log(`   Version: ${VERSION}`);
   console.log(`   Build Date: ${BUILD_DATE}`);
   if (BUILD_HASH) {
@@ -299,8 +300,8 @@ export function logEnvironmentStatus() {
   console.log(`   Site Key: ${SITE_KEY}`);
   console.log(`   Database: ${DB_NAME}@${DB_HOST}:${DB_PORT}`);
   console.log(`   SSL Enabled: ${SSL_ENABLED}`);
-  console.log(`   WebSockets: ${ENABLE_WEBSOCKETS ? '✅' : '❌'}`);
-  console.log(`   Multi-tenant: ${ENABLE_MULTITENANT ? '✅' : '❌'}`);
+  console.log(`   WebSockets: ${ENABLE_WEBSOCKETS ? "✅" : "❌"}`);
+  console.log(`   Multi-tenant: ${ENABLE_MULTITENANT ? "✅" : "❌"}`);
 }
 
 // ================================================================================
@@ -310,8 +311,11 @@ export function logEnvironmentStatus() {
 /**
  * Update VERSION file with new version information
  */
-export async function updateVersionFile(newVersion: string, gitHash?: string): Promise<void> {
-  const buildDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+export async function updateVersionFile(
+  newVersion: string,
+  gitHash?: string,
+): Promise<void> {
+  const buildDate = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
 
   let content = `${newVersion}\nBuild Date: ${buildDate}`;
 
@@ -335,7 +339,7 @@ export function getVersionData(): VersionInfo {
   return {
     version: VERSION,
     buildDate: BUILD_DATE,
-    buildHash: BUILD_HASH
+    buildHash: BUILD_HASH,
   };
 }
 
