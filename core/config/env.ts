@@ -134,9 +134,6 @@ if (newEntries.length > 0) {
   console.log(`✅ Added ${newEntries.length} new variable(s) to .env file.`);
 }
 
-// Re-load updated environment
-env = await loadEnv();
-
 // ================================================================================
 // 📊 CORE ENVIRONMENT EXPORTS
 // ================================================================================

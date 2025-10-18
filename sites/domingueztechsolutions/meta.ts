@@ -1,1 +1,1 @@
-/home/admin/deno-genesis/core/meta.ts
+../../core/meta.ts
