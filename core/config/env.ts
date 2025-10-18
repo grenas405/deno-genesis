@@ -82,18 +82,59 @@ async function getVersionInfo(): Promise<VersionInfo> {
 // Load version information
 const versionInfo = await getVersionInfo();
 
+// /config/env.ts
 // ================================================================================
-// 🔧 ENVIRONMENT VALIDATION
+// 🚀 DenoGenesis Framework - Interactive Environment Validator
+// Prompts user for missing environment variables and persists them in .env
 // ================================================================================
 
-// ✅ Fail loudly if critical variables are missing
-const requiredVars = ['SITE_KEY', 'DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
+import { config as loadEnv } from "https://deno.land/x/dotenv@v3.2.2/mod.ts";
+import { exists } from "https://deno.land/std@0.224.0/fs/mod.ts";
+
+// Load or create .env file
+const envPath = ".env";
+if (!(await exists(envPath))) {
+  console.warn("⚠️  No .env file found. Creating a new one...");
+  await Deno.writeTextFile(envPath, "");
+}
+
+let env = await loadEnv();
+
+// ================================================================================
+// 🔧 ENVIRONMENT VALIDATION (Interactive Prompt)
+// ================================================================================
+
+const requiredVars = ["SITE_KEY", "DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME"];
+let newEntries: string[] = [];
 
 for (const varName of requiredVars) {
   if (!env[varName]) {
-    throw new Error(`❌ ${varName} is not defined in .env file.`);
+    console.warn(`⚠️  Missing environment variable: ${varName}`);
+
+    const value = prompt(`Enter value for ${varName}: `);
+    if (!value || value.trim() === "") {
+      console.error(`❌ ${varName} cannot be empty.`);
+      Deno.exit(1);
+    }
+
+    env[varName] = value.trim();
+    newEntries.push(`${varName}=${value.trim()}`);
   }
 }
+
+// ================================================================================
+// 🧩 Persist new variables to .env file
+// ================================================================================
+
+if (newEntries.length > 0) {
+  await Deno.writeTextFile(envPath, `\n${newEntries.join("\n")}\n`, { append: true });
+  console.log(`✅ Added ${newEntries.length} new variable(s) to .env file.`);
+}
+
+// Re-load updated environment
+env = await loadEnv();
+
+
 
 // ================================================================================
 // 📊 CORE ENVIRONMENT EXPORTS
@@ -312,3 +353,5 @@ if (DENO_ENV === "development") {
     console.log(`   Git Hash: ${BUILD_HASH}`);
   }
 }
+
+export { env };
