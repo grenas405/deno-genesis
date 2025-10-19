@@ -50,7 +50,7 @@ interface CommandDefinition {
   permissions: string[];
 }
 
-// Command registry
+// ✅ CORRECTED Command registry
 const COMMANDS: Record<string, CommandDefinition> = {
   init: {
     name: "init",
@@ -66,31 +66,38 @@ const COMMANDS: Record<string, CommandDefinition> = {
     permissions: ["--allow-read", "--allow-write", "--allow-net"],
   },
 
+  // ✅ FIXED: dev command with correct information
   dev: {
     name: "dev",
-    description:
-      "Generate nginx and systemd configuration files for site deployment",
-    usage: "genesis deploy [domain] [options]",
+    description: "Start development server with hot reload and file watching",
+    usage: "genesis dev [options]",
     examples: [
-      "genesis deploy example.com",
-      "genesis deploy example.com --port 3005",
-      "genesis deploy example.com --nginx-only",
-      "genesis deploy example.com --systemd-only --port 3003",
+      "genesis dev",
+      "genesis dev --port 3005",
+      "genesis dev --watch '**/*.ts,**/*.json,**/*.md'",
+      "genesis dev --exclude '**/*.test.ts,**/temp/**'",
+      "genesis dev --open",
+      "genesis dev --no-reload",
     ],
     handler: devCommand,
-    permissions: ["--allow-read", "--allow-write", "--allow-net"],
+    permissions: [
+      "--allow-read",
+      "--allow-write",
+      "--allow-net",
+      "--allow-run",
+    ],
   },
 
+  // ✅ FIXED: new command with correct information
   new: {
     name: "new",
     description:
-      "Generate nginx and systemd configuration files for site deployment",
-    usage: "genesis deploy [domain] [options]",
+      "Generate industry-specific frontend based on business information",
+    usage: "genesis new [options]",
     examples: [
-      "genesis deploy example.com",
-      "genesis deploy example.com --port 3005",
-      "genesis deploy example.com --nginx-only",
-      "genesis deploy example.com --systemd-only --port 3003",
+      "genesis new",
+      "genesis new --verbose",
+      "genesis new --dry-run",
     ],
     handler: newCommand,
     permissions: ["--allow-read", "--allow-write"],
@@ -110,6 +117,7 @@ const COMMANDS: Record<string, CommandDefinition> = {
     handler: deployCommand,
     permissions: ["--allow-read", "--allow-write"],
   },
+
   db: {
     name: "db",
     description: "Setup MariaDB database with multi-tenant architecture",
@@ -169,6 +177,7 @@ function showHelp(command?: string): void {
     return;
   }
 
+  // ✅ UPDATED: Main help with corrected command descriptions
   console.log(`
 🚀 Deno Genesis CLI - Unix Philosophy + Modern Runtime = Revolutionary Development
 
@@ -177,6 +186,8 @@ USAGE:
 
 CORE COMMANDS:
   init       Initialize new Genesis project with hub-and-spoke architecture
+  dev        Start development server with hot reload and file watching
+  new        Generate industry-specific frontend based on business information
   deploy     Generate nginx and systemd configuration files for deployment
   db         Setup MariaDB database with multi-tenant architecture
 
@@ -190,6 +201,8 @@ OPTIONS:
 EXAMPLES:
   genesis init my-project
   genesis init enterprise-app --template=enterprise
+  genesis dev --port 3005 --open
+  genesis new --verbose
   genesis deploy example.com
   genesis deploy example.com --port 3005
   genesis db
