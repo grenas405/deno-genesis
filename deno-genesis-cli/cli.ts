@@ -136,7 +136,7 @@ const COMMANDS: Record<string, CommandDefinition> = {
 };
 
 // === Utility: Dry-run wrapper ===
-async function runWithDryRun(
+function runWithDryRun(
   fn: (args: string[], ctx: CLIContext) => Promise<number>,
   args: string[],
   ctx: CLIContext,
