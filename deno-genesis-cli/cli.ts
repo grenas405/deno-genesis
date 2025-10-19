@@ -65,6 +65,21 @@ const COMMANDS: Record<string, CommandDefinition> = {
     permissions: ["--allow-read", "--allow-write", "--allow-net"],
   },
 
+  dev: {
+    name: "dev",
+    description:
+      "Generate nginx and systemd configuration files for site deployment",
+    usage: "genesis deploy [domain] [options]",
+    examples: [
+      "genesis deploy example.com",
+      "genesis deploy example.com --port 3005",
+      "genesis deploy example.com --nginx-only",
+      "genesis deploy example.com --systemd-only --port 3003",
+    ],
+    handler: devCommand,
+    permissions: ["--allow-read", "--allow-write", "--allow-net"],
+  },
+
   new: {
     name: "new",
     description:
