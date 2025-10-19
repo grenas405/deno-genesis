@@ -30,6 +30,7 @@ import { initCommand } from "./commands/init.ts";
 import { deployCommand, showDeployHelp } from "./commands/deploy.ts";
 import { dbCommand, showDbHelp } from "./commands/db.ts";
 import { newCommand } from "./commands/new.ts";
+import { devCommand } from "./commands/dev.ts";
 
 // Types
 interface CLIContext {
