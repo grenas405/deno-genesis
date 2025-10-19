@@ -29,6 +29,7 @@ import { dirname, join } from "https://deno.land/std@0.224.0/path/mod.ts";
 import { initCommand } from "./commands/init.ts";
 import { deployCommand, showDeployHelp } from "./commands/deploy.ts";
 import { dbCommand, showDbHelp } from "./commands/db.ts";
+import { newCommand } from "./commands/new.ts";
 
 // Types
 interface CLIContext {
@@ -63,6 +64,22 @@ const COMMANDS: Record<string, CommandDefinition> = {
     handler: initCommand,
     permissions: ["--allow-read", "--allow-write", "--allow-net"],
   },
+
+  new: {
+    name: "new",
+    description:
+      "Generate nginx and systemd configuration files for site deployment",
+    usage: "genesis deploy [domain] [options]",
+    examples: [
+      "genesis deploy example.com",
+      "genesis deploy example.com --port 3005",
+      "genesis deploy example.com --nginx-only",
+      "genesis deploy example.com --systemd-only --port 3003",
+    ],
+    handler: newCommand,
+    permissions: ["--allow-read", "--allow-write"],
+  },
+
   deploy: {
     name: "deploy",
     description:
