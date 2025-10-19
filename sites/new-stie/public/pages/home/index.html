@@ -3,224 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>new-stie | Genesis Initialized</title>
+    <meta name="description" content="New Business - Professional Home Building services in Oklahoma City, OK. Contact us at (405) 861-7960.">
+    <meta name="keywords" content="home building, oklahoma city, ok, construction, general contractor, roofing contractor, remodeling, home building, commercial construction">
     
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-            color: white;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-        }
-        
-        .splash-container {
-            max-width: 600px;
-            text-align: center;
-            animation: fadeIn 0.6s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .success-icon {
-            font-size: 4rem;
-            margin-bottom: 1.5rem;
-            animation: bounce 1s ease-out;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .project-name {
-            font-size: 1.5rem;
-            color: #94a3b8;
-            margin-bottom: 2rem;
-        }
-        
-        .message {
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: #cbd5e1;
-            margin-bottom: 3rem;
-        }
-        
-        .next-step {
-            background: rgba(59, 130, 246, 0.1);
-            border: 2px solid #3b82f6;
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-        
-        .next-step h2 {
-            font-size: 1.3rem;
-            color: #60a5fa;
-            margin-bottom: 1rem;
-        }
-        
-        .command {
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            padding: 1rem 1.5rem;
-            font-family: 'Courier New', monospace;
-            font-size: 1.1rem;
-            color: #22d3ee;
-            margin: 1rem 0;
-            display: inline-block;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .command:hover {
-            background: #1e293b;
-            border-color: #3b82f6;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-        }
-        
-        .command::before {
-            content: '$ ';
-            color: #94a3b8;
-        }
-        
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-        
-        .feature {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            padding: 1rem;
-            font-size: 0.9rem;
-            color: #cbd5e1;
-        }
-        
-        .feature-icon {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .footer {
-            margin-top: 3rem;
-            font-size: 0.9rem;
-            color: #64748b;
-        }
-        
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .success-icon {
-                font-size: 3rem;
-            }
-            
-            .command {
-                font-size: 0.9rem;
-                padding: 0.8rem 1rem;
-            }
-        }
-    </style>
-</head>
-
-<body>
-    <div class="splash-container">
-        <div class="success-icon">✨</div>
-        
-        <h1>Genesis Initialized!</h1>
-        
-        <div class="project-name">new-stie</div>
-        
-        <p class="message">
-            Your Deno Genesis project has been successfully initialized.<br>
-            The foundation is ready—now let's build something extraordinary.
-        </p>
-        
-        <div class="next-step">
-            <h2>🚀 Next Step</h2>
-            <p style="margin-bottom: 1rem; color: #e2e8f0;">
-                Generate a custom frontend tailored to your business and industry:
-            </p>
-            <div class="command" onclick="copyCommand()" title="Click to copy">
-                genesis new
-            </div>
-        </div>
-        
-        <div class="features">
-            <div class="feature">
-                <div class="feature-icon">🎯</div>
-                <div>Industry-specific templates</div>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">⚡</div>
-                <div>Lightning-fast generation</div>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">🎨</div>
-                <div>Modern, responsive design</div>
-            </div>
-        </div>
-        
-        <div class="footer">
-            <p>Powered by Deno Genesis Framework</p>
-            <p>Unix Philosophy • Local-First • Developer Joy</p>
-        </div>
-    </div>
-
-    <script>
-        function copyCommand() {
-            const command = 'genesis new';
-            navigator.clipboard.writeText(command).then(() => {
-                const commandEl = document.querySelector('.command');
-                const originalText = commandEl.textContent;
-                commandEl.textContent = 'Copied!';
-                commandEl.style.color = '#22c55e';
-                
-                setTimeout(() => {
-                    commandEl.textContent = originalText;
-                    commandEl.style.color = '#22d3ee';
-                }, 1500);
-            }).catch(err => {
-                console.log('Could not copy command:', err);
-            });
-        }
-        
-        console.log('✨ Genesis initialized successfully');
-        console.log('📝 Run "genesis new" to generate your custom frontend');
+    <title>New Business - Home Building in Oklahoma City</title>
+    
+    <!-- Schema.org Local Business -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "New Business",
+      "description": "New Business - Professional Home Building services in Oklahoma City, OK. Contact us at (405) 861-7960.",
+      "telephone": "405-861-7960",
+      "email": "contact@email.com",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "426 SW 45th Street OKC OK 73128",
+        "addressLocality": "Oklahoma City",
+        "addressRegion": "OK",
+        "postalCode": "73128",
+        "addressCountry": "United States"
+      },
+      "openingHours": ["Monday 9:00-17:00","Tuesday 9:00-17:00","Wednesday 9:00-17:00","Thursday 9:00-17:00","Friday 9:00-17:00"],
+      "areaServed": ["Oklahoma City"]
+    }
     </script>
+    
+    <link rel="canonical" href="https://new-business.example.com/">
+    <link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+    <header role="banner">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">New Business</div>
+                <nav role="navigation" aria-label="Main navigation">
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/pages/about/">About</a></li>
+                        <li><a href="/pages/services/">Services</a></li>
+                        <li><a href="/pages/contact/">Contact</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main role="main">
+        <section class="hero" aria-label="Hero section">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>Welcome to New Business</h1>
+                    <p class="hero-subheading">Professional Home Building serving Oklahoma City</p>
+                    
+                    <div class="hero-cta">
+                        <a href="#contact" class="btn btn-primary" aria-label="Contact us">Get Started</a>
+                        <a href="/pages/services/" class="btn btn-secondary" aria-label="View our services">Our Services</a>
+                    </div>
+                    
+                    <div class="hero-contact" id="contact-info">
+                        <div class="contact-item">
+                            <a href="tel:405-861-7960" class="contact-link phone-link" aria-label="Call New Business">
+                                📞 (405) 861-7960
+                            </a>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <a href="mailto:contact@email.com" class="contact-link email-link" aria-label="Email New Business">
+                                ✉️ contact@email.com
+                            </a>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <a href="https://www.google.com/maps/search/?api=1&query=426%20SW%2045th%20Street%20OKC%20OK%2073128%2C%20Oklahoma%20City%2C%20OK%2073128" class="contact-link address-link" target="_blank" rel="noopener" aria-label="View New Business location on map">
+                                📍 Oklahoma City, OK
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section" id="about" aria-label="About us">
+            <div class="container">
+                <h2>About New Business</h2>
+                <p>Welcome to New Business, your trusted Home Building in Oklahoma City, OK.</p>
+                <p>We are committed to providing exceptional service and quality workmanship to all our clients.</p>
+            </div>
+        </section>
+        
+        <section class="section" id="services" aria-label="Our services">
+            <div class="container">
+                <h2>Our Services</h2>
+                <p>Discover the range of professional services we offer to meet your needs.</p>
+                <!-- Add your services here -->
+            </div>
+        </section>
+        
+        <section class="section" id="contact" aria-label="Contact information">
+            <div class="container">
+                <h2>Contact Us</h2>
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <h3>📞 Phone</h3>
+                        <a href="tel:405-861-7960">(405) 861-7960</a>
+                    </div>
+                    <div class="contact-item">
+                        <h3>✉️ Email</h3>
+                        <a href="mailto:contact@email.com">contact@email.com</a>
+                    </div>
+                    <div class="contact-item">
+                        <h3>📍 Address</h3>
+                        <p>426 SW 45th Street OKC OK 73128, Oklahoma City, OK 73128</p>
+                        <a href="https://www.google.com/maps/search/?api=1&query=426%20SW%2045th%20Street%20OKC%20OK%2073128%2C%20Oklahoma%20City%2C%20OK%2073128" target="_blank" rel="noopener">View on Map</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer role="contentinfo">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>New Business</h3>
+                    <p>Professional Home Building serving Oklahoma City</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>Phone: <a href="tel:405-861-7960">(405) 861-7960</a></p>
+                    <p>Email: <a href="mailto:contact@email.com">contact@email.com</a></p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Location</h4>
+                    <p>426 SW 45th Street OKC OK 73128, Oklahoma City, OK 73128</p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 New Business. All rights reserved.</p>
+                <p>Built with <a href="https://github.com/grenas405/deno-genesis" target="_blank" rel="noopener">Deno Genesis Framework</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/scripts/main.js"></script>
 </body>
 </html>
