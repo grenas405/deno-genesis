@@ -29,14 +29,9 @@
  * Oak Framework Exports
  * Core Oak framework components for HTTP server functionality
  */
-export {
-  Application,
-  send
-} from "https://deno.land/x/oak@v12.6.1/mod.ts";
+export { Application, send } from "https://deno.land/x/oak@v12.6.1/mod.ts";
 
-export {
-  oakCors
-} from "https://deno.land/x/cors@v1.2.2/mod.ts";
+export { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 
 // =============================================================================
 // ENVIRONMENT MANAGEMENT
@@ -46,9 +41,7 @@ export {
  * Environment Configuration Loading
  * Dotenv loader for environment variable management
  */
-export {
-  config as loadEnv
-} from "https://deno.land/x/dotenv@v3.2.2/mod.ts";
+export { config as loadEnv } from "https://deno.land/x/dotenv@v3.2.2/mod.ts";
 
 // =============================================================================
 // DENOGENESIS FRAMEWORK COMPONENTS
@@ -58,22 +51,21 @@ export {
  * Routing System
  * Import the main router from routes/index.ts
  */
-export {
-  default as router
-} from "./routes/index.ts";
+export { default as router } from "./routes/index.ts";
 
 /**
  * Middleware Stack Components
  * Imports middleware management system from middleware/index.ts
  */
 export {
+  createCorsTestHelper,
   createMiddlewareStack,
-  MiddlewareManager,
   createStaticFileTestHelper, // ✅ NEW UTILITY
-  StaticFileHandler,
-  StaticFileAnalytics,
-  StaticFileUtils,
   type MiddlewareConfig,
+  MiddlewareManager,
+  StaticFileAnalytics,
+  StaticFileHandler,
+  StaticFileUtils,
 } from "./middleware/index.ts";
 
 // =============================================================================
@@ -85,8 +77,8 @@ export {
  * Database connection lifecycle management and main db instance
  */
 export {
-  db,
   closeDatabaseConnection,
+  db,
   getDatabaseStatus,
 } from "./database/client.ts";
 
@@ -99,16 +91,16 @@ export {
  * Imports all environment variables and system configuration from config/env.ts
  */
 export {
-  dbConfig,
-  PORT,
-  DENO_ENV,
-  SITE_KEY,
-  DB_HOST,
-  CORS_ORIGINS,
-  VERSION,
   BUILD_DATE,
   BUILD_HASH,
+  CORS_ORIGINS,
+  DB_HOST,
+  dbConfig,
+  DENO_ENV,
   getEnvironmentInfo,
+  PORT,
+  SITE_KEY,
+  VERSION,
 } from "./config/env.ts";
 
 // =============================================================================
@@ -139,15 +131,14 @@ export {
  * - validateHandlerSetup: Handler configuration validation
  */
 export {
-  registerSignalHandlers,
-  registerErrorHandlers,
-  validateHandlerSetup,
-  type SignalHandlerRegistration,
   type ErrorHandlerRegistration,
   type HandlerValidationResult,
   PROCESS_HANDLERS_METADATA,
+  registerErrorHandlers,
+  registerSignalHandlers,
+  type SignalHandlerRegistration,
+  validateHandlerSetup,
 } from "./utils/process-handlers.ts";
-
 
 /**
  * Console Styling & Logging
@@ -162,11 +153,7 @@ export {
   type TableColumn,
 } from "./utils/consoleStyler.ts";
 
-export {
-  validateFrameworkIntegrity,
-  getFrameworkVersion,
-} from "./meta.ts";
-
+export { getFrameworkVersion, validateFrameworkIntegrity } from "./meta.ts";
 
 // =============================================================================
 // UNIX PHILOSOPHY COMPLIANCE DOCUMENTATION
