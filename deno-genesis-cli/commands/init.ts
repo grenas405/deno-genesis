@@ -2,26 +2,30 @@
 
 /**
  * Deno Genesis Init Command
- * 
+ *
  * Unix Philosophy Implementation:
  * - Do one thing well: Initialize Genesis project with sites directory
  * - Accept text input: User prompts for site configuration
  * - Produce text output: Structured progress logging
  * - Filter and transform: Take user intent → create project structure
  * - Composable: Can be piped, scripted, automated
- * 
+ *
  * Security-First Approach:
  * - Explicit permissions for file operations
  * - Safe directory creation with validation
  * - Auditable symbolic link creation
- * 
+ *
  * Zero-Configuration Philosophy:
  * - Sensible defaults for all options
  * - Interactive prompts with smart defaults
  * - Self-documenting output
  */
 
-import { join, resolve, relative } from "https://deno.land/std@0.224.0/path/mod.ts";
+import {
+  join,
+  relative,
+  resolve,
+} from "https://deno.land/std@0.224.0/path/mod.ts";
 import { ensureDir, exists } from "https://deno.land/std@0.224.0/fs/mod.ts";
 
 // Types for better developer experience
@@ -30,7 +34,7 @@ interface CLIContext {
   configPath: string;
   verbose: boolean;
   dryRun: boolean;
-  format: 'text' | 'json' | 'yaml';
+  format: "text" | "json" | "yaml";
 }
 
 interface SiteConfig {
@@ -52,13 +56,13 @@ interface InitOptions {
 const DEFAULT_CONFIG = {
   port: 3000,
   template: "basic",
-  description: "Deno Genesis Site"
+  description: "Deno Genesis Site",
 };
 
 // Symbolic link targets - must match core framework structure
 const CORE_SYMLINK_TARGETS = [
   "utils",
-  "middleware", 
+  "middleware",
   "config",
   "types",
   "database",
@@ -69,14 +73,17 @@ const CORE_SYMLINK_TARGETS = [
   "main.ts",
   "VERSION",
   "meta.ts",
-  "mod.ts"
+  "mod.ts",
 ];
 
 /**
  * Main init command handler
  * Follows Unix principle: Clear interface, predictable behavior
  */
-export async function initCommand(args: string[], context: CLIContext): Promise<number> {
+export async function initCommand(
+  args: string[],
+  context: CLIContext,
+): Promise<number> {
   try {
     console.log(`
 🚀 Initializing Deno Genesis Project
@@ -87,20 +94,22 @@ Creating hub-and-spoke architecture with core framework symlinks...
 
     // Parse command line arguments
     const options = parseInitArgs(args);
-    
+
     // Interactive prompts for missing configuration
     const siteConfig = await gatherSiteConfiguration(options, context);
-    
+
     // Validate configuration
     const validationResult = validateSiteConfig(siteConfig, context);
     if (!validationResult.valid) {
-      console.error(`❌ Configuration validation failed: ${validationResult.error}`);
+      console.error(
+        `❌ Configuration validation failed: ${validationResult.error}`,
+      );
       return 1;
     }
 
     // Execute initialization steps
     await executeInitialization(siteConfig, context);
-    
+
     // Success output following Unix principles
     console.log(`
 ✅ Genesis project initialized successfully!
@@ -120,7 +129,6 @@ Next Steps:
 `);
 
     return 0;
-
   } catch (error) {
     console.error(`❌ Init command failed: ${error.message}`);
     if (context.verbose) {
@@ -135,31 +143,31 @@ Next Steps:
  */
 function parseInitArgs(args: string[]): InitOptions {
   const options: InitOptions = {};
-  
+
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    
+
     switch (arg) {
-      case '--name':
+      case "--name":
         options.siteName = args[++i];
         break;
-      case '--port':
+      case "--port":
         options.port = parseInt(args[++i]) || DEFAULT_CONFIG.port;
         break;
-      case '--template':
+      case "--template":
         options.template = args[++i] || DEFAULT_CONFIG.template;
         break;
-      case '--skip-prompts':
+      case "--skip-prompts":
         options.skipPrompts = true;
         break;
     }
   }
-  
+
   // Use first positional argument as site name if provided
-  if (args[0] && !args[0].startsWith('--')) {
+  if (args[0] && !args[0].startsWith("--")) {
     options.siteName = args[0];
   }
-  
+
   return options;
 }
 
@@ -167,18 +175,21 @@ function parseInitArgs(args: string[]): InitOptions {
  * Interactive configuration gathering
  * Unix principle: Accept input from user, provide sensible defaults
  */
-async function gatherSiteConfiguration(options: InitOptions, context: CLIContext): Promise<SiteConfig> {
+async function gatherSiteConfiguration(
+  options: InitOptions,
+  context: CLIContext,
+): Promise<SiteConfig> {
   const config: SiteConfig = {
     name: options.siteName || await promptForSiteName(),
     port: options.port || await promptForPort(),
     template: options.template || DEFAULT_CONFIG.template,
     directory: "", // Will be set based on name
-    description: DEFAULT_CONFIG.description
+    description: DEFAULT_CONFIG.description,
   };
-  
+
   // Generate directory path
   config.directory = join(context.cwd, "sites", config.name);
-  
+
   return config;
 }
 
@@ -188,39 +199,41 @@ async function gatherSiteConfiguration(options: InitOptions, context: CLIContext
 async function promptForSiteName(): Promise<string> {
   while (true) {
     const name = prompt("🏷️  Site name (lowercase, no spaces):");
-    
+
     if (!name) {
       console.log("❌ Site name is required");
       continue;
     }
-    
+
     if (!/^[a-z0-9-]+$/.test(name)) {
-      console.log("❌ Site name must be lowercase letters, numbers, and hyphens only");
+      console.log(
+        "❌ Site name must be lowercase letters, numbers, and hyphens only",
+      );
       continue;
     }
-    
+
     return name;
   }
 }
 
 /**
- * Prompt for port number with validation  
+ * Prompt for port number with validation
  */
 async function promptForPort(): Promise<number> {
   while (true) {
     const portStr = prompt(`🌐 Port number (default: ${DEFAULT_CONFIG.port}):`);
-    
+
     if (!portStr) {
       return DEFAULT_CONFIG.port;
     }
-    
+
     const port = parseInt(portStr);
-    
+
     if (isNaN(port) || port < 1024 || port > 65535) {
       console.log("❌ Port must be a number between 1024 and 65535");
       continue;
     }
-    
+
     return port;
   }
 }
@@ -228,43 +241,49 @@ async function promptForPort(): Promise<number> {
 /**
  * Validate site configuration
  */
-function validateSiteConfig(config: SiteConfig, context: CLIContext): { valid: boolean; error?: string } {
+function validateSiteConfig(
+  config: SiteConfig,
+  context: CLIContext,
+): { valid: boolean; error?: string } {
   // Check if sites directory exists or can be created
   const sitesDir = join(context.cwd, "sites");
-  
+
   // Validate site name
   if (!config.name || !/^[a-z0-9-]+$/.test(config.name)) {
     return { valid: false, error: "Invalid site name format" };
   }
-  
+
   // Validate port
   if (config.port < 1024 || config.port > 65535) {
     return { valid: false, error: "Port must be between 1024 and 65535" };
   }
-  
+
   return { valid: true };
 }
 
 /**
  * Execute the initialization process
  */
-async function executeInitialization(config: SiteConfig, context: CLIContext): Promise<void> {
+async function executeInitialization(
+  config: SiteConfig,
+  context: CLIContext,
+): Promise<void> {
   // Step 1: Create sites directory structure
   console.log("📁 Creating directory structure...");
   await createDirectoryStructure(config, context);
-  
+
   // Step 2: Create symbolic links to core framework
   console.log("🔗 Creating symbolic links to core framework...");
   await createCoreSymlinks(config, context);
-  
+
   // Step 3: Generate initial pages
   console.log("📄 Generating initial pages...");
   await generateInitialPages(config, context);
-  
+
   // Step 4: Create configuration files
   console.log("⚙️  Creating configuration files...");
   await createConfigurationFiles(config, context);
-  
+
   // Step 5: Create README documentation
   console.log("📖 Creating documentation...");
   await createDocumentation(config, context);
@@ -273,51 +292,59 @@ async function executeInitialization(config: SiteConfig, context: CLIContext): P
 /**
  * Create the basic directory structure for the site
  */
-async function createDirectoryStructure(config: SiteConfig, context: CLIContext): Promise<void> {
+async function createDirectoryStructure(
+  config: SiteConfig,
+  context: CLIContext,
+): Promise<void> {
   // Ensure sites directory exists
   const sitesDir = join(context.cwd, "sites");
   await ensureDir(sitesDir);
-  
+
   // Create site directory
   await ensureDir(config.directory);
-  
+
   // Create subdirectories
   const subdirs = [
     "public",
     "public/pages",
     "public/pages/home",
-    "public/styles", 
+    "public/styles",
     "public/scripts",
     "public/images",
-    "logs"
+    "logs",
   ];
-  
+
   for (const subdir of subdirs) {
     await ensureDir(join(config.directory, subdir));
   }
-  
+
   if (context.verbose) {
-    console.log(`  ✅ Created ${subdirs.length} directories in ${config.directory}`);
+    console.log(
+      `  ✅ Created ${subdirs.length} directories in ${config.directory}`,
+    );
   }
 }
 
 /**
  * Create symbolic links to core framework
  */
-async function createCoreSymlinks(config: SiteConfig, context: CLIContext): Promise<void> {
+async function createCoreSymlinks(
+  config: SiteConfig,
+  context: CLIContext,
+): Promise<void> {
   const coreDir = join(context.cwd, "core");
-  
+
   // Verify core directory exists
   if (!await exists(coreDir)) {
     throw new Error(`Core directory not found: ${coreDir}`);
   }
-  
+
   let createdLinks = 0;
-  
+
   for (const target of CORE_SYMLINK_TARGETS) {
     const sourcePath = join(coreDir, target);
     const linkPath = join(config.directory, target);
-    
+
     // Check if source exists
     if (!await exists(sourcePath)) {
       if (context.verbose) {
@@ -325,46 +352,51 @@ async function createCoreSymlinks(config: SiteConfig, context: CLIContext): Prom
       }
       continue;
     }
-    
+
     try {
       // Remove existing link/file if it exists
       if (await exists(linkPath)) {
         await Deno.remove(linkPath, { recursive: true });
       }
-      
+
       // Create relative symbolic link
       const relativePath = relative(config.directory, sourcePath);
       await Deno.symlink(relativePath, linkPath);
-      
+
       createdLinks++;
-      
+
       if (context.verbose) {
         console.log(`  ✅ ${target} → ${relativePath}`);
       }
     } catch (error) {
-      console.warn(`  ⚠️  Failed to create symlink for ${target}: ${error.message}`);
+      console.warn(
+        `  ⚠️  Failed to create symlink for ${target}: ${error.message}`,
+      );
     }
   }
-  
+
   console.log(`  🔗 Created ${createdLinks} symbolic links to core framework`);
 }
 
 /**
  * Generate initial pages using UI guidelines
  */
-async function generateInitialPages(config: SiteConfig, context: CLIContext): Promise<void> {
+async function generateInitialPages(
+  config: SiteConfig,
+  context: CLIContext,
+): Promise<void> {
   const homePageContent = generateHomePageHTML(config);
   const homePagePath = join(config.directory, "public/pages/home/index.html");
-  
+
   await Deno.writeTextFile(homePagePath, homePageContent);
-  
+
   if (context.verbose) {
     console.log(`  ✅ Generated home page: ${homePagePath}`);
   }
 }
 
 /**
- * Generate home page HTML following UI guidelines
+ * Generate success splash screen HTML
  */
 function generateHomePageHTML(config: SiteConfig): string {
   return `<!DOCTYPE html>
@@ -372,286 +404,224 @@ function generateHomePageHTML(config: SiteConfig): string {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${config.name} | Created with Deno Genesis Framework</title>
+    <title>${config.name} | Genesis Initialized</title>
     
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="${config.description} - Built with Deno Genesis Framework">
-    <meta name="keywords" content="deno, typescript, unix philosophy, local-first software, framework">
-    <meta name="author" content="Deno Genesis Framework">
-    <meta name="generator" content="Deno Genesis v2.0">
-    
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="${config.name} - Deno Genesis Site">
-    <meta property="og:description" content="${config.description}">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="${config.name}">
-    
-    <!-- Critical CSS - Inlined for performance -->
     <style>
-        /* Critical above-the-fold styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
         
-        :root {
-            --primary-color: #1e293b;
-            --accent-color: #3b82f6;
-            --text-color: #334155;
-            --background-color: #ffffff;
-            --border-color: #e2e8f0;
-        }
-        
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
-            color: var(--text-color);
-            background-color: var(--background-color);
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        /* Header Styles */
-        header {
-            background: var(--primary-color);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
             color: white;
-            padding: 1rem 0;
-        }
-        
-        nav {
+            min-height: 100vh;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-        }
-        
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-        }
-        
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            transition: opacity 0.3s;
-        }
-        
-        .nav-links a:hover {
-            opacity: 0.8;
-        }
-        
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
-            color: white;
-            text-align: center;
-            padding: 4rem 0;
-        }
-        
-        .hero h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            font-weight: 700;
-        }
-        
-        .hero p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            opacity: 0.9;
-        }
-        
-        .cta-button {
-            display: inline-block;
-            background: white;
-            color: var(--primary-color);
-            padding: 12px 24px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        
-        .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-        
-        /* Features Section */
-        .features {
-            padding: 4rem 0;
-        }
-        
-        .features h2 {
-            text-align: center;
-            margin-bottom: 3rem;
-            color: var(--primary-color);
-        }
-        
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-        
-        .feature-card {
+            justify-content: center;
             padding: 2rem;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            text-align: center;
-            transition: box-shadow 0.3s;
         }
         
-        .feature-card:hover {
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        .splash-container {
+            max-width: 600px;
+            text-align: center;
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            animation: bounce 1s ease-out;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .project-name {
+            font-size: 1.5rem;
+            color: #94a3b8;
+            margin-bottom: 2rem;
+        }
+        
+        .message {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #cbd5e1;
+            margin-bottom: 3rem;
+        }
+        
+        .next-step {
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .next-step h2 {
+            font-size: 1.3rem;
+            color: #60a5fa;
+            margin-bottom: 1rem;
+        }
+        
+        .command {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: #22d3ee;
+            margin: 1rem 0;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .command:hover {
+            background: #1e293b;
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        
+        .command::before {
+            content: '$ ';
+            color: #94a3b8;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .feature {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            font-size: 0.9rem;
+            color: #cbd5e1;
         }
         
         .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
         }
         
-        /* Footer */
-        footer {
-            background: var(--primary-color);
-            color: white;
-            text-align: center;
-            padding: 2rem 0;
+        .footer {
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            color: #64748b;
         }
         
-        /* Responsive Design */
         @media (max-width: 768px) {
-            .hero h1 {
+            h1 {
                 font-size: 2rem;
             }
             
-            .nav-links {
-                display: none;
+            .success-icon {
+                font-size: 3rem;
             }
             
-            .features-grid {
-                grid-template-columns: 1fr;
+            .command {
+                font-size: 0.9rem;
+                padding: 0.8rem 1rem;
             }
-        }
-        
-        /* Loading States */
-        .loading {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-        
-        /* Focus Styles for Accessibility */
-        .cta-button:focus,
-        .nav-links a:focus {
-            outline: 2px solid var(--accent-color);
-            outline-offset: 2px;
         }
     </style>
 </head>
 
 <body>
-    <!-- Skip to main content for accessibility -->
-    <a href="#main-content" class="sr-only">Skip to main content</a>
-    
-    <!-- Header Navigation -->
-    <header>
-        <nav class="container">
-            <div class="logo">${config.name}</div>
-            <ul class="nav-links">
-                <li><a href="/">Home</a></li>
-                <li><a href="/about">About</a></li>
-                <li><a href="/services">Services</a></li>
-                <li><a href="/contact">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <!-- Main Content -->
-    <main id="main-content">
-        <!-- Hero Section -->
-        <section class="hero">
-            <div class="container">
-                <h1>Welcome to ${config.name}</h1>
-                <p>Created with Deno Genesis Framework</p>
-                <p>Unix Philosophy + Modern Runtime = Revolutionary Development</p>
-                <a href="/contact" class="cta-button">Get Started</a>
+    <div class="splash-container">
+        <div class="success-icon">✨</div>
+        
+        <h1>Genesis Initialized!</h1>
+        
+        <div class="project-name">${config.name}</div>
+        
+        <p class="message">
+            Your Deno Genesis project has been successfully initialized.<br>
+            The foundation is ready—now let's build something extraordinary.
+        </p>
+        
+        <div class="next-step">
+            <h2>🚀 Next Step</h2>
+            <p style="margin-bottom: 1rem; color: #e2e8f0;">
+                Generate a custom frontend tailored to your business and industry:
+            </p>
+            <div class="command" onclick="copyCommand()" title="Click to copy">
+                genesis new
             </div>
-        </section>
-
-        <!-- Features Section -->
-        <section class="features">
-            <div class="container">
-                <h2>Powered by Deno Genesis Framework</h2>
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">🚀</div>
-                        <h3>Lightning Fast</h3>
-                        <p>Built with Deno runtime for maximum performance and security. Zero configuration complexity.</p>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">🔒</div>
-                        <h3>Security First</h3>
-                        <p>Explicit permissions model and secure-by-default architecture following modern security practices.</p>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">🔧</div>
-                        <h3>Unix Philosophy</h3>
-                        <p>Do one thing well. Composable tools that work together to create powerful solutions.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <p>&copy; ${new Date().getFullYear()} ${config.name}. Created with Deno Genesis Framework.</p>
-            <p>Built with ❤️ using Unix Philosophy principles</p>
         </div>
-    </footer>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🎯</div>
+                <div>Industry-specific templates</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <div>Lightning-fast generation</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎨</div>
+                <div>Modern, responsive design</div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Powered by Deno Genesis Framework</p>
+            <p>Unix Philosophy • Local-First • Developer Joy</p>
+        </div>
+    </div>
 
-    <!-- Non-critical JavaScript loaded asynchronously -->
     <script>
-        // Progressive enhancement for navigation
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add smooth scrolling for anchor links
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
-                });
+        function copyCommand() {
+            const command = 'genesis new';
+            navigator.clipboard.writeText(command).then(() => {
+                const commandEl = document.querySelector('.command');
+                const originalText = commandEl.textContent;
+                commandEl.textContent = 'Copied!';
+                commandEl.style.color = '#22c55e';
+                
+                setTimeout(() => {
+                    commandEl.textContent = originalText;
+                    commandEl.style.color = '#22d3ee';
+                }, 1500);
+            }).catch(err => {
+                console.log('Could not copy command:', err);
             });
-            
-            // Add loading states for buttons
-            document.querySelectorAll('.cta-button').forEach(button => {
-                button.addEventListener('click', function(e) {
-                    if (this.href && !this.href.startsWith('#')) {
-                        this.classList.add('loading');
-                        this.textContent = 'Loading...';
-                    }
-                });
-            });
-            
-            console.log('🚀 ${config.name} loaded successfully - Powered by Deno Genesis Framework');
-        });
+        }
+        
+        console.log('✨ Genesis initialized successfully');
+        console.log('📝 Run "genesis new" to generate your custom frontend');
     </script>
 </body>
 </html>`;
@@ -660,13 +630,16 @@ function generateHomePageHTML(config: SiteConfig): string {
 /**
  * Create configuration files for the site
  */
-async function createConfigurationFiles(config: SiteConfig, context: CLIContext): Promise<void> {
+async function createConfigurationFiles(
+  config: SiteConfig,
+  context: CLIContext,
+): Promise<void> {
   // Create site-specific config file
   const siteConfigContent = generateSiteConfig(config);
   const configPath = join(config.directory, "site.config.ts");
-  
+
   await Deno.writeTextFile(configPath, siteConfigContent);
-  
+
   if (context.verbose) {
     console.log(`  ✅ Generated site configuration: ${configPath}`);
   }
@@ -723,12 +696,15 @@ export default siteConfig;
 /**
  * Create documentation for the new site
  */
-async function createDocumentation(config: SiteConfig, context: CLIContext): Promise<void> {
+async function createDocumentation(
+  config: SiteConfig,
+  context: CLIContext,
+): Promise<void> {
   const readmeContent = generateReadmeContent(config);
   const readmePath = join(config.directory, "README.md");
-  
+
   await Deno.writeTextFile(readmePath, readmeContent);
-  
+
   if (context.verbose) {
     console.log(`  ✅ Generated documentation: ${readmePath}`);
   }
