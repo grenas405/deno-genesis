@@ -21,11 +21,8 @@
  * - Sensible defaults everywhere
  */
 
-import { parseArgs } from "https://deno.land/std@0.224.0/cli/parse_args.ts";
-import { exists } from "https://deno.land/std@0.224.0/fs/exists.ts";
-import { dirname, join } from "https://deno.land/std@0.224.0/path/mod.ts";
+import { dirname, exists, join, parseArgs } from "./deps.ts";
 
-// Import subcommand modules
 import { initCommand } from "./commands/init.ts";
 import { deployCommand, showDeployHelp } from "./commands/deploy.ts";
 import { dbCommand, showDbHelp } from "./commands/db.ts";
