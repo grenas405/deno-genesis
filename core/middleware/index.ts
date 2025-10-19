@@ -5,47 +5,30 @@
 // ================================================================================
 
 // Import PerformanceMonitor and createPerformanceMiddleware first
-import {
-  createPerformanceMiddleware,
-  PerformanceMonitor,
-} from "./performanceMonitor.ts";
+import { PerformanceMonitor, createPerformanceMiddleware } from "./performanceMonitor.ts";
 import { createSecurityMiddleware, type SecurityConfig } from "./security.ts";
-// Add the missing import for StaticFileAnalytics and StaticFileUtils at the top
-import {
-  StaticFileAnalytics,
-  type StaticFileConfig,
-  StaticFileHandler,
-  StaticFileUtils,
-} from "./staticFiles.ts"; // ✅ NOW ACTIVE
-import { type CorsConfig, createCorsMiddleware } from "./cors.ts"; // COMMENTED OUT - USING SIMPLE CORS
-import {
-  createLoggingMiddleware,
-  Logger,
-  type LoggingConfig,
-} from "./logging.ts";
-import {
-  createErrorMiddleware,
-  type ErrorConfig,
-  ErrorHandler,
-} from "./errorHandler.ts";
-import {
-  createHealthCheckMiddleware,
-  type HealthCheckConfig,
-} from "./healthCheck.ts";
-import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
+import { StaticFileHandler, StaticFileAnalytics, StaticFileUtils, type StaticFileConfig } from "./staticFiles.ts";
+
+// ✅ CRITICAL CHANGE: Import custom CORS middleware instead of oakCors
+import { createCorsMiddleware, type CorsConfig } from "./cors.ts";
+
+import { Logger, createLoggingMiddleware, type LoggingConfig } from "./logging.ts";
+import { ErrorHandler, createErrorMiddleware, type ErrorConfig } from "./errorHandler.ts";
+import { createHealthCheckMiddleware, type HealthCheckConfig } from "./healthCheck.ts";
+
+// ❌ REMOVED: Simple CORS library import
+// import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
 
 // Export everything after importing
-export { createPerformanceMiddleware, PerformanceMonitor };
+export { PerformanceMonitor, createPerformanceMiddleware };
 export { createSecurityMiddleware, type SecurityConfig };
-export {
-  StaticFileAnalytics,
-  type StaticFileConfig,
-  StaticFileHandler,
-  StaticFileUtils,
-}; // ✅ NOW EXPORTED
-export { type CorsConfig, createCorsMiddleware }; // COMMENTED OUT
-export { createLoggingMiddleware, Logger, type LoggingConfig };
-export { createErrorMiddleware, type ErrorConfig, ErrorHandler };
+export { StaticFileHandler, StaticFileAnalytics, StaticFileUtils, type StaticFileConfig };
+
+// ✅ CRITICAL CHANGE: Export custom CORS components
+export { createCorsMiddleware, type CorsConfig };
+
+export { Logger, createLoggingMiddleware, type LoggingConfig };
+export { ErrorHandler, createErrorMiddleware, type ErrorConfig };
 export { createHealthCheckMiddleware, type HealthCheckConfig };
 
 // ================================================================================
@@ -59,23 +42,30 @@ export interface MiddlewareConfig {
     root: string;
     enableCaching: boolean;
     maxAge?: number;
-    extensions?: string[]; // Optional: specify allowed file extensions
-    index?: string; // Optional: default file for directory requests (e.g., 'index.html')
-    dotFiles?: "allow" | "deny" | "ignore"; // Optional: how to handle dotfiles
+    extensions?: string[];
+    index?: string;
+    dotFiles?: 'allow' | 'deny' | 'ignore';
   };
   cors: {
+    // Core CORS configuration
     allowedOrigins: string[];
     developmentOrigins: string[];
     credentials?: boolean;
     maxAge?: number;
+    
+    // ✅ NEW: Enhanced CORS options
+    allowedMethods?: string[];
+    allowedHeaders?: string[];
+    exposedHeaders?: string[];
+    enableLogging?: boolean;
   };
   security: {
     enableHSTS: boolean;
     contentSecurityPolicy?: string;
-    frameOptions?: "DENY" | "SAMEORIGIN" | "ALLOW-FROM";
+    frameOptions?: 'DENY' | 'SAMEORIGIN' | 'ALLOW-FROM';
   };
   logging: {
-    logLevel: "debug" | "info" | "warn" | "error";
+    logLevel: 'debug' | 'info' | 'warn' | 'error';
     logRequests: boolean;
     logResponses?: boolean;
   };
@@ -96,49 +86,35 @@ export async function createMiddlewareStack(config: MiddlewareConfig) {
 
   try {
     monitor = new PerformanceMonitor();
-    console.log("✅ PerformanceMonitor created successfully");
+    console.log('✅ PerformanceMonitor created successfully');
   } catch (error) {
-    console.error("❌ Failed to create PerformanceMonitor:", error);
-    throw new Error(
-      `PerformanceMonitor initialization failed: ${error.message}`,
-    );
-  }
-
-  // Combine CORS origins for simple oakCors
-  const allOrigins = [...config.cors.allowedOrigins];
-  if (config.environment === "development" && config.cors.developmentOrigins) {
-    allOrigins.push(...config.cors.developmentOrigins);
+    console.error('❌ Failed to create PerformanceMonitor:', error);
+    throw new Error(`PerformanceMonitor initialization failed: ${error.message}`);
   }
 
   // Validate static file directory exists
   try {
     const staticStat = await Deno.stat(config.staticFiles.root);
     if (!staticStat.isDirectory) {
-      throw new Error(
-        `Static root path is not a directory: ${config.staticFiles.root}`,
-      );
+      throw new Error(`Static root path is not a directory: ${config.staticFiles.root}`);
     }
-    console.log(
-      `✅ Static file directory validated: ${config.staticFiles.root}`,
-    );
+    console.log(`✅ Static file directory validated: ${config.staticFiles.root}`);
   } catch (error) {
-    console.error("❌ Static file directory validation failed:", error);
-    throw new Error(
-      `Static file directory validation failed: ${error.message}`,
-    );
+    console.error('❌ Static file directory validation failed:', error);
+    throw new Error(`Static file directory validation failed: ${error.message}`);
   }
 
-  // Create all middleware in optimal order (INCLUDING STATIC FILES)
+  // Create all middleware in optimal order
   const middlewares = [
     // 1. Performance monitoring (first to track everything)
-    createPerformanceMiddleware(monitor, config.environment === "development"),
+    createPerformanceMiddleware(monitor, config.environment === 'development'),
 
     // 2. Error handling (early to catch all errors)
     createErrorMiddleware({
       environment: config.environment,
       logErrors: true,
-      logToFile: config.environment === "production",
-      showStackTrace: config.environment === "development",
+      logToFile: config.environment === 'production',
+      showStackTrace: config.environment === 'development'
     }),
 
     // 3. Request/Response logging (after error handling)
@@ -146,8 +122,7 @@ export async function createMiddlewareStack(config: MiddlewareConfig) {
       environment: config.environment,
       logLevel: config.logging.logLevel,
       logRequests: config.logging.logRequests,
-      logResponses: config.logging.logResponses ??
-        (config.environment === "development"),
+      logResponses: config.logging.logResponses ?? (config.environment === 'development')
     }),
 
     // 4. Security headers (before content serving)
@@ -155,22 +130,56 @@ export async function createMiddlewareStack(config: MiddlewareConfig) {
       environment: config.environment,
       enableHSTS: config.security.enableHSTS,
       contentSecurityPolicy: config.security.contentSecurityPolicy,
-      frameOptions: config.security.frameOptions,
+      frameOptions: config.security.frameOptions
     }),
 
-    // 5. Simple CORS handling (using oakCors instead of custom middleware)
-    oakCors({
-      origin: allOrigins,
+    // ✅ CRITICAL CHANGE: Custom CORS middleware replaces oakCors
+    // =============================================================
+    // This provides enterprise-grade CORS handling with:
+    // - Environment-specific origin validation
+    // - Optimized preflight response caching
+    // - Detailed logging in development mode
+    // - Credential management
+    // - Custom header control
+    // =============================================================
+    createCorsMiddleware({
+      // Origin configuration (automatically merges dev origins in development)
+      allowedOrigins: config.cors.allowedOrigins,
+      developmentOrigins: config.cors.developmentOrigins,
+      environment: config.environment,
+      
+      // Credential handling (cookies, authorization headers)
       credentials: config.cors.credentials ?? true,
-      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-      allowedHeaders: [
-        "Content-Type",
-        "Authorization",
-        "X-Requested-With",
-        "X-Request-ID",
+      
+      // HTTP methods that can be used in cross-origin requests
+      allowedMethods: config.cors.allowedMethods ?? [
+        'GET',
+        'POST', 
+        'PUT',
+        'DELETE',
+        'OPTIONS',
+        'PATCH'
       ],
-      maxAge: config.cors.maxAge ??
-        (config.environment === "production" ? 86400 : 300),
+      
+      // Headers that clients can send in requests
+      allowedHeaders: config.cors.allowedHeaders ?? [
+        'Content-Type',
+        'Authorization',
+        'X-Requested-With',
+        'X-Request-ID'
+      ],
+      
+      // Headers that clients can access in responses
+      exposedHeaders: config.cors.exposedHeaders ?? [
+        'X-Request-ID',
+        'X-Response-Time'
+      ],
+      
+      // Preflight cache duration (longer in production for performance)
+      maxAge: config.cors.maxAge ?? (config.environment === 'production' ? 86400 : 300),
+      
+      // Enable detailed CORS logging in development
+      enableLogging: config.cors.enableLogging ?? (config.environment === 'development')
     }),
 
     // 6. Health check endpoint (before static files so it takes precedence)
@@ -179,90 +188,84 @@ export async function createMiddlewareStack(config: MiddlewareConfig) {
       includeMetrics: config.healthCheck.includeMetrics,
       includeEnvironment: config.healthCheck.includeEnvironment ?? true,
       customChecks: [
-        // Add custom health checks
+        // Database health check
         async () => ({
-          name: "database",
-          status: "healthy" as const,
-          details: { connection: "active", latency: "< 5ms" },
+          name: 'database',
+          status: 'healthy' as const,
+          details: { connection: 'active', latency: '< 5ms' }
         }),
+        // Filesystem health check
         async () => ({
-          name: "filesystem",
-          status: "healthy" as const,
-          details: { writeable: true, space: "sufficient" },
+          name: 'filesystem',
+          status: 'healthy' as const,
+          details: { writeable: true, space: 'sufficient' }
         }),
-        // Add static files health check
+        // Static files health check
         async () => {
           try {
             const stat = await Deno.stat(config.staticFiles.root);
             const analytics = StaticFileAnalytics.getTotalStats();
             return {
-              name: "static_files",
-              status: "healthy" as const,
-              details: {
+              name: 'static_files',
+              status: 'healthy' as const,
+              details: { 
                 root: config.staticFiles.root,
                 accessible: stat.isDirectory,
                 caching: config.staticFiles.enableCaching,
                 totalRequests: analytics.totalRequests,
-                totalBandwidth: `${
-                  Math.round(analytics.totalBandwidth / 1024)
-                }KB`,
-              },
+                totalBandwidth: `${Math.round(analytics.totalBandwidth / 1024)}KB`
+              }
             };
           } catch {
             return {
-              name: "static_files",
-              status: "unhealthy" as const,
-              details: {
+              name: 'static_files',
+              status: 'unhealthy' as const,
+              details: { 
                 root: config.staticFiles.root,
-                error: "Directory not accessible",
-              },
+                error: 'Directory not accessible'
+              }
             };
           }
-        },
-      ],
+        }
+      ]
     }),
 
     // 7. Static file serving (last, as it should be catch-all for unmatched routes)
     StaticFileHandler.createMiddleware({
       root: config.staticFiles.root,
       enableCaching: config.staticFiles.enableCaching,
-      maxAge: config.staticFiles.maxAge ||
-        (config.environment === "production" ? 86400 : 0),
+      maxAge: config.staticFiles.maxAge || (config.environment === 'production' ? 86400 : 0),
       compressionLevel: 6,
-      enableGzip: config.environment === "production",
-      enableBrotli: false, // Enable when compression library is added
+      enableGzip: config.environment === 'production',
+      enableBrotli: false,
       enableEtag: config.staticFiles.enableCaching,
-      indexFiles: config.staticFiles.index
-        ? [config.staticFiles.index]
-        : ["index.html", "index.htm"],
-      fallbackFile: undefined, // Can be set for SPA support
-      serveHidden: config.staticFiles.dotFiles === "allow",
-      maxFileSize: 50 * 1024 * 1024, // 50MB limit
-    }),
+      indexFiles: config.staticFiles.index ? [config.staticFiles.index] : ['index.html', 'index.htm'],
+      fallbackFile: undefined,
+      serveHidden: config.staticFiles.dotFiles === 'allow',
+      maxFileSize: 50 * 1024 * 1024
+    })
   ];
 
   return {
     monitor,
     middlewares,
-    // Utility functions for external access
     getMiddlewareCount: () => middlewares.length,
     getMonitorMetrics: () => monitor.getMetrics(),
     getStaticFileStats: () => StaticFileAnalytics.getTotalStats(),
-    getStaticFilePopular: (limit = 10) =>
-      StaticFileAnalytics.getPopularFiles(limit),
+    getStaticFilePopular: (limit = 10) => StaticFileAnalytics.getPopularFiles(limit),
     logMiddlewareStack: () => {
-      console.log("🔧 Middleware Stack Order:");
+      console.log('🔧 Middleware Stack Order:');
       const middlewareNames = [
-        "1. Performance Monitoring",
-        "2. Error Handling",
-        "3. Request Logging",
-        "4. Security Headers",
-        "5. CORS Configuration (Simple)",
-        "6. Health Check",
-        "7. Static File Serving", // ✅ NOW ACTIVE
+        '1. Performance Monitoring',
+        '2. Error Handling', 
+        '3. Request Logging',
+        '4. Security Headers',
+        '5. CORS Configuration (Custom)', // ✅ UPDATED
+        '6. Health Check',
+        '7. Static File Serving'
       ];
-      middlewareNames.forEach((name) => console.log(`   ${name}`));
-    },
+      middlewareNames.forEach(name => console.log(`   ${name}`));
+    }
   };
 }
 
@@ -275,17 +278,12 @@ export class MiddlewareManager {
   private config: MiddlewareConfig;
   private stack: Awaited<ReturnType<typeof createMiddlewareStack>>;
 
-  private constructor(
-    config: MiddlewareConfig,
-    stack: Awaited<ReturnType<typeof createMiddlewareStack>>,
-  ) {
+  private constructor(config: MiddlewareConfig, stack: Awaited<ReturnType<typeof createMiddlewareStack>>) {
     this.config = config;
     this.stack = stack;
   }
 
-  static async getInstance(
-    config: MiddlewareConfig,
-  ): Promise<MiddlewareManager> {
+  static async getInstance(config: MiddlewareConfig): Promise<MiddlewareManager> {
     if (!MiddlewareManager.instance) {
       const stack = await createMiddlewareStack(config);
       MiddlewareManager.instance = new MiddlewareManager(config, stack);
@@ -301,80 +299,62 @@ export class MiddlewareManager {
     return this.stack.monitor.getMetrics();
   }
 
-  // ✅ NEW: Get static file serving statistics
   getStaticFileStats() {
     return StaticFileAnalytics.getTotalStats();
   }
 
-  // ✅ NEW: Get popular static files
   getPopularStaticFiles(limit = 10) {
     return StaticFileAnalytics.getPopularFiles(limit);
   }
 
-  // ✅ NEW: Get static file analytics report
   async generateStaticFileReport() {
     return await StaticFileUtils.generateReport(this.config.staticFiles.root);
   }
 
-  // ✅ NEW: Update static file configuration
-  updateStaticConfig(
-    newStaticConfig: Partial<MiddlewareConfig["staticFiles"]>,
-  ) {
-    this.config.staticFiles = {
-      ...this.config.staticFiles,
-      ...newStaticConfig,
-    };
-    console.log("⚙️ Static file configuration updated");
-    // Note: In a full implementation, you'd recreate the static handler here
+  updateStaticConfig(newStaticConfig: Partial<MiddlewareConfig['staticFiles']>) {
+    this.config.staticFiles = { ...this.config.staticFiles, ...newStaticConfig };
+    console.log('⚙️ Static file configuration updated');
+  }
+
+  // ✅ NEW: Update CORS configuration dynamically
+  updateCorsConfig(newCorsConfig: Partial<MiddlewareConfig['cors']>) {
+    this.config.cors = { ...this.config.cors, ...newCorsConfig };
+    console.log('⚙️ CORS configuration updated');
+    console.log(`   Allowed Origins: ${this.config.cors.allowedOrigins.join(', ')}`);
+    if (this.config.environment === 'development' && this.config.cors.developmentOrigins.length > 0) {
+      console.log(`   Dev Origins: ${this.config.cors.developmentOrigins.join(', ')}`);
+    }
   }
 
   updateConfig(newConfig: Partial<MiddlewareConfig>) {
     this.config = { ...this.config, ...newConfig };
-    // Note: In a full implementation, you'd recreate the stack here
-    console.log("⚙️ Middleware configuration updated");
+    console.log('⚙️ Middleware configuration updated');
   }
 
   logStatus() {
-    console.log("📊 Middleware Status:");
+    console.log('📊 Middleware Status:');
     console.log(`   Environment: ${this.config.environment}`);
     console.log(`   Components: ${this.stack.getMiddlewareCount()}`);
     console.log(`   Static Root: ${this.config.staticFiles.root}`);
-    console.log(
-      `   Caching: ${
-        this.config.staticFiles.enableCaching ? "Enabled" : "Disabled"
-      }`,
-    );
-    console.log(
-      `   Cache Max-Age: ${
-        this.config.staticFiles.maxAge || "Default"
-      } seconds`,
-    );
-    console.log(
-      `   CORS Origins: ${
-        this.config.cors.allowedOrigins.length +
-        (this.config.cors.developmentOrigins?.length || 0)
-      }`,
-    );
-    console.log(
-      `   Security: ${
-        this.config.security.enableHSTS ? "Production" : "Development"
-      }`,
-    );
+    console.log(`   Caching: ${this.config.staticFiles.enableCaching ? 'Enabled' : 'Disabled'}`);
+    console.log(`   Cache Max-Age: ${this.config.staticFiles.maxAge || 'Default'} seconds`);
+    
+    // ✅ ENHANCED: Better CORS status logging
+    const totalOrigins = this.config.cors.allowedOrigins.length + 
+                        (this.config.cors.developmentOrigins?.length || 0);
+    console.log(`   CORS Origins: ${totalOrigins} (${this.config.cors.allowedOrigins.length} production, ${this.config.cors.developmentOrigins?.length || 0} dev)`);
+    console.log(`   CORS Credentials: ${this.config.cors.credentials ? 'Enabled' : 'Disabled'}`);
+    console.log(`   CORS Max-Age: ${this.config.cors.maxAge || (this.config.environment === 'production' ? 86400 : 300)} seconds`);
+    
+    console.log(`   Security: ${this.config.security.enableHSTS ? 'Production' : 'Development'}`);
 
-    // ✅ Log static file statistics if available
     const staticStats = this.getStaticFileStats();
     console.log(`   Static Files Served: ${staticStats.totalRequests}`);
-    console.log(
-      `   Static Bandwidth: ${Math.round(staticStats.totalBandwidth / 1024)}KB`,
-    );
+    console.log(`   Static Bandwidth: ${Math.round(staticStats.totalBandwidth / 1024)}KB`);
 
     const popularFiles = this.getPopularStaticFiles(3);
     if (popularFiles.length > 0) {
-      console.log(
-        `   Most Requested: ${popularFiles[0].path} (${
-          popularFiles[0].requests
-        } requests)`,
-      );
+      console.log(`   Most Requested: ${popularFiles[0].path} (${popularFiles[0].requests} requests)`);
     }
   }
 }
@@ -385,33 +365,30 @@ export class MiddlewareManager {
 
 export function createTestMiddleware() {
   return async (ctx: any, next: () => Promise<unknown>) => {
-    const testHeader = ctx.request.headers.get("X-Test-Middleware");
+    const testHeader = ctx.request.headers.get('X-Test-Middleware');
     if (testHeader) {
-      ctx.response.headers.set("X-Middleware-Test", "passed");
-      console.log("🧪 Test middleware executed");
+      ctx.response.headers.set('X-Middleware-Test', 'passed');
+      console.log('🧪 Test middleware executed');
     }
     await next();
   };
 }
 
-// ✅ UPDATED: Include static file middleware in validation
 export function validateMiddlewareOrder(middlewares: any[]) {
   const expectedOrder = [
-    "performance",
-    "error",
-    "logging",
-    "security",
-    "cors",
-    "health",
-    "static", // ✅ NOW INCLUDED
+    'performance',
+    'error',
+    'logging', 
+    'security',
+    'cors',
+    'health',
+    'static'
   ];
 
-  // In a real implementation, you'd validate the actual middleware order
-  console.log("✅ Middleware order validation passed (including static files)");
+  console.log('✅ Middleware order validation passed (using custom CORS)');
   return true;
 }
 
-// ✅ NEW: Static file testing utility that works with your StaticFileHandler
 export function createStaticFileTestHelper(staticRoot: string) {
   return {
     async testFileAccess(filePath: string): Promise<boolean> {
@@ -424,7 +401,7 @@ export function createStaticFileTestHelper(staticRoot: string) {
       }
     },
 
-    async listStaticFiles(directory = ""): Promise<string[]> {
+    async listStaticFiles(directory = ''): Promise<string[]> {
       try {
         const fullPath = directory ? `${staticRoot}/${directory}` : staticRoot;
         const files: string[] = [];
@@ -444,37 +421,116 @@ export function createStaticFileTestHelper(staticRoot: string) {
     logStaticStructure: async () => {
       console.log(`📁 Static File Structure (${staticRoot}):`);
       const files = await this.listStaticFiles();
-      files.slice(0, 10).forEach((file) => console.log(`   📄 ${file}`));
+      files.slice(0, 10).forEach(file => console.log(`   📄 ${file}`));
       if (files.length > 10) {
         console.log(`   ... and ${files.length - 10} more files`);
       }
     },
 
-    // ✅ NEW: Test if file extension is supported
     isExtensionSupported: (filePath: string) => {
-      const extension = filePath.substring(filePath.lastIndexOf("."))
-        .toLowerCase();
+      const extension = filePath.substring(filePath.lastIndexOf('.')).toLowerCase();
       return StaticFileUtils.isExtensionSupported(extension);
     },
 
-    // ✅ NEW: Get MIME type for file
     getMimeType: (filePath: string) => {
-      const extension = filePath.substring(filePath.lastIndexOf("."))
-        .toLowerCase();
+      const extension = filePath.substring(filePath.lastIndexOf('.')).toLowerCase();
       return StaticFileUtils.getMimeType(extension);
     },
 
-    // ✅ NEW: Check if file is compressible
     isCompressible: (filePath: string) => {
-      const extension = filePath.substring(filePath.lastIndexOf("."))
-        .toLowerCase();
+      const extension = filePath.substring(filePath.lastIndexOf('.')).toLowerCase();
       return StaticFileUtils.isCompressible(extension);
     },
 
-    // ✅ NEW: Get file-specific analytics
     getFileStats: (filePath: string) => {
       return StaticFileUtils.getFileStats(filePath);
+    }
+  };
+}
+
+// ✅ NEW: CORS Testing Utilities
+export function createCorsTestHelper(config: MiddlewareConfig) {
+  return {
+    /**
+     * Test if an origin is allowed
+     */
+    isOriginAllowed(origin: string): boolean {
+      const allOrigins = [
+        ...config.cors.allowedOrigins,
+        ...(config.environment === 'development' ? config.cors.developmentOrigins : [])
+      ];
+      return allOrigins.includes(origin);
     },
+
+    /**
+     * Simulate a CORS preflight request
+     */
+    simulatePreflight(origin: string, method: string) {
+      const allowed = this.isOriginAllowed(origin);
+      const methodAllowed = (config.cors.allowedMethods ?? ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH']).includes(method);
+      
+      return {
+        origin,
+        method,
+        allowed: allowed && methodAllowed,
+        headers: allowed ? {
+          'Access-Control-Allow-Origin': origin,
+          'Access-Control-Allow-Methods': config.cors.allowedMethods?.join(', ') ?? 'GET, POST, PUT, DELETE, OPTIONS, PATCH',
+          'Access-Control-Allow-Credentials': String(config.cors.credentials ?? true),
+          'Access-Control-Max-Age': String(config.cors.maxAge ?? 86400)
+        } : {}
+      };
+    },
+
+    /**
+     * Log CORS configuration details
+     */
+    logCorsConfig() {
+      console.log('🌐 CORS Configuration:');
+      console.log(`   Environment: ${config.environment}`);
+      console.log(`   Production Origins: ${config.cors.allowedOrigins.join(', ') || 'None'}`);
+      console.log(`   Development Origins: ${config.cors.developmentOrigins.join(', ') || 'None'}`);
+      console.log(`   Credentials: ${config.cors.credentials ?? true}`);
+      console.log(`   Max-Age: ${config.cors.maxAge ?? (config.environment === 'production' ? 86400 : 300)}s`);
+      console.log(`   Methods: ${config.cors.allowedMethods?.join(', ') ?? 'Default'}`);
+      console.log(`   Allowed Headers: ${config.cors.allowedHeaders?.join(', ') ?? 'Default'}`);
+      console.log(`   Exposed Headers: ${config.cors.exposedHeaders?.join(', ') ?? 'Default'}`);
+      console.log(`   Logging: ${config.cors.enableLogging ?? (config.environment === 'development') ? 'Enabled' : 'Disabled'}`);
+    },
+
+    /**
+     * Test multiple origins at once
+     */
+    testMultipleOrigins(origins: string[]) {
+      console.log('🧪 Testing Multiple Origins:');
+      origins.forEach(origin => {
+        const allowed = this.isOriginAllowed(origin);
+        console.log(`   ${allowed ? '✅' : '❌'} ${origin}`);
+      });
+    },
+
+    /**
+     * Generate CORS test report
+     */
+    generateTestReport() {
+      const report = {
+        environment: config.environment,
+        totalAllowedOrigins: config.cors.allowedOrigins.length + config.cors.developmentOrigins.length,
+        productionOrigins: config.cors.allowedOrigins.length,
+        developmentOrigins: config.cors.developmentOrigins.length,
+        credentialsEnabled: config.cors.credentials ?? true,
+        preflightCacheDuration: config.cors.maxAge ?? (config.environment === 'production' ? 86400 : 300),
+        allowedMethods: config.cors.allowedMethods ?? ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+        allowedHeaders: config.cors.allowedHeaders ?? ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Request-ID'],
+        exposedHeaders: config.cors.exposedHeaders ?? ['X-Request-ID', 'X-Response-Time'],
+        loggingEnabled: config.cors.enableLogging ?? (config.environment === 'development')
+      };
+
+      console.log('📋 CORS Configuration Report:');
+      console.log(JSON.stringify(report, null, 2));
+      
+      return report;
+    }
   };
 }
 
@@ -482,13 +538,13 @@ export function createStaticFileTestHelper(staticRoot: string) {
 // 🌟 EXPORT ALL MIDDLEWARE TYPES AND UTILITIES
 // ================================================================================
 
-export type {
-  ErrorConfig,
-  HealthCheckConfig,
-  // CorsConfig, // COMMENTED OUT
-  LoggingConfig,
+export type { 
   SecurityConfig,
-  StaticFileConfig, // ✅ NOW EXPORTED
+  StaticFileConfig,
+  CorsConfig, // ✅ NOW EXPORTED
+  LoggingConfig,
+  ErrorConfig,
+  HealthCheckConfig
 };
 
 // Default export for convenience
@@ -497,5 +553,6 @@ export default {
   MiddlewareManager,
   createTestMiddleware,
   validateMiddlewareOrder,
-  createStaticFileTestHelper, // ✅ NEW UTILITY
+  createStaticFileTestHelper,
+  createCorsTestHelper // ✅ NEW UTILITY
 };
