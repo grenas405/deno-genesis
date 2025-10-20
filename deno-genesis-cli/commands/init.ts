@@ -243,7 +243,7 @@ function validateSiteConfig(
   context: CLIContext,
 ): { valid: boolean; error?: string } {
   // Check if sites directory exists or can be created
-  const sitesDir = join(context.cwd, "sites");
+  const sitesDir = join(context.cwd, ".local/src/deno-genesis/sites");
 
   // Validate site name
   if (!config.name || !/^[a-z0-9-]+$/.test(config.name)) {
@@ -294,7 +294,7 @@ async function createDirectoryStructure(
   context: CLIContext,
 ): Promise<void> {
   // Ensure sites directory exists
-  const sitesDir = join(context.cwd, "sites");
+  const sitesDir = join(context.cwd, ".local/src/deno-genesis/sites");
   await ensureDir(sitesDir);
 
   // Create site directory
@@ -329,7 +329,7 @@ async function createCoreSymlinks(
   config: SiteConfig,
   context: CLIContext,
 ): Promise<void> {
-  const coreDir = join(context.cwd, "core");
+  const coreDir = join(context.cwd, ".local/src/deno-genesis/core");
 
   // Verify core directory exists
   if (!await exists(coreDir)) {
