@@ -161,9 +161,18 @@ export const SSL_ENABLED = env.SSL_ENABLED === "true";
 export const CORS_ORIGINS =
   env.CORS_ORIGINS?.split(",").map((origin) => origin.trim()) || [
     "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:3002",
+    "http://localhost:3003",
+    "http://localhost:3004",
+    "http://localhost:3005",
+    "http://localhost:3006",
+    "https://denogenesis.com",
     "https://pedromdominguez.com",
-    "https://okdevs.xyz",
     "https://domingueztechsolutions.com",
+    "https://okdevs.xyz",
+    "https://efficientmoversllc.com",
+    "https://heavenlyroofingok.com",
   ];
 
 // Feature Flags
