@@ -15,7 +15,7 @@
  * All imports centralized through mod.ts for version consistency.
  *
  * @author Pedro M. Dominguez - Dominguez Tech Solutions LLC
- * @version 2.2.0-custom-cors
+ * @version 2.2.1-cors-fixed
  * @license AGPL-3.0
  * @framework DenoGenesis Framework
  * @follows Unix Philosophy + Centralized Module Pattern
@@ -35,7 +35,7 @@ import {
   // Console Utilities - Professional logging
   ConsoleStyler,
   CORS_ORIGINS,
-  // ✅ NEW: Custom CORS utilities
+  // Custom CORS utilities
   createCorsTestHelper,
   createMiddlewareStack,
   createStaticFileTestHelper,
@@ -85,7 +85,7 @@ interface AppBootstrapConfig {
   enableFrameworkIntegrity: boolean;
   enableDatabaseConnection: boolean;
   enableAdvancedLogging: boolean;
-  enableCorsValidation: boolean; // ✅ NEW: CORS validation flag
+  enableCorsValidation: boolean;
 }
 
 /**
@@ -96,8 +96,8 @@ interface AppMetrics {
   totalRequests: number;
   totalErrors: number;
   dbConnections: number;
-  corsRequests: number; // ✅ NEW: Track CORS requests
-  corsBlocked: number; // ✅ NEW: Track blocked CORS requests
+  corsRequests: number;
+  corsBlocked: number;
   lastHealthCheck?: Date;
 }
 
@@ -123,8 +123,8 @@ const appMetrics: AppMetrics = {
   totalRequests: 0,
   totalErrors: 0,
   dbConnections: 0,
-  corsRequests: 0, // ✅ NEW
-  corsBlocked: 0, // ✅ NEW
+  corsRequests: 0,
+  corsBlocked: 0,
 };
 
 /**
@@ -137,7 +137,7 @@ const bootstrapConfig: AppBootstrapConfig = {
   enableFrameworkIntegrity: true,
   enableDatabaseConnection: true,
   enableAdvancedLogging: DENO_ENV === "development",
-  enableCorsValidation: true, // ✅ NEW: Enable CORS validation
+  enableCorsValidation: true,
 };
 
 // ============================================================================
@@ -166,7 +166,7 @@ function generateAppConfig(): any {
       "Security Hardened",
       "Performance Monitoring",
       "Static File Analytics",
-      "Custom CORS Middleware", // ✅ NEW
+      "Custom CORS Middleware",
     ],
     database: "SQLite with Enterprise Extensions",
     ai: {
@@ -182,7 +182,7 @@ function generateAppConfig(): any {
 function collectDependencyInfo(): DependencyInfo[] {
   const dependencies: DependencyInfo[] = [
     { name: "Oak Framework", version: "12.6.1", status: "loaded" },
-    { name: "Custom CORS Middleware", version: VERSION, status: "loaded" }, // ✅ UPDATED
+    { name: "Custom CORS Middleware", version: VERSION, status: "loaded" },
     { name: "DotEnv", version: "3.2.2", status: "loaded" },
     { name: "DenoGenesis Router", version: VERSION, status: "loaded" },
     { name: "DenoGenesis Middleware", version: VERSION, status: "loaded" },
@@ -300,7 +300,7 @@ async function validateFramework(): Promise<boolean> {
 }
 
 /**
- * ✅ NEW: Validate CORS configuration and test origins
+ * Validate CORS configuration and test origins
  */
 async function validateCorsConfiguration(
   config: MiddlewareConfig,
@@ -377,7 +377,89 @@ async function validateCorsConfiguration(
 }
 
 /**
+ * Create CORS middleware with proper error handling
+ * This is a simplified, bulletproof CORS implementation
+ */
+function createSafeCorsMiddleware(config: MiddlewareConfig) {
+  // Pre-compute allowed origins for performance
+  const allowedOriginsSet = new Set([
+    ...config.cors.allowedOrigins,
+    ...(config.environment === "development"
+      ? config.cors.developmentOrigins
+      : []),
+  ]);
+
+  return async (ctx: any, next: any) => {
+    // CRITICAL: Early exit if response already started
+    if (
+      !ctx.response.writable ||
+      ctx.response.status !== undefined ||
+      ctx.response.body !== undefined
+    ) {
+      ConsoleStyler.logWarning(
+        "CORS: Response already started, skipping CORS headers",
+      );
+      return next();
+    }
+
+    const origin = ctx.request.headers.get("origin");
+    const method = ctx.request.method;
+
+    // Handle OPTIONS (preflight) requests immediately
+    if (method === "OPTIONS") {
+      if (origin && allowedOriginsSet.has(origin)) {
+        // Set preflight response headers
+        ctx.response.headers.set("Access-Control-Allow-Origin", origin);
+        ctx.response.headers.set("Access-Control-Allow-Credentials", "true");
+        ctx.response.headers.set(
+          "Access-Control-Allow-Methods",
+          config.cors.allowedMethods?.join(", ") ||
+            "GET,POST,PUT,DELETE,OPTIONS",
+        );
+        ctx.response.headers.set(
+          "Access-Control-Allow-Headers",
+          config.cors.allowedHeaders?.join(", ") ||
+            "Content-Type,Authorization",
+        );
+        ctx.response.headers.set(
+          "Access-Control-Max-Age",
+          String(config.cors.maxAge || 86400),
+        );
+      }
+
+      // Send empty response for preflight
+      ctx.response.status = 204;
+      ctx.response.body = null;
+      return; // Don't call next() for OPTIONS
+    }
+
+    // Handle regular requests
+    if (origin && allowedOriginsSet.has(origin)) {
+      ctx.response.headers.set("Access-Control-Allow-Origin", origin);
+      ctx.response.headers.set("Access-Control-Allow-Credentials", "true");
+
+      if (config.cors.exposedHeaders?.length > 0) {
+        ctx.response.headers.set(
+          "Access-Control-Expose-Headers",
+          config.cors.exposedHeaders.join(", "),
+        );
+      }
+    } else if (origin) {
+      // Track blocked CORS request
+      appMetrics.corsBlocked++;
+      if (config.environment === "development") {
+        ConsoleStyler.logWarning(`CORS blocked origin: ${origin}`);
+      }
+    }
+
+    // Continue to next middleware
+    await next();
+  };
+}
+
+/**
  * Setup enhanced request logging middleware
+ * MUST run AFTER CORS middleware
  */
 function createRequestLogger() {
   return async (ctx: any, next: any) => {
@@ -385,7 +467,7 @@ function createRequestLogger() {
 
     appMetrics.totalRequests++;
 
-    // ✅ NEW: Track CORS requests
+    // Track CORS requests
     const origin = ctx.request.headers.get("Origin");
     if (origin) {
       appMetrics.corsRequests++;
@@ -395,7 +477,7 @@ function createRequestLogger() {
       await next();
     } catch (error) {
       appMetrics.totalErrors++;
-      throw error; // Let middleware handle the actual logging
+      throw error;
     }
   };
 }
@@ -424,7 +506,6 @@ function displayPerformanceMetrics() {
     { label: "Errors", value: appMetrics.totalErrors.toString() },
     { label: "Success Rate", value: `${successRate}%` },
     { label: "DB Connections", value: appMetrics.dbConnections.toString() },
-    // ✅ NEW: CORS metrics
     { label: "CORS Requests", value: appMetrics.corsRequests.toString() },
     {
       label: "CORS Blocked",
@@ -574,11 +655,11 @@ async function validateStaticSetup(staticRoot: string): Promise<boolean> {
 }
 
 // ============================================================================
-// MAIN APPLICATION FLOW - ENHANCED WITH COMPREHENSIVE LOGGING
+// MAIN APPLICATION FLOW - FIXED MIDDLEWARE ORDER
 // ============================================================================
 
 /**
- * Main application entry point with enhanced logging and monitoring
+ * Main application entry point with correct middleware ordering
  */
 async function main(): Promise<void> {
   try {
@@ -642,7 +723,7 @@ async function main(): Promise<void> {
     }
 
     // ========================================================================
-    // Phase 5: Application and Middleware Setup
+    // Phase 5: Application and Middleware Setup - CORRECT ORDER
     // ========================================================================
 
     ConsoleStyler.logSection("🚀 Application Initialization", "blue");
@@ -651,7 +732,7 @@ async function main(): Promise<void> {
     const app = new Application();
     ConsoleStyler.logSuccess("Oak application instance created");
 
-    // ✅ ENHANCED: Create and configure middleware stack with custom CORS
+    // Create middleware configuration
     const middlewareConfig: MiddlewareConfig = {
       environment: DENO_ENV,
       port: PORT,
@@ -679,10 +760,9 @@ async function main(): Promise<void> {
           ".otf",
         ],
         index: "index.html",
-        dotFiles: "deny", // Security: deny hidden files
+        dotFiles: "deny",
       },
       cors: {
-        // Core CORS configuration
         allowedOrigins: CORS_ORIGINS.filter((origin) =>
           !origin.includes("localhost")
         ),
@@ -691,8 +771,6 @@ async function main(): Promise<void> {
         ),
         credentials: true,
         maxAge: DENO_ENV === "production" ? 86400 : 300,
-
-        // ✅ NEW: Enhanced CORS options
         allowedMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
         allowedHeaders: [
           "Content-Type",
@@ -722,7 +800,7 @@ async function main(): Promise<void> {
       },
     };
 
-    // ✅ NEW: Validate CORS configuration before creating middleware
+    // Validate CORS configuration
     const corsValid = await validateCorsConfiguration(middlewareConfig);
     if (!corsValid) {
       ConsoleStyler.logWarning(
@@ -730,37 +808,166 @@ async function main(): Promise<void> {
       );
     }
 
-    // Create middleware stack (now includes custom CORS middleware)
+    // ========================================================================
+    // CRITICAL: APPLY MIDDLEWARE IN CORRECT ORDER
+    // ========================================================================
+
+    ConsoleStyler.logSection("📦 Middleware Stack Configuration", "cyan");
+
+    // 1. FIRST: Apply CORS middleware (MUST BE FIRST!)
+    const corsMiddleware = createSafeCorsMiddleware(middlewareConfig);
+    app.use(corsMiddleware);
+    ConsoleStyler.logSuccess(
+      "✅ [1/7] CORS middleware applied (FIRST in stack)",
+    );
+
+    // 2. Request ID generation
+    app.use(async (ctx, next) => {
+      ctx.state.requestId = crypto.randomUUID();
+      ctx.response.headers.set("X-Request-ID", ctx.state.requestId);
+      await next();
+    });
+    ConsoleStyler.logSuccess("✅ [2/7] Request ID middleware applied");
+
+    // 3. Security headers
+    app.use(async (ctx, next) => {
+      // Only set security headers if response is still writable
+      if (ctx.response.writable) {
+        if (middlewareConfig.security.enableHSTS) {
+          ctx.response.headers.set(
+            "Strict-Transport-Security",
+            "max-age=31536000; includeSubDomains",
+          );
+        }
+        if (middlewareConfig.security.frameOptions) {
+          ctx.response.headers.set(
+            "X-Frame-Options",
+            middlewareConfig.security.frameOptions,
+          );
+        }
+        ctx.response.headers.set("X-Content-Type-Options", "nosniff");
+        ctx.response.headers.set("X-XSS-Protection", "1; mode=block");
+      }
+      await next();
+    });
+    ConsoleStyler.logSuccess("✅ [3/7] Security headers middleware applied");
+
+    // 4. Request logger (AFTER CORS)
+    app.use(createRequestLogger());
+    ConsoleStyler.logSuccess("✅ [4/7] Request logger middleware applied");
+
+    // 5. Error handler
+    app.use(async (ctx, next) => {
+      try {
+        await next();
+      } catch (error) {
+        appMetrics.totalErrors++;
+
+        // Check if response is still writable
+        if (!ctx.response.writable) {
+          ConsoleStyler.logError("Error occurred after response sent:", error);
+          return;
+        }
+
+        ctx.response.status = error.status || 500;
+        ctx.response.body = {
+          error: error.message || "Internal Server Error",
+          requestId: ctx.state.requestId,
+        };
+
+        if (DENO_ENV === "development") {
+          ConsoleStyler.logError("Request error", {
+            error: error.message,
+            requestId: ctx.state.requestId,
+            path: ctx.request.url.pathname,
+          });
+        }
+      }
+    });
+    ConsoleStyler.logSuccess("✅ [5/7] Error handler middleware applied");
+
+    // 6. Health check endpoint
+    app.use(async (ctx, next) => {
+      if (ctx.request.url.pathname === middlewareConfig.healthCheck.endpoint) {
+        ctx.response.status = 200;
+        ctx.response.body = {
+          status: "healthy",
+          timestamp: new Date().toISOString(),
+          ...(middlewareConfig.healthCheck.includeMetrics && {
+            metrics: {
+              totalRequests: appMetrics.totalRequests,
+              totalErrors: appMetrics.totalErrors,
+              corsRequests: appMetrics.corsRequests,
+              corsBlocked: appMetrics.corsBlocked,
+              uptime: Date.now() - appMetrics.startTime,
+            },
+          }),
+          ...(middlewareConfig.healthCheck.includeEnvironment && {
+            environment: DENO_ENV,
+            version: VERSION,
+          }),
+        };
+        return; // Don't call next()
+      }
+      await next();
+    });
+    ConsoleStyler.logSuccess("✅ [6/7] Health check endpoint configured");
+
+    // 7. Get remaining middleware from createMiddlewareStack (static files, etc.)
     const { middlewares, monitor } = await createMiddlewareStack(
       middlewareConfig,
     );
 
-    ConsoleStyler.logSuccess("Advanced middleware stack configured", {
-      middlewareCount: middlewares.length,
-      staticFileHandling: "Advanced (with caching, compression, analytics)",
-      corsMiddleware: "Custom (environment-aware, logged, cached)", // ✅ UPDATED
-      security: middlewareConfig.security.enableHSTS,
-      caching: middlewareConfig.staticFiles.enableCaching,
-      corsOrigins: middlewareConfig.cors.allowedOrigins.length +
-        middlewareConfig.cors.developmentOrigins.length,
-    });
-
-    // Add simple request counter (metrics only - let middleware handle logging)
-    app.use(createRequestLogger());
-
-    // Apply essential middleware stack (now includes custom CORS middleware)
-    middlewares.forEach((middleware) => {
-      app.use(middleware);
-    });
-
-    ConsoleStyler.logSuccess(
-      `Complete middleware stack applied (${middlewares.length} components + request counter)`,
+    // Apply remaining middleware (static files, etc.)
+    // Filter out any CORS middleware from the stack since we already applied it
+    const remainingMiddleware = middlewares.filter((m) =>
+      !m.toString().includes("cors") && !m.toString().includes("CORS")
     );
 
-    // Add router
+    remainingMiddleware.forEach((middleware) => {
+      app.use(middleware);
+    });
+    ConsoleStyler.logSuccess(
+      `✅ [7/7] Remaining middleware applied (${remainingMiddleware.length} components)`,
+    );
+
+    // Add router (after all middleware)
     app.use(router.routes());
     app.use(router.allowedMethods());
-    ConsoleStyler.logSuccess("Router configured and mounted");
+    ConsoleStyler.logSuccess("✅ Router configured and mounted");
+
+    // Add 404 handler (ABSOLUTE LAST)
+    app.use((ctx) => {
+      ctx.response.status = 404;
+      ctx.response.body = {
+        error: "Not Found",
+        path: ctx.request.url.pathname,
+        requestId: ctx.state.requestId,
+      };
+    });
+    ConsoleStyler.logSuccess("✅ 404 handler configured (last in stack)");
+
+    // Display middleware stack summary
+    ConsoleStyler.logBox(
+      [
+        `Middleware Order: CORS → RequestID → Security → Logger → Error → Health → Static → Router → 404`,
+        `Total Middleware Components: ${7 + remainingMiddleware.length}`,
+        `CORS Origins: ${
+          middlewareConfig.cors.allowedOrigins.length +
+          middlewareConfig.cors.developmentOrigins.length
+        }`,
+        `Static File Caching: ${
+          middlewareConfig.staticFiles.enableCaching ? "Enabled" : "Disabled"
+        }`,
+        `Security Headers: ${
+          middlewareConfig.security.enableHSTS
+            ? "HSTS Enabled"
+            : "Development Mode"
+        }`,
+      ],
+      "Middleware Stack Configuration",
+      "green",
+    );
 
     // ========================================================================
     // Phase 6: Static File Analytics Setup
@@ -799,18 +1006,19 @@ async function main(): Promise<void> {
       hostname: bootstrapConfig.host,
     };
 
-    // ✅ ENHANCED: Display startup summary with CORS details
+    // Display startup summary with CORS details
     ConsoleStyler.logBox(
       [
         `Server starting on ${bootstrapConfig.host}:${bootstrapConfig.port}`,
         `Environment: ${DENO_ENV}`,
         `Framework: DenoGenesis v${VERSION}`,
-        `Static Files: Advanced Middleware`,
-        `CORS: Custom Middleware (${
+        `CORS: First in stack (${
           middlewareConfig.cors.allowedOrigins.length +
           middlewareConfig.cors.developmentOrigins.length
-        } origins)`, // ✅ NEW
-        `Analytics: Enabled`,
+        } origins)`,
+        `Middleware: Correctly ordered (CORS first)`,
+        `Static Files: Advanced serving enabled`,
+        `Analytics: Real-time monitoring`,
       ],
       "Server Configuration",
       "green",
@@ -825,7 +1033,7 @@ async function main(): Promise<void> {
     );
     ConsoleStyler.logInfo("Press Ctrl+C to gracefully shutdown the server");
 
-    // ✅ NEW: Display CORS test information in development
+    // Display CORS test information in development
     if (DENO_ENV === "development") {
       const corsHelper = createCorsTestHelper(middlewareConfig);
       ConsoleStyler.logInfo(
@@ -837,6 +1045,19 @@ async function main(): Promise<void> {
             middlewareConfig.cors.developmentOrigins,
           ).join(", ")
         }`,
+      );
+
+      // Display CORS test commands
+      ConsoleStyler.logBox(
+        [
+          `Test CORS with curl:`,
+          `curl -H "Origin: http://localhost:3000" -I http://${bootstrapConfig.host}:${bootstrapConfig.port}/health`,
+          ``,
+          `Test preflight:`,
+          `curl -H "Origin: http://localhost:3000" -H "Access-Control-Request-Method: POST" -X OPTIONS http://${bootstrapConfig.host}:${bootstrapConfig.port}/api/endpoint`,
+        ],
+        "CORS Test Commands",
+        "cyan",
       );
     }
 
@@ -890,3 +1111,4 @@ if (import.meta.main) {
     Deno.exit(1);
   });
 }
+
