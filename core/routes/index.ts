@@ -14,7 +14,7 @@ import { send } from "https://deno.land/x/oak@v12.6.1/mod.ts";
 import frontendRoutes from "./frontendRoutes.ts";
 // Route module imports
 // Import API routes from the /features directory
-import authRoutes from "/../../features/routes/authRoutes.ts";
+import authRoutes from "../../../features/routes/authRoutes.ts";
 import appointmentRoutes from "../../../features/routes/appointmentRoutes.ts";
 import contactRoutes from "../../../features/routes/contactRoutes.ts";
 import dashboardRoutes from "../../../features/routes/dashboardRoutes.ts";
