@@ -389,73 +389,47 @@ async function createSafeCorsMiddleware(config: MiddlewareConfig) {
       : []),
   ]);
 
-  return async (ctx: any, next: any) => {
-    // CRITICAL: Early exit if response already started
-    if (
-      !ctx.response.writable ||
-      ctx.response.status !== undefined ||
-      ctx.response.body !== undefined
-    ) {
-      ConsoleStyler.logWarning(
-        "CORS: Response already started, skipping CORS headers",
-      );
-      return next();
-    }
+  return async (ctx, next) => {
+  const origin = ctx.request.headers.get("Origin");
+  const method = ctx.request.method;
 
-    const origin = ctx.request.headers.get("origin");
-    const method = ctx.request.method;
-
-    // Handle OPTIONS (preflight) requests immediately
-    if (method === "OPTIONS") {
-      if (origin && allowedOriginsSet.has(origin)) {
-        // Set preflight response headers
-        ctx.response.headers.set("Access-Control-Allow-Origin", origin);
-        ctx.response.headers.set("Access-Control-Allow-Credentials", "true");
-        ctx.response.headers.set(
-          "Access-Control-Allow-Methods",
-          config.cors.allowedMethods?.join(", ") ||
-            "GET,POST,PUT,DELETE,OPTIONS",
-        );
-        ctx.response.headers.set(
-          "Access-Control-Allow-Headers",
-          config.cors.allowedHeaders?.join(", ") ||
-            "Content-Type,Authorization",
-        );
-        ctx.response.headers.set(
-          "Access-Control-Max-Age",
-          String(config.cors.maxAge || 86400),
-        );
-      }
-
-      // Send empty response for preflight
-      ctx.response.status = 204;
-      ctx.response.body = null;
-      return; // Don't call next() for OPTIONS
-    }
-
-    // Handle regular requests
+  // --- Handle Preflight ---
+  if (method === "OPTIONS") {
     if (origin && allowedOriginsSet.has(origin)) {
       ctx.response.headers.set("Access-Control-Allow-Origin", origin);
       ctx.response.headers.set("Access-Control-Allow-Credentials", "true");
-
-      if (config.cors.exposedHeaders?.length > 0) {
-        ctx.response.headers.set(
-          "Access-Control-Expose-Headers",
-          config.cors.exposedHeaders.join(", "),
-        );
-      }
-    } else if (origin) {
-      // Track blocked CORS request
-      appMetrics.corsBlocked++;
-      if (config.environment === "development") {
-        ConsoleStyler.logWarning(`CORS blocked origin: ${origin}`);
-      }
+      ctx.response.headers.set(
+        "Access-Control-Allow-Methods",
+        config.cors.allowedMethods?.join(", ") || "GET,POST,PUT,DELETE,OPTIONS",
+      );
+      ctx.response.headers.set(
+        "Access-Control-Allow-Headers",
+        config.cors.allowedHeaders?.join(", ") || "Content-Type,Authorization",
+      );
+      ctx.response.status = 204;
+      return; // <-- Only OPTIONS stops the chain
+    } else {
+      // Even for disallowed origins, reply safely
+      ctx.response.status = 204;
+      return;
     }
+  }
 
-    // Continue to next middleware
-    await next();
-  };
-}
+  // --- Normal requests ---
+  if (origin && allowedOriginsSet.has(origin)) {
+    ctx.response.headers.set("Access-Control-Allow-Origin", origin);
+    ctx.response.headers.set("Access-Control-Allow-Credentials", "true");
+  } else if (origin) {
+    // ⚠️ Log but don't block — just continue
+    appMetrics.corsBlocked++;
+    if (config.environment === "development") {
+      ConsoleStyler.logWarning(`CORS blocked origin: ${origin}`);
+    }
+  }
+
+  // ✅ Always continue to the next middleware!
+  await next();
+};
 
 /**
  * Setup enhanced request logging middleware
