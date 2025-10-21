@@ -144,6 +144,23 @@ const MANUAL_PAGES: Map<string, ManualPage> = new Map([
           "--allow-run       Subprocess execution",
           "",
           "No permission is ever granted implicitly.",
+          "Every action requires explicit user consent.",
+        ],
+      },
+      {
+        title: "EXAMPLES",
+        content: [
+          "# Initialize new project",
+          "genesis init my-project",
+          "",
+          "# Start development server",
+          "genesis dev --port=3000",
+          "",
+          "# Generate production configs",
+          "genesis deploy example.com",
+          "",
+          "# View command help",
+          "genesis man init",
         ],
       },
     ],
@@ -154,12 +171,26 @@ const MANUAL_PAGES: Map<string, ManualPage> = new Map([
 
   ["init", {
     command: "genesis init",
-    synopsis: "genesis init [project-name] [--template=basic|full|enterprise]",
+    synopsis:
+      "genesis init [site-name] [--template=basic|full|enterprise] [--port=N]",
     description: [
-      "Initialize a new Genesis project with hub-and-spoke architecture.",
+      "Initialize a new site within the Genesis hub-and-spoke project structure.",
       "",
-      "Creates the foundational structure where a centralized core framework",
-      "serves multiple isolated sites, each with its own configuration.",
+      "Creates a complete site instance with symbolic links to the centralized",
+      "core framework, enabling instant updates across all sites while maintaining",
+      "site-specific configuration and assets. Each site operates independently",
+      "on its own port but shares the core framework code via Unix symlinks.",
+      "",
+      "The command creates:",
+      "  • Site directory structure (public/, config/, pages/)",
+      "  • Symbolic links to core framework (utils, middleware, routes)",
+      "  • Site-specific configuration file (site.config.ts)",
+      "  • Default landing page and README documentation",
+      "  • Port configuration (defaults to auto-assigned)",
+      "",
+      "Zero-configuration philosophy: Sensible defaults for everything,",
+      "interactive prompts for essential details, no manual setup required.",
+      "Run 'genesis dev' immediately after init to start developing.",
     ],
     philosophy: [
       '"Write programs that do one thing and do it well."',
@@ -167,6 +198,9 @@ const MANUAL_PAGES: Map<string, ManualPage> = new Map([
       "The init command creates structure, nothing more.",
       "It doesn't install packages, compile code, or configure services.",
       "It creates directories and symbolic links. Pure. Simple. Unix.",
+      "",
+      "Each site is an independent instance sharing a common core.",
+      "Update once, benefit everywhere. No version drift. No complexity.",
     ],
     sections: [
       {
@@ -175,10 +209,30 @@ const MANUAL_PAGES: Map<string, ManualPage> = new Map([
           "project-root/",
           "├── core/              # Centralized framework (single source)",
           "├── sites/             # Individual site directories",
+          "│   └── your-site/     # New site created by init command",
+          "│       ├── public/    # Static assets (HTML, CSS, images)",
+          "│       ├── utils →    # Symlink to ../../core/utils",
+          "│       ├── middleware → ../../core/middleware",
+          "│       ├── main.ts →  # Symlink to ../../core/main.ts",
+          "│       └── site.config.ts  # Site-specific configuration",
           "├── shared/            # Shared resources across sites",
           "├── config/            # Global configuration",
           "├── logs/              # Centralized logging",
           "└── docs/              # Framework documentation",
+        ],
+      },
+      {
+        title: "INTERACTIVE PROMPTS",
+        content: [
+          "The init command guides you through setup with smart defaults:",
+          "",
+          "Site name:        Your site's identifier (required)",
+          "Port number:      HTTP port (default: auto-assigned)",
+          "Template type:    basic, full, or enterprise",
+          "Description:      Optional site description",
+          "",
+          "All prompts include sensible defaults - just press Enter to accept.",
+          "Use --skip-prompts flag with CLI arguments for non-interactive setup.",
         ],
       },
       {
@@ -188,25 +242,77 @@ const MANUAL_PAGES: Map<string, ManualPage> = new Map([
           "--template=full        Complete setup with all features",
           "--template=enterprise  Enterprise features and monitoring",
           "",
+          "--port=N               Specify custom port number",
+          "--name=NAME            Set site name non-interactively",
+          "--skip-prompts         Use defaults without prompting",
+          "",
           "--verbose              Show detailed initialization steps",
           "--dry-run              Preview without creating files",
         ],
       },
       {
-        title: "SYMBOLIC LINKING",
+        title: "SYMBOLIC LINKING EXPLAINED",
         content: [
-          "Sites use symbolic links to the core framework:",
+          "Sites use symbolic links (symlinks) to the core framework.",
+          "This creates a 'single source of truth' architecture:",
           "",
           "sites/example/",
-          "├── utils -> ../../core/utils",
-          "├── middleware -> ../../core/middleware",
-          "└── main.ts -> ../../core/main.ts",
+          "├── utils → ../../core/utils",
+          "├── middleware → ../../core/middleware",
+          "└── main.ts → ../../core/main.ts",
           "",
-          "Benefits:",
-          "• Single source of truth",
-          "• Instant framework updates",
-          "• Zero duplication",
-          "• Reduced disk usage",
+          "What this means:",
+          "",
+          "• Single Source: Core framework exists in one location only",
+          "• Instant Updates: Changes to core immediately affect all sites",
+          "• Zero Duplication: No copied code, no version drift",
+          "• Reduced Disk Usage: Share code instead of duplicating it",
+          "• Independent Sites: Each site has unique config and assets",
+          "",
+          "The symlink targets are:",
+          "  utils, middleware, config, database, routes, controllers,",
+          "  main.ts, VERSION, meta.ts, mod.ts",
+        ],
+      },
+      {
+        title: "AFTER INITIALIZATION",
+        content: [
+          "Once init completes, you'll see:",
+          "",
+          "✅ Genesis project initialized successfully!",
+          "",
+          "Site Details:",
+          "  📁 Name: your-site",
+          "  🌐 Port: 3000",
+          "  📂 Path: sites/your-site",
+          "  🔗 Core Links: 10 symlinks created",
+          "",
+          "Next Steps:",
+          "  1. cd sites/your-site",
+          "  2. genesis dev --port=3000",
+          "  3. Open http://localhost:3000 in your browser",
+          "",
+          "Your site is ready to develop immediately - no build step,",
+          "no package installation, no configuration required.",
+        ],
+      },
+      {
+        title: "EXAMPLES",
+        content: [
+          "# Basic usage with prompts",
+          "genesis init",
+          "",
+          "# Specify site name directly",
+          "genesis init my-awesome-site",
+          "",
+          "# Non-interactive with custom port",
+          "genesis init my-site --port=3005 --skip-prompts",
+          "",
+          "# Enterprise template",
+          "genesis init enterprise-app --template=enterprise",
+          "",
+          "# Preview without creating files",
+          "genesis init test-site --dry-run --verbose",
         ],
       },
     ],
@@ -399,117 +505,84 @@ class ManualPager {
       ? colors.border(mid.repeat(width))
       : colors.border(left + mid.repeat(width - 2) + right);
 
-    return colors.pulse(border, this.animationFrame);
+    return border;
   }
 
   private centerText(text: string): string {
-    const stripped = text.replace(/\x1B\[[0-9;]*m/g, "");
+    const strippedLength = text.replace(/\x1B\[[0-9;]*m/g, "").length;
     const padding = Math.max(
       0,
-      Math.floor((this.terminalWidth - stripped.length) / 2),
+      Math.floor((this.terminalWidth - strippedLength) / 2),
     );
     return " ".repeat(padding) + text;
   }
 
   private wrapText(text: string): string {
-    if (text.length <= this.terminalWidth - 4) {
-      return "  " + text;
-    }
-
-    const words = text.split(" ");
-    const lines: string[] = [];
-    let currentLine = "";
-
-    for (const word of words) {
-      if ((currentLine + word).length > this.terminalWidth - 6) {
-        lines.push("  " + currentLine.trim());
-        currentLine = word + " ";
-      } else {
-        currentLine += word + " ";
-      }
-    }
-
-    if (currentLine) {
-      lines.push("  " + currentLine.trim());
-    }
-
-    return lines.join("\n");
+    if (text.length <= this.terminalWidth) return text;
+    // Simple wrapping - could be enhanced
+    return text;
   }
 
   private async renderLoop(): Promise<void> {
-    let running = true;
-
-    // Animation interval
     const animInterval = setInterval(() => {
       this.animationFrame++;
-    }, 100);
+    }, 50);
 
-    while (running) {
+    while (true) {
       await this.render();
 
       const key = await this.readKey();
 
       switch (key) {
         case "q":
-        case "Q":
-          running = false;
-          break;
-
+          clearInterval(animInterval);
+          return;
         case "j":
-        case "ArrowDown":
-          if (this.currentLine < this.lines.length - this.terminalHeight) {
+        case "down":
+          if (this.currentLine + this.terminalHeight < this.lines.length) {
             this.currentLine++;
           }
           break;
-
         case "k":
-        case "ArrowUp":
+        case "up":
           if (this.currentLine > 0) {
             this.currentLine--;
           }
           break;
-
         case " ":
-        case "PageDown":
+        case "pagedown":
           this.currentLine = Math.min(
             this.currentLine + this.terminalHeight,
             Math.max(0, this.lines.length - this.terminalHeight),
           );
           break;
-
         case "b":
-        case "PageUp":
+        case "pageup":
           this.currentLine = Math.max(
-            0,
             this.currentLine - this.terminalHeight,
+            0,
           );
           break;
-
         case "g":
-        case "Home":
+        case "home":
           this.currentLine = 0;
           break;
-
         case "G":
-        case "End":
+        case "end":
           this.currentLine = Math.max(
             0,
             this.lines.length - this.terminalHeight,
           );
           break;
-
         case "/":
           await this.search();
           break;
-
         case "n":
           this.nextSearchResult();
           break;
-
         case "N":
           this.prevSearchResult();
           break;
-
         case "h":
         case "?":
           await this.showHelp();
