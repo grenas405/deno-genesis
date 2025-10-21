@@ -96,7 +96,7 @@ Creating hub-and-spoke architecture with core framework symlinks...
     const siteConfig = await gatherSiteConfiguration(options, context);
 
     // Validate configuration
-    const validationResult = validateSiteConfig(siteConfig, context);
+    const validationResult = await validateSiteConfig(siteConfig, context);
     if (!validationResult.valid) {
       console.error(
         `❌ Configuration validation failed: ${validationResult.error}`,
@@ -337,7 +337,10 @@ async function createCoreSymlinks(
   config: SiteConfig,
   context: CLIContext,
 ): Promise<void> {
-  const coreDir = join(context.cwd, ".local/src/deno-genesis/core");
+  // Resolve the user's home directory
+  const homeDir = Deno.env.get("HOME") ?? Deno.env.get("USERPROFILE") ?? ".";
+
+  const coreDir = join(homeDir, ".local", "src", "deno-genesis", "core");
 
   // Verify core directory exists
   if (!await exists(coreDir)) {
@@ -403,7 +406,7 @@ async function generateInitialPages(
 /**
  * Generate success splash screen HTML
  */
-function generateHomePageHTML(config: SiteConfig): string {
+async function generateHomePageHTML(config: SiteConfig): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
