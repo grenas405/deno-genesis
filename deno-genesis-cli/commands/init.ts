@@ -184,17 +184,8 @@ async function gatherSiteConfiguration(
     description: DEFAULT_CONFIG.description,
   };
 
-  const homeDir = Deno.env.get("HOME") ?? Deno.env.get("USERPROFILE") ?? ".";
-
   // Generate directory path
-  config.directory = join(
-    homeDir,
-    ".local",
-    "src",
-    "deno-genesis",
-    "sites",
-    config.name,
-  );
+  config.directory = join(context.cwd, "sites", config.name);
 
   return config;
 }
