@@ -1,4 +1,4 @@
-# new-site
+# okdevs
 
 > Created with Deno Genesis Framework  
 > **Unix Philosophy + Modern Runtime = Revolutionary Development**
@@ -7,7 +7,7 @@
 
 ```bash
 # Start development server
-genesis dev --port=3005
+genesis dev --port=3003
 
 # Or run directly with Deno
 deno run --allow-read --allow-write --allow-net --allow-env main.ts
@@ -16,7 +16,7 @@ deno run --allow-read --allow-write --allow-net --allow-env main.ts
 ## 📁 Project Structure
 
 ```
-new-site/
+okdevs/
 ├── public/                 # Static assets and pages
 │   ├── pages/             # HTML pages
 │   │   └── home/
@@ -45,8 +45,8 @@ new-site/
 ## ⚙️ Configuration
 
 ### Site Settings
-- **Name**: new-site
-- **Port**: 3005
+- **Name**: okdevs
+- **Port**: 3003
 - **Template**: basic
 - **Description**: Deno Genesis Site
 

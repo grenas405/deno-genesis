@@ -188,7 +188,7 @@ async function gatherSiteConfiguration(
 
   // Generate directory path
   config.directory = join(
-    HomeDir,
+    homeDir,
     ".local",
     "src",
     "deno-genesis",

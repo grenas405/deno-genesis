@@ -380,7 +380,7 @@ async function validateCorsConfiguration(
  * Create CORS middleware with proper error handling
  * This is a simplified, bulletproof CORS implementation
  */
-function createSafeCorsMiddleware(config: MiddlewareConfig) {
+async function createSafeCorsMiddleware(config: MiddlewareConfig) {
   // Pre-compute allowed origins for performance
   const allowedOriginsSet = new Set([
     ...config.cors.allowedOrigins,
@@ -1111,4 +1111,3 @@ if (import.meta.main) {
     Deno.exit(1);
   });
 }
-
