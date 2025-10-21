@@ -294,15 +294,10 @@ async function createDirectoryStructure(
   config: SiteConfig,
   context: CLIContext,
 ): Promise<void> {
-  // Resolve the user's home directory
-  const homeDir = Deno.env.get("HOME") ?? Deno.env.get("USERPROFILE") ?? ".";
+  // Use config.directory directly as the site directory
+  const siteDir = config.directory;
 
-  // Define the root path for all sites
-  const sitesRoot = join(homeDir, ".local", "src", "deno-genesis", "sites");
-  await ensureDir(sitesRoot); // ✅ fixed variable
-
-  // Construct this site's full directory path
-  const siteDir = join(sitesRoot, config.directory);
+  // Ensure the directory and all parent directories exist
   await ensureDir(siteDir);
 
   // Create subdirectories
@@ -322,7 +317,7 @@ async function createDirectoryStructure(
   ];
 
   for (const subdir of subdirs) {
-    await ensureDir(join(siteDir, subdir)); // ✅ also use siteDir here
+    await ensureDir(join(siteDir, subdir));
   }
 
   if (context.verbose) {
