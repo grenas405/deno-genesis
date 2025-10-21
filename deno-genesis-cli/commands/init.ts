@@ -300,9 +300,6 @@ async function createDirectoryStructure(
   const sitesRoot = join(homeDir, ".local", "src", "deno-genesis", "sites");
   await ensureDir(sitesDir);
 
-  // Ensure the base directory exists
-  await ensureDir(siteRoot);
-
   // Construct this sites full directory path
   const siteDir = join(sitesRoot, config.directory);
   await ensureDir(siteDir);
