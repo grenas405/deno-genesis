@@ -22,8 +22,10 @@ import { ConsoleStyler } from "../utils/consoleStyler.ts";
  */
 export const serveHome = async (ctx: Context) => {
   try {
+    const rootPath = `${Deno.cwd()}/public`;
+
     await send(ctx, "pages/home/index.html", {
-      root: "public",
+      root: "rootPath",
       index: false, // Serve exact file
     });
 
