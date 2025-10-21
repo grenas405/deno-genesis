@@ -29,7 +29,7 @@ const router = new Router();
 // Static routes first, then admin routes, finally fallbacks
 
 // === CORE APP ROUTES ===
-router.get("/", serveHome); // Home page (pages/home/index.html)
+router.get("", serveHome); // Home page (pages/home/index.html)
 
 // === MAIN NAVIGATION ROUTES ===
 router.get("/about", serveAbout); // About page (pages/about/about.html)

@@ -390,46 +390,49 @@ async function createSafeCorsMiddleware(config: MiddlewareConfig) {
   ]);
 
   return async (ctx, next) => {
-  const origin = ctx.request.headers.get("Origin");
-  const method = ctx.request.method;
+    const origin = ctx.request.headers.get("Origin");
+    const method = ctx.request.method;
 
-  // --- Handle Preflight ---
-  if (method === "OPTIONS") {
+    // --- Handle Preflight ---
+    if (method === "OPTIONS") {
+      if (origin && allowedOriginsSet.has(origin)) {
+        ctx.response.headers.set("Access-Control-Allow-Origin", origin);
+        ctx.response.headers.set("Access-Control-Allow-Credentials", "true");
+        ctx.response.headers.set(
+          "Access-Control-Allow-Methods",
+          config.cors.allowedMethods?.join(", ") ||
+            "GET,POST,PUT,DELETE,OPTIONS",
+        );
+        ctx.response.headers.set(
+          "Access-Control-Allow-Headers",
+          config.cors.allowedHeaders?.join(", ") ||
+            "Content-Type,Authorization",
+        );
+        ctx.response.status = 204;
+        return; // <-- Only OPTIONS stops the chain
+      } else {
+        // Even for disallowed origins, reply safely
+        ctx.response.status = 204;
+        return;
+      }
+    }
+
+    // --- Normal requests ---
     if (origin && allowedOriginsSet.has(origin)) {
       ctx.response.headers.set("Access-Control-Allow-Origin", origin);
       ctx.response.headers.set("Access-Control-Allow-Credentials", "true");
-      ctx.response.headers.set(
-        "Access-Control-Allow-Methods",
-        config.cors.allowedMethods?.join(", ") || "GET,POST,PUT,DELETE,OPTIONS",
-      );
-      ctx.response.headers.set(
-        "Access-Control-Allow-Headers",
-        config.cors.allowedHeaders?.join(", ") || "Content-Type,Authorization",
-      );
-      ctx.response.status = 204;
-      return; // <-- Only OPTIONS stops the chain
-    } else {
-      // Even for disallowed origins, reply safely
-      ctx.response.status = 204;
-      return;
+    } else if (origin) {
+      // ⚠️ Log but don't block — just continue
+      appMetrics.corsBlocked++;
+      if (config.environment === "development") {
+        ConsoleStyler.logWarning(`CORS blocked origin: ${origin}`);
+      }
     }
-  }
 
-  // --- Normal requests ---
-  if (origin && allowedOriginsSet.has(origin)) {
-    ctx.response.headers.set("Access-Control-Allow-Origin", origin);
-    ctx.response.headers.set("Access-Control-Allow-Credentials", "true");
-  } else if (origin) {
-    // ⚠️ Log but don't block — just continue
-    appMetrics.corsBlocked++;
-    if (config.environment === "development") {
-      ConsoleStyler.logWarning(`CORS blocked origin: ${origin}`);
-    }
-  }
-
-  // ✅ Always continue to the next middleware!
-  await next();
-};
+    // ✅ Always continue to the next middleware!
+    await next();
+  };
+}
 
 /**
  * Setup enhanced request logging middleware
@@ -906,6 +909,7 @@ async function main(): Promise<void> {
     );
 
     // Add router (after all middleware)
+    console.log("Router object:", router);
     app.use(router.routes());
     app.use(router.allowedMethods());
     ConsoleStyler.logSuccess("✅ Router configured and mounted");
