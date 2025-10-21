@@ -22,7 +22,7 @@ import { ConsoleStyler } from "../utils/consoleStyler.ts";
  */
 export const serveHome = async (ctx: Context) => {
   try {
-    await send(ctx, "/pages/home/index.html", {
+    await send(ctx, "pages/home/index.html", {
       root: "public",
       index: false, // Serve exact file
     });

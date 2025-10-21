@@ -27,13 +27,6 @@ const router = new Router();
 // Frontend route registration
 router.use("/", frontendRoutes.routes(), frontendRoutes.allowedMethods());
 
-// In your router file
-router.get("/", async (ctx) => {
-  await send(ctx, "/pages/home/index.html", {
-    root: `${Deno.cwd()}/public`,
-  });
-});
-
 // API route registration - Clean, declarative mapping
 const apiRoutes = [
   { path: "/api/auth", routes: authRoutes },
