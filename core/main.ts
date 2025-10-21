@@ -461,7 +461,7 @@ async function createSafeCorsMiddleware(config: MiddlewareConfig) {
  * Setup enhanced request logging middleware
  * MUST run AFTER CORS middleware
  */
-function createRequestLogger() {
+async function createRequestLogger() {
   return async (ctx: any, next: any) => {
     const startTime = performance.now();
 
@@ -485,7 +485,7 @@ function createRequestLogger() {
 /**
  * Display application performance metrics with static file analytics
  */
-function displayPerformanceMetrics() {
+async function displayPerformanceMetrics() {
   const uptime = Date.now() - appMetrics.startTime;
   const successRate = appMetrics.totalRequests > 0
     ? ((appMetrics.totalRequests - appMetrics.totalErrors) /
@@ -552,7 +552,7 @@ function displayPerformanceMetrics() {
 /**
  * Setup graceful shutdown handlers
  */
-function setupGracefulShutdown(app: Application) {
+async function setupGracefulShutdown(app: Application) {
   const shutdownHandler = async (signal: string) => {
     ConsoleStyler.logWarning(
       `Received ${signal}, initiating graceful shutdown...`,
