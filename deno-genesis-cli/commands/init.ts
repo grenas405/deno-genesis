@@ -184,8 +184,16 @@ async function gatherSiteConfiguration(
     description: DEFAULT_CONFIG.description,
   };
 
+  const homeDir = Deno.env.get("HOME") ?? Deno.env.get("USERPROFILE") ?? ".";
   // Generate directory path
-  config.directory = join(context.cwd, "sites", config.name);
+  config.directory = join(
+    homeDir,
+    ".local",
+    "src",
+    "deno-genesis",
+    "sites",
+    config.name,
+  );
 
   return config;
 }
@@ -401,7 +409,7 @@ async function generateInitialPages(
 /**
  * Generate success splash screen HTML
  */
-async function generateHomePageHTML(config: SiteConfig): string {
+function generateHomePageHTML(config: SiteConfig): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
