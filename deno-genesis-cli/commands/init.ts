@@ -4,7 +4,7 @@
  * Deno Genesis Init Command
  *
  * Unix Philosophy Implementation:
- * - Do one thing well: Initialize Genesis project with sites directory
+ * - Do one thing well: Initialize new Deno Genesis site
  * - Accept text input: User prompts for site configuration
  * - Produce text output: Structured progress logging
  * - Filter and transform: Take user intent → create project structure
@@ -238,12 +238,16 @@ async function promptForPort(): Promise<number> {
 /**
  * Validate site configuration
  */
-function validateSiteConfig(
+async function validateSiteConfig(
   config: SiteConfig,
   context: CLIContext,
 ): { valid: boolean; error?: string } {
+  const homeDir = Deno.env.get("HOME") ?? Deno.env.get("USERPROFILE") ?? ".";
+
   // Check if sites directory exists or can be created
-  const sitesDir = join(context.cwd, ".local/src/deno-genesis/sites");
+  const sitesDir = join(homeDir, ".local", "src", "deno-genesis", "sites");
+
+  await ensureDir(sitesDir);
 
   // Validate site name
   if (!config.name || !/^[a-z0-9-]+$/.test(config.name)) {
@@ -298,7 +302,7 @@ async function createDirectoryStructure(
 
   // Define the root path for all sites
   const sitesRoot = join(homeDir, ".local", "src", "deno-genesis", "sites");
-  await ensureDir(sitesDir);
+  await ensureDir(sitesRoot);
 
   // Construct this sites full directory path
   const siteDir = join(sitesRoot, config.directory);
