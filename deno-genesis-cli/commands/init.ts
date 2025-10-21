@@ -290,9 +290,6 @@ async function executeInitialization(
   await createDocumentation(config, context);
 }
 
-/**
- * Create the basic directory structure for the site
- */
 async function createDirectoryStructure(
   config: SiteConfig,
   context: CLIContext,
@@ -302,9 +299,9 @@ async function createDirectoryStructure(
 
   // Define the root path for all sites
   const sitesRoot = join(homeDir, ".local", "src", "deno-genesis", "sites");
-  await ensureDir(sitesRoot);
+  await ensureDir(sitesRoot); // ✅ fixed variable
 
-  // Construct this sites full directory path
+  // Construct this site's full directory path
   const siteDir = join(sitesRoot, config.directory);
   await ensureDir(siteDir);
 
@@ -325,13 +322,11 @@ async function createDirectoryStructure(
   ];
 
   for (const subdir of subdirs) {
-    await ensureDir(join(config.directory, subdir));
+    await ensureDir(join(siteDir, subdir)); // ✅ also use siteDir here
   }
 
   if (context.verbose) {
-    console.log(
-      `  ✅ Created ${subdirs.length} directories in ${config.directory}`,
-    );
+    console.log(`  ✅ Created ${subdirs.length} directories in ${siteDir}`);
   }
 }
 
