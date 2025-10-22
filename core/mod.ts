@@ -1,11 +1,11 @@
-/**
+*
  * =============================================================================
  * DenoGenesis Framework - Main Module (mod.ts)
  * =============================================================================
  *
  * This module serves as the central export point for the DenoGenesis framework,
  * aggregating all core functionality from configuration, middleware, utilities,
- * and external dependencies. Designed to prevent version drift and maintain
+ * . Designed to prevent version drift and maintain
  * consistency across all DenoGenesis sites.
  *
  * Updated to follow Unix Philosophy principles:
@@ -15,33 +15,11 @@
  * - Explicit dependencies
  *
  * @module DenoGenesis
- * @version 1.5.0-unix-compliant
- * @author Pedro M. Dominguez - Dominguez Tech Solutions LLC
+ * @version 1.0.0
+ * @author Pedro M. Dominguez
  * @license AGPL-3.0
  * @follows Unix Philosophy + Deno security model
  */
-
-// =============================================================================
-// CORE OAK FRAMEWORK COMPONENTS
-// =============================================================================
-
-/**
- * Oak Framework Exports
- * Core Oak framework components for HTTP server functionality
- */
-export { Application, send } from "https://deno.land/x/oak@v12.6.1/mod.ts";
-
-export { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
-
-// =============================================================================
-// ENVIRONMENT MANAGEMENT
-// =============================================================================
-
-/**
- * Environment Configuration Loading
- * Dotenv loader for environment variable management
- */
-export { config as loadEnv } from "https://deno.land/x/dotenv@v3.2.2/mod.ts";
 
 // =============================================================================
 // DENOGENESIS FRAMEWORK COMPONENTS
@@ -51,8 +29,21 @@ export { config as loadEnv } from "https://deno.land/x/dotenv@v3.2.2/mod.ts";
  * Routing System
  * Import the main router from routes/index.ts
  */
+
 export { default as router } from "./routes/index.ts";
 
+/**
+ * Console Styling & Logging
+ * Professional console output formatting and logging utilities
+ */
+export {
+  ConsoleStyler,
+  type DenoGenesisConfig,
+  type LogEntry,
+  type LogLevel,
+  type PerformanceMetrics,
+  type TableColumn,
+} from "./utils/consoleStyler.ts";
 /**
  * Middleware Stack Components
  * Imports middleware management system from middleware/index.ts
@@ -139,19 +130,6 @@ export {
   type SignalHandlerRegistration,
   validateHandlerSetup,
 } from "./utils/process-handlers.ts";
-
-/**
- * Console Styling & Logging
- * Professional console output formatting and logging utilities
- */
-export {
-  ConsoleStyler,
-  type DenoGenesisConfig,
-  type LogEntry,
-  type LogLevel,
-  type PerformanceMetrics,
-  type TableColumn,
-} from "./utils/consoleStyler.ts";
 
 export { getFrameworkVersion, validateFrameworkIntegrity } from "./meta.ts";
 
@@ -267,4 +245,4 @@ export { getFrameworkVersion, validateFrameworkIntegrity } from "./meta.ts";
  *
  * This ensures consistency, prevents code duplication, and maintains
  * Unix Philosophy principles across all DenoGenesis projects.
- */
+ 
