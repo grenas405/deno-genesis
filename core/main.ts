@@ -914,17 +914,6 @@ async function main(): Promise<void> {
     app.use(router.allowedMethods());
     ConsoleStyler.logSuccess("✅ Router configured and mounted");
 
-    // Add 404 handler (ABSOLUTE LAST)
-    app.use((ctx) => {
-      ctx.response.status = 404;
-      ctx.response.body = {
-        error: "Not Found",
-        path: ctx.request.url.pathname,
-        requestId: ctx.state.requestId,
-      };
-    });
-    ConsoleStyler.logSuccess("✅ 404 handler configured (last in stack)");
-
     // Display middleware stack summary
     ConsoleStyler.logBox(
       [

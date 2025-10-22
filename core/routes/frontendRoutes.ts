@@ -27,22 +27,15 @@ const router = new Router();
 // ================================================================================
 // Route priority: Most specific → Least specific
 // Static routes first, then admin routes, finally fallbacks
-
-// === CORE APP ROUTES ===
-router.get("", serveHome); // Home page (pages/home/index.html)
-
-// === MAIN NAVIGATION ROUTES ===
-router.get("/about", serveAbout); // About page (pages/about/about.html)
-router.get("/services", serveServices); // Services page (pages/services/services.html)
-router.get("/contact", serveContact); // Contact page (pages/contact/contact.html)
-
-// === ADMIN ROUTES ===
-router.get("/admin/login", serveAdminLogin); // Admin login (pages/admin/admin-login.html)
-router.get("/admin/create", serveCreateAdmin); // Create admin (pages/admin/create-admin.html)
-
-// === FALLBACK ROUTES ===
-// Catch-all for unmatched routes - must be last
-router.get("/(.*)", serve404); // 404 handler (pages/error/404.html)
+// core/routes/frontendRoutes.ts
+router
+  .get("", serveHome) // was "/"
+  .get("about", serveAbout) // was "/about"
+  .get("services", serveServices)
+  .get("contact", serveContact)
+  .get("admin/login", serveAdminLogin)
+  .get("admin/create", serveCreateAdmin)
+  .get("(.*)", serve404); // catch-all
 
 // ================================================================================
 // 📊 ROUTER EXPORT
