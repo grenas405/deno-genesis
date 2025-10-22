@@ -158,22 +158,36 @@ export const DB_PORT = parseInt(env.DB_PORT || "3306");
 // Server Configuration
 export const SERVER_HOST = env.SERVER_HOST || "localhost";
 export const SSL_ENABLED = env.SSL_ENABLED === "true";
-export const CORS_ORIGINS =
-  env.CORS_ORIGINS?.split(",").map((origin) => origin.trim()) || [
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "http://localhost:3002",
-    "http://localhost:3003",
-    "http://localhost:3004",
-    "http://localhost:3005",
-    "http://localhost:3006",
-    "https://denogenesis.com",
-    "https://pedromdominguez.com",
-    "https://domingueztechsolutions.com",
-    "https://okdevs.xyz",
-    "https://efficientmoversllc.com",
-    "https://heavenlyroofingok.com",
-  ];
+
+// ================================================================================
+// 🌐 ADVANCED CORS ORIGIN PARSER
+// ================================================================================
+
+/**
+ * Parses CORS origins from .env into a clean string array.
+ * Supports comma-separated, JSON arrays, and defaults for local development.
+ */
+function parseCorsOrigins(value: string | undefined): string[] {
+  if (!value || value.trim() === "") {
+    return [];
+  }
+
+  try {
+    // Allow JSON array format
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed)) {
+      return parsed.map((o) => String(o).trim());
+    }
+  } catch {
+    // Fallback: comma-separated list
+    return value.split(",").map((o) => o.trim()).filter((o) => o.length > 0);
+  }
+
+  return [];
+}
+
+// Export parsed origins
+export const CORS_ORIGINS = parseCorsOrigins(env.CORS_ORIGINS);
 
 // Feature Flags
 export const ENABLE_WEBSOCKETS = env.ENABLE_WEBSOCKETS !== "false";

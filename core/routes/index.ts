@@ -5,7 +5,7 @@
 
 import { Router } from "https://deno.land/x/oak@v12.6.1/mod.ts";
 import frontendRoutes from "./frontendRoutes.ts";
-import { ConsoleStyler } from "../utils/ConsoleStyler.ts"; // optional logging
+import { ConsoleStyler } from "../utils/consoleStyler.ts"; // optional logging
 
 const router = new Router();
 
