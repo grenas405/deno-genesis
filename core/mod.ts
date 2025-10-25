@@ -245,4 +245,4 @@ export { getFrameworkVersion, validateFrameworkIntegrity } from "./meta.ts";
  *
  * This ensures consistency, prevents code duplication, and maintains
  * Unix Philosophy principles across all DenoGenesis projects.
- 
+*/ 
