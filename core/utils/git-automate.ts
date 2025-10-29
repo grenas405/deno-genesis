@@ -2,14 +2,14 @@
 
 /**
  * DenoGenesis Git Automation Script
- * 
+ *
  * Automates the git workflow for the deno-genesis project:
  * - Stages all changes
  * - Creates commits with standardized messages
  * - Pushes to remote repository
  * - Handles error scenarios gracefully
- * 
- * @author DenoGenesis Framework Team
+ *
+ * @author Pedro M. Dominguez
  * @version 1.0.0
  * @requires Deno 1.40+
  */
@@ -42,40 +42,42 @@ class Logger {
   }
 
   info(message: string): void {
-    console.log(this.colorize(`ℹ️  ${message}`, 'blue'));
+    console.log(this.colorize(`ℹ️  ${message}`, "blue"));
   }
 
   success(message: string): void {
-    console.log(this.colorize(`✅ ${message}`, 'green'));
+    console.log(this.colorize(`✅ ${message}`, "green"));
   }
 
   warning(message: string): void {
-    console.log(this.colorize(`⚠️  ${message}`, 'yellow'));
+    console.log(this.colorize(`⚠️  ${message}`, "yellow"));
   }
 
   error(message: string): void {
-    console.log(this.colorize(`❌ ${message}`, 'red'));
+    console.log(this.colorize(`❌ ${message}`, "red"));
   }
 
   debug(message: string): void {
     if (this.verbose) {
-      console.log(this.colorize(`🔍 ${message}`, 'gray'));
+      console.log(this.colorize(`🔍 ${message}`, "gray"));
     }
   }
 
   private colorize(text: string, color: string): string {
     const colors = {
-      red: '\x1b[31m',
-      green: '\x1b[32m',
-      yellow: '\x1b[33m',
-      blue: '\x1b[34m',
-      magenta: '\x1b[35m',
-      cyan: '\x1b[36m',
-      gray: '\x1b[37m',
-      reset: '\x1b[0m'
+      red: "\x1b[31m",
+      green: "\x1b[32m",
+      yellow: "\x1b[33m",
+      blue: "\x1b[34m",
+      magenta: "\x1b[35m",
+      cyan: "\x1b[36m",
+      gray: "\x1b[37m",
+      reset: "\x1b[0m",
     };
 
-    return `${colors[color as keyof typeof colors] || ''}${text}${colors.reset}`;
+    return `${
+      colors[color as keyof typeof colors] || ""
+    }${text}${colors.reset}`;
   }
 }
 
@@ -95,17 +97,17 @@ class GitAutomator {
    * Execute a git command with proper error handling
    */
   private async executeGitCommand(
-    command: string[], 
-    description: string
+    command: string[],
+    description: string,
   ): Promise<GitOperationResult> {
-    this.logger.debug(`Executing: git ${command.join(' ')}`);
+    this.logger.debug(`Executing: git ${command.join(" ")}`);
 
     try {
-      const process = new Deno.Command('git', {
+      const process = new Deno.Command("git", {
         args: command,
         cwd: this.config.projectRoot,
-        stdout: 'piped',
-        stderr: 'piped'
+        stdout: "piped",
+        stderr: "piped",
       });
 
       const result = await process.output();
@@ -116,28 +118,33 @@ class GitAutomator {
         this.logger.debug(`✓ ${description} completed`);
         return {
           success: true,
-          command: `git ${command.join(' ')}`,
-          output: output.trim()
+          command: `git ${command.join(" ")}`,
+          output: output.trim(),
         };
       } else {
-        this.logger.debug(`✗ ${description} failed with exit code: ${result.code}`);
+        this.logger.debug(
+          `✗ ${description} failed with exit code: ${result.code}`,
+        );
         this.logger.debug(`stdout: ${output}`);
         this.logger.debug(`stderr: ${error}`);
-        
+
         return {
           success: false,
-          command: `git ${command.join(' ')}`,
-          error: error.trim() || output.trim() || `Command failed with exit code ${result.code}`
+          command: `git ${command.join(" ")}`,
+          error: error.trim() || output.trim() ||
+            `Command failed with exit code ${result.code}`,
         };
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Command execution failed';
+      const errorMessage = err instanceof Error
+        ? err.message
+        : "Command execution failed";
       this.logger.debug(`Exception during git command: ${errorMessage}`);
-      
+
       return {
         success: false,
-        command: `git ${command.join(' ')}`,
-        error: errorMessage
+        command: `git ${command.join(" ")}`,
+        error: errorMessage,
       };
     }
   }
@@ -146,36 +153,50 @@ class GitAutomator {
    * Check git configuration (user.name and user.email)
    */
   private async validateGitConfig(): Promise<boolean> {
-    this.logger.debug('Validating git configuration...');
-    
-    const nameResult = await this.executeGitCommand(['config', 'user.name'], 'Check user.name');
-    const emailResult = await this.executeGitCommand(['config', 'user.email'], 'Check user.email');
-    
+    this.logger.debug("Validating git configuration...");
+
+    const nameResult = await this.executeGitCommand(
+      ["config", "user.name"],
+      "Check user.name",
+    );
+    const emailResult = await this.executeGitCommand(
+      ["config", "user.email"],
+      "Check user.email",
+    );
+
     if (!nameResult.success || !nameResult.output) {
-      this.logger.error('Git user.name is not configured');
-      this.logger.warning('Please run: git config --global user.name "Your Name"');
-      return false;
-    }
-    
-    if (!emailResult.success || !emailResult.output) {
-      this.logger.error('Git user.email is not configured');
-      this.logger.warning('Please run: git config --global user.email "your.email@example.com"');
-      return false;
-    }
-    
-    this.logger.debug(`✓ Git configured for user: ${nameResult.output} <${emailResult.output}>`);
-    return true;
-  }
-  private async validateGitRepository(): Promise<boolean> {
-    const gitDir = resolve(this.config.projectRoot, '.git');
-    const isGitRepo = await exists(gitDir);
-    
-    if (!isGitRepo) {
-      this.logger.error('Not a git repository! Please run this script from within a git project.');
+      this.logger.error("Git user.name is not configured");
+      this.logger.warning(
+        'Please run: git config --global user.name "Your Name"',
+      );
       return false;
     }
 
-    this.logger.debug('✓ Git repository validated');
+    if (!emailResult.success || !emailResult.output) {
+      this.logger.error("Git user.email is not configured");
+      this.logger.warning(
+        'Please run: git config --global user.email "your.email@example.com"',
+      );
+      return false;
+    }
+
+    this.logger.debug(
+      `✓ Git configured for user: ${nameResult.output} <${emailResult.output}>`,
+    );
+    return true;
+  }
+  private async validateGitRepository(): Promise<boolean> {
+    const gitDir = resolve(this.config.projectRoot, ".git");
+    const isGitRepo = await exists(gitDir);
+
+    if (!isGitRepo) {
+      this.logger.error(
+        "Not a git repository! Please run this script from within a git project.",
+      );
+      return false;
+    }
+
+    this.logger.debug("✓ Git repository validated");
     return true;
   }
 
@@ -183,20 +204,25 @@ class GitAutomator {
    * Check git status and show current state
    */
   async checkStatus(): Promise<GitOperationResult> {
-    this.logger.info('Checking git status...');
-    
-    const result = await this.executeGitCommand(['status', '--porcelain'], 'Status check');
-    
+    this.logger.info("Checking git status...");
+
+    const result = await this.executeGitCommand(
+      ["status", "--porcelain"],
+      "Status check",
+    );
+
     if (result.success) {
-      const changes = result.output?.split('\n').filter(line => line.trim()) || [];
-      
+      const changes = result.output?.split("\n").filter((line) =>
+        line.trim()
+      ) || [];
+
       if (changes.length === 0) {
-        this.logger.warning('No changes detected in repository');
-        return { success: true, command: 'git status' };
+        this.logger.warning("No changes detected in repository");
+        return { success: true, command: "git status" };
       }
 
       this.logger.info(`Found ${changes.length} change(s):`);
-      changes.forEach(change => {
+      changes.forEach((change) => {
         this.logger.debug(`  ${change}`);
       });
     }
@@ -208,8 +234,8 @@ class GitAutomator {
    * Stage all changes
    */
   async stageAllChanges(): Promise<GitOperationResult> {
-    this.logger.info('Staging all changes...');
-    return await this.executeGitCommand(['add', '.'], 'Stage all changes');
+    this.logger.info("Staging all changes...");
+    return await this.executeGitCommand(["add", "."], "Stage all changes");
   }
 
   /**
@@ -217,35 +243,44 @@ class GitAutomator {
    */
   async createCommit(message: string): Promise<GitOperationResult> {
     this.logger.info(`Creating commit: "${message}"`);
-    
+
     // First check if there are staged changes to commit
-    const stagedResult = await this.executeGitCommand(['diff', '--cached', '--quiet'], 'Check staged changes');
-    
+    const stagedResult = await this.executeGitCommand([
+      "diff",
+      "--cached",
+      "--quiet",
+    ], "Check staged changes");
+
     if (stagedResult.success) {
-      this.logger.warning('No staged changes found - nothing to commit');
-      return { 
-        success: true, 
-        command: 'git commit', 
-        output: 'No changes to commit' 
+      this.logger.warning("No staged changes found - nothing to commit");
+      return {
+        success: true,
+        command: "git commit",
+        output: "No changes to commit",
       };
     }
 
-    const result = await this.executeGitCommand(['commit', '-m', message], 'Create commit');
-    
+    const result = await this.executeGitCommand(
+      ["commit", "-m", message],
+      "Create commit",
+    );
+
     // Provide more detailed error information
     if (!result.success && result.error) {
       this.logger.error(`Commit failed with detailed error: ${result.error}`);
-      
+
       // Common git commit issues and suggestions
-      if (result.error.includes('Please tell me who you are')) {
-        this.logger.warning('Git user configuration missing. Run:');
+      if (result.error.includes("Please tell me who you are")) {
+        this.logger.warning("Git user configuration missing. Run:");
         this.logger.warning('  git config --global user.name "Your Name"');
-        this.logger.warning('  git config --global user.email "your.email@example.com"');
-      } else if (result.error.includes('nothing to commit')) {
-        this.logger.warning('No changes staged for commit');
+        this.logger.warning(
+          '  git config --global user.email "your.email@example.com"',
+        );
+      } else if (result.error.includes("nothing to commit")) {
+        this.logger.warning("No changes staged for commit");
       }
     }
-    
+
     return result;
   }
 
@@ -254,22 +289,29 @@ class GitAutomator {
    */
   async pushToRemote(): Promise<GitOperationResult> {
     this.logger.info(`Pushing to ${this.config.remoteBranch}...`);
-    return await this.executeGitCommand(['push', 'origin', this.config.remoteBranch], 'Push to remote');
+    return await this.executeGitCommand([
+      "push",
+      "origin",
+      this.config.remoteBranch,
+    ], "Push to remote");
   }
 
   /**
    * Get current branch name
    */
   async getCurrentBranch(): Promise<string> {
-    const result = await this.executeGitCommand(['branch', '--show-current'], 'Get current branch');
-    return result.success ? (result.output || 'main') : 'main';
+    const result = await this.executeGitCommand(
+      ["branch", "--show-current"],
+      "Get current branch",
+    );
+    return result.success ? (result.output || "main") : "main";
   }
 
   /**
    * Main automation workflow
    */
   async automateGitWorkflow(commitMessage?: string): Promise<boolean> {
-    this.logger.info('🚀 Starting DenoGenesis Git Automation...\n');
+    this.logger.info("🚀 Starting DenoGenesis Git Automation...\n");
 
     // Validate git repository
     if (!(await this.validateGitRepository())) {
@@ -286,19 +328,36 @@ class GitAutomator {
     this.config = { ...this.config, remoteBranch: currentBranch };
 
     const operations = [
-      { name: 'Status Check', action: () => this.checkStatus(), critical: false },
-      { name: 'Stage Changes', action: () => this.stageAllChanges(), critical: true },
-      { name: 'Create Commit', action: () => this.createCommit(commitMessage || this.config.defaultCommitMessage), critical: true },
-      { name: 'Push to Remote', action: () => this.pushToRemote(), critical: true }
+      {
+        name: "Status Check",
+        action: () => this.checkStatus(),
+        critical: false,
+      },
+      {
+        name: "Stage Changes",
+        action: () => this.stageAllChanges(),
+        critical: true,
+      },
+      {
+        name: "Create Commit",
+        action: () =>
+          this.createCommit(commitMessage || this.config.defaultCommitMessage),
+        critical: true,
+      },
+      {
+        name: "Push to Remote",
+        action: () => this.pushToRemote(),
+        critical: true,
+      },
     ];
 
     let allSuccessful = true;
 
     for (const operation of operations) {
       this.logger.debug(`\n--- ${operation.name} ---`);
-      
+
       const result = await operation.action();
-      
+
       if (result.success) {
         this.logger.success(`${operation.name} completed successfully`);
         if (result.output) {
@@ -306,7 +365,7 @@ class GitAutomator {
         }
       } else {
         this.logger.error(`${operation.name} failed: ${result.error}`);
-        
+
         if (operation.critical) {
           allSuccessful = false;
           break; // Stop on critical failures
@@ -315,11 +374,15 @@ class GitAutomator {
     }
 
     if (allSuccessful) {
-      this.logger.success('\n🎉 Git automation completed successfully!');
-      this.logger.info('All changes have been committed and pushed to remote repository.\n');
+      this.logger.success("\n🎉 Git automation completed successfully!");
+      this.logger.info(
+        "All changes have been committed and pushed to remote repository.\n",
+      );
     } else {
-      this.logger.error('\n💥 Git automation encountered errors.');
-      this.logger.warning('Please review the output above and resolve any issues manually.\n');
+      this.logger.error("\n💥 Git automation encountered errors.");
+      this.logger.warning(
+        "Please review the output above and resolve any issues manually.\n",
+      );
     }
 
     return allSuccessful;
@@ -337,24 +400,24 @@ class ConfigManager {
       const arg = args[i];
 
       switch (arg) {
-        case '--root':
-        case '-r':
+        case "--root":
+        case "-r":
           config.projectRoot = args[++i];
           break;
-        case '--message':
-        case '-m':
+        case "--message":
+        case "-m":
           config.defaultCommitMessage = args[++i];
           break;
-        case '--branch':
-        case '-b':
+        case "--branch":
+        case "-b":
           config.remoteBranch = args[++i];
           break;
-        case '--verbose':
-        case '-v':
+        case "--verbose":
+        case "-v":
           config.verbose = true;
           break;
-        case '--help':
-        case '-h':
+        case "--help":
+        case "-h":
           ConfigManager.showHelp();
           Deno.exit(0);
           break;
@@ -417,18 +480,21 @@ async function main(): Promise<void> {
     projectRoot: Deno.cwd(),
     defaultCommitMessage: "one person, one paradigm shift",
     remoteBranch: "main",
-    verbose: false
+    verbose: false,
   };
 
   // Merge user config with defaults
   const config: GitConfig = { ...defaultConfig, ...userConfig };
 
   // Custom commit message from remaining args (if not provided via -m)
-  const remainingArgs = args.filter(arg => !arg.startsWith('-') && 
-    !['--root', '--message', '--branch', '--verbose', '--help'].includes(args[args.indexOf(arg) - 1])
+  const remainingArgs = args.filter((arg) =>
+    !arg.startsWith("-") &&
+    !["--root", "--message", "--branch", "--verbose", "--help"].includes(
+      args[args.indexOf(arg) - 1],
+    )
   );
 
-  const customMessage = remainingArgs.join(' ').trim();
+  const customMessage = remainingArgs.join(" ").trim();
   if (customMessage && !userConfig.defaultCommitMessage) {
     config.defaultCommitMessage = customMessage;
   }
