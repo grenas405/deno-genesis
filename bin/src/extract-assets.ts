@@ -10,10 +10,10 @@
  * 5. Leverage Software Leverage: Composable with other Unix tools
  *
  * Usage:
- *   deno run --allow-read --allow-write extract-assets.ts <html-file>
+ *   extract-assets <html-file>
  *
  * Example:
- *   deno run --allow-read --allow-write extract-assets.ts index.html
+ *   extract-assetst index.html
  *
  * Permissions Required:
  *   --allow-read: Read the source HTML file
@@ -24,7 +24,7 @@
  *   - assets/js/main.js (extracted JavaScript)
  *
  * @module extract-assets
- * @author Pedro M. Dominguez - Dominguez Tech Solutions LLC
+ * @author Pedro M. Dominguez
  * @version 1.0.0
  * @license AGPL-3.0
  */
@@ -346,7 +346,7 @@ function displayUsage(): void {
 ╚═══════════════════════════════════════════════════════════════════════════╝
 
 📖 USAGE:
-   deno run --allow-read --allow-write extract-assets.ts <html-file>
+   extract-assets <html-file>
 
 📝 EXAMPLE:
    deno run --allow-read --allow-write extract-assets.ts index.html
@@ -366,7 +366,7 @@ function displayUsage(): void {
    - Output files overwrite existing files at the same paths
 
 💻 AUTHOR:
-   Pedro M. Dominguez - Dominguez Tech Solutions LLC
+   Pedro M. Dominguez
    
 📄 LICENSE:
    AGPL-3.0
